@@ -3,7 +3,6 @@
    JavaScript
    ========================================= */
 
-document.addEventListener("DOMContentLoaded", () => {
 
     /* =====================================
        ELEMENTS
@@ -820,5 +819,3 @@ document.addEventListener("DOMContentLoaded", () => {
        ===================================== */
 
     updateCart();
-
-});
