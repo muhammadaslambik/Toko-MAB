@@ -3,26 +3,653 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Toko-MAB | Marketplace</title>
+
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <header>
-        <h1>Toko-MAB</h1>
-        <p>Belanja mudah, cepat, dan terpercaya.</p>
+    <!-- TOP BAR -->
+    <div class="top-bar">
+        <div class="container top-bar-content">
+            <div>
+                Download App
+                <span>|</span>
+                Jadi Seller
+            </div>
+
+            <div>
+                Bantuan
+                <span>|</span>
+                Notifikasi
+                <span>|</span>
+                Bahasa Indonesia
+            </div>
+        </div>
+    </div>
+
+
+    <!-- NAVBAR -->
+    <header class="navbar">
+
+        <div class="container navbar-content">
+
+            <div class="logo">
+                Toko<span>-MAB</span>
+            </div>
+
+            <div class="search-box">
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Cari produk di Toko-MAB..."
+                >
+
+                <button id="searchButton">
+                    🔍
+                </button>
+            </div>
+
+            <button class="cart-button" id="cartButton">
+                🛒
+                <span id="cartCount">0</span>
+            </button>
+
+        </div>
+
     </header>
 
-    <main>
-        <h2>Produk Terbaru</h2>
 
-        <div>
-            <h3>Produk Contoh</h3>
-            <p>Rp100.000</p>
-            <button>Tambah ke Keranjang</button>
+    <!-- HERO -->
+    <section class="hero">
+
+        <div class="container hero-content">
+
+            <div class="hero-text">
+
+                <p class="small-title">
+                    SELAMAT DATANG DI TOKO-MAB
+                </p>
+
+                <h1>
+                    Belanja Mudah.<br>
+                    Harga Bersahabat.
+                </h1>
+
+                <p>
+                    Temukan berbagai produk pilihan
+                    dengan harga terbaik.
+                </p>
+
+                <button class="hero-button">
+                    Belanja Sekarang
+                </button>
+
+            </div>
+
+            <div class="hero-icon">
+                🛍️
+            </div>
+
         </div>
-    </main>
+
+    </section>
+
+
+    <!-- CATEGORY -->
+    <section class="categories">
+
+        <div class="container">
+
+            <div class="section-title">
+                <h2>Kategori</h2>
+            </div>
+
+            <div class="category-grid">
+
+                <button class="category-card">
+                    📱
+                    <span>Elektronik</span>
+                </button>
+
+                <button class="category-card">
+                    👕
+                    <span>Fashion</span>
+                </button>
+
+                <button class="category-card">
+                    🏠
+                    <span>Rumah</span>
+                </button>
+
+                <button class="category-card">
+                    💄
+                    <span>Kecantikan</span>
+                </button>
+
+                <button class="category-card">
+                    🎮
+                    <span>Gaming</span>
+                </button>
+
+                <button class="category-card">
+                    ⚽
+                    <span>Olahraga</span>
+                </button>
+
+                <button class="category-card">
+                    📚
+                    <span>Buku</span>
+                </button>
+
+                <button class="category-card">
+                    👜
+                    <span>Aksesoris</span>
+                </button>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- FLASH SALE -->
+    <section class="flash-sale">
+
+        <div class="container">
+
+            <div class="flash-header">
+
+                <div>
+                    <span class="flash-title">
+                        ⚡ FLASH SALE
+                    </span>
+
+                    <span class="flash-timer">
+                        Berakhir dalam
+                        <strong id="countdown">
+                            02:00:00
+                        </strong>
+                    </span>
+                </div>
+
+                <button>
+                    Lihat Semua →
+                </button>
+
+            </div>
+
+
+            <div class="product-grid flash-products">
+
+                <article class="product-card">
+
+                    <div class="product-image">
+                        📱
+                    </div>
+
+                    <div class="product-info">
+
+                        <h3>
+                            Smartphone Pro Max
+                        </h3>
+
+                        <div class="price">
+                            Rp2.999.000
+                        </div>
+
+                        <div class="old-price">
+                            Rp3.499.000
+                        </div>
+
+                        <div class="product-bottom">
+
+                            <span>⭐ 4.9</span>
+
+                            <span>
+                                Terjual 120
+                            </span>
+
+                        </div>
+
+                        <button
+                            class="add-cart"
+                            data-product="Smartphone Pro Max"
+                            data-price="2999000"
+                        >
+                            + Keranjang
+                        </button>
+
+                    </div>
+
+                </article>
+
+
+                <article class="product-card">
+
+                    <div class="product-image">
+                        🎧
+                    </div>
+
+                    <div class="product-info">
+
+                        <h3>
+                            Wireless Headphone
+                        </h3>
+
+                        <div class="price">
+                            Rp399.000
+                        </div>
+
+                        <div class="old-price">
+                            Rp599.000
+                        </div>
+
+                        <div class="product-bottom">
+
+                            <span>⭐ 4.8</span>
+
+                            <span>
+                                Terjual 85
+                            </span>
+
+                        </div>
+
+                        <button
+                            class="add-cart"
+                            data-product="Wireless Headphone"
+                            data-price="399000"
+                        >
+                            + Keranjang
+                        </button>
+
+                    </div>
+
+                </article>
+
+
+                <article class="product-card">
+
+                    <div class="product-image">
+                        ⌚
+                    </div>
+
+                    <div class="product-info">
+
+                        <h3>
+                            Smartwatch Series 5
+                        </h3>
+
+                        <div class="price">
+                            Rp549.000
+                        </div>
+
+                        <div class="old-price">
+                            Rp799.000
+                        </div>
+
+                        <div class="product-bottom">
+
+                            <span>⭐ 4.7</span>
+
+                            <span>
+                                Terjual 64
+                            </span>
+
+                        </div>
+
+                        <button
+                            class="add-cart"
+                            data-product="Smartwatch Series 5"
+                            data-price="549000"
+                        >
+                            + Keranjang
+                        </button>
+
+                    </div>
+
+                </article>
+
+
+                <article class="product-card">
+
+                    <div class="product-image">
+                        🎒
+                    </div>
+
+                    <div class="product-info">
+
+                        <h3>
+                            Tas Backpack Premium
+                        </h3>
+
+                        <div class="price">
+                            Rp249.000
+                        </div>
+
+                        <div class="old-price">
+                            Rp399.000
+                        </div>
+
+                        <div class="product-bottom">
+
+                            <span>⭐ 4.9</span>
+
+                            <span>
+                                Terjual 210
+                            </span>
+
+                        </div>
+
+                        <button
+                            class="add-cart"
+                            data-product="Tas Backpack Premium"
+                            data-price="249000"
+                        >
+                            + Keranjang
+                        </button>
+
+                    </div>
+
+                </article>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- VOUCHER -->
+    <section class="voucher-section">
+
+        <div class="container voucher-box">
+
+            <div class="voucher-icon">
+                🎟️
+            </div>
+
+            <div>
+                <h3>
+                    Voucher Toko-MAB
+                </h3>
+
+                <p>
+                    Hemat lebih banyak pada pembelian berikutnya.
+                </p>
+            </div>
+
+            <button>
+                Klaim Voucher
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- ALL PRODUCTS -->
+    <section class="products">
+
+        <div class="container">
+
+            <div class="section-header">
+
+                <h2>
+                    Produk Untukmu
+                </h2>
+
+                <div class="sort-buttons">
+
+                    <button class="active">
+                        Terbaru
+                    </button>
+
+                    <button>
+                        Terlaris
+                    </button>
+
+                    <button>
+                        Harga Terendah
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div class="product-grid">
+
+                <article class="product-card">
+
+                    <div class="product-image">
+                        👟
+                    </div>
+
+                    <div class="product-info">
+
+                        <h3>
+                            Sneakers Casual
+                        </h3>
+
+                        <div class="price">
+                            Rp329.000
+                        </div>
+
+                        <div class="product-bottom">
+                            ⭐ 4.8
+                            <span>
+                                Terjual 98
+                            </span>
+                        </div>
+
+                        <button class="add-cart">
+                            + Keranjang
+                        </button>
+
+                    </div>
+
+                </article>
+
+
+                <article class="product-card">
+
+                    <div class="product-image">
+                        💻
+                    </div>
+
+                    <div class="product-info">
+
+                        <h3>
+                            Laptop Slim
+                        </h3>
+
+                        <div class="price">
+                            Rp7.999.000
+                        </div>
+
+                        <div class="product-bottom">
+                            ⭐ 4.9
+                            <span>
+                                Terjual 41
+                            </span>
+                        </div>
+
+                        <button class="add-cart">
+                            + Keranjang
+                        </button>
+
+                    </div>
+
+                </article>
+
+
+                <article class="product-card">
+
+                    <div class="product-image">
+                        👕
+                    </div>
+
+                    <div class="product-info">
+
+                        <h3>
+                            T-Shirt Premium
+                        </h3>
+
+                        <div class="price">
+                            Rp129.000
+                        </div>
+
+                        <div class="product-bottom">
+                            ⭐ 4.7
+                            <span>
+                                Terjual 340
+                            </span>
+                        </div>
+
+                        <button class="add-cart">
+                            + Keranjang
+                        </button>
+
+                    </div>
+
+                </article>
+
+
+                <article class="product-card">
+
+                    <div class="product-image">
+                        🪑
+                    </div>
+
+                    <div class="product-info">
+
+                        <h3>
+                            Kursi Minimalis
+                        </h3>
+
+                        <div class="price">
+                            Rp499.000
+                        </div>
+
+                        <div class="product-bottom">
+                            ⭐ 4.6
+                            <span>
+                                Terjual 56
+                            </span>
+                        </div>
+
+                        <button class="add-cart">
+                            + Keranjang
+                        </button>
+
+                    </div>
+
+                </article>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- CART DRAWER -->
+    <aside class="cart-drawer" id="cartDrawer">
+
+        <div class="cart-header">
+
+            <h2>
+                Keranjang Saya
+            </h2>
+
+            <button id="closeCart">
+                ✕
+            </button>
+
+        </div>
+
+        <div id="cartItems">
+
+            <p class="empty-cart">
+                Keranjang masih kosong.
+            </p>
+
+        </div>
+
+        <div class="cart-footer">
+
+            <div>
+                Total:
+                <strong id="cartTotal">
+                    Rp0
+                </strong>
+            </div>
+
+            <button id="checkoutButton">
+                Checkout
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <!-- OVERLAY -->
+    <div
+        class="overlay"
+        id="overlay">
+    </div>
+
+
+    <!-- TOAST -->
+    <div
+        class="toast"
+        id="toast">
+        Produk ditambahkan ke keranjang.
+    </div>
+
+
+    <!-- FOOTER -->
+    <footer>
+
+        <div class="container footer-content">
+
+            <div>
+                <h2>Toko-MAB</h2>
+                <p>
+                    Marketplace sederhana untuk belajar
+                    membangun aplikasi e-commerce.
+                </p>
+            </div>
+
+            <div>
+                <h3>Layanan</h3>
+                <p>Bantuan</p>
+                <p>Pengiriman</p>
+                <p>Pembayaran</p>
+            </div>
+
+            <div>
+                <h3>Tentang</h3>
+                <p>Tentang Toko-MAB</p>
+                <p>Karier</p>
+                <p>Kontak</p>
+            </div>
+
+        </div>
+
+        <div class="copyright">
+            © 2026 Toko-MAB — Learning Project
+        </div>
+
+    </footer>
+
+
+    <script src="script.js"></script>
 
 </body>
 </html>
