@@ -455,7 +455,7 @@ function createProductCard(product) {
             <div class="product-image">
 
                 <img
-                    class="product-photo"
+                     class="product-photo ${product.flash ? "flash-product-photo" : ""}"
                     src="${product.image}"
                     alt="${product.name}"
                     loading="lazy"
@@ -465,7 +465,7 @@ function createProductCard(product) {
                     product.flash
                         ? `
                             <span class="flash-badge">
-                                ⚡ SALE
+                                ⚡ FLASH SALE
                             </span>
                           `
                         : ""
@@ -2671,3 +2671,42 @@ loadCategoryFromURL();
 console.log(
     "MAB-Store berhasil dijalankan 🚀"
 );
+/* =========================================
+   FLASH SALE - CLEAN PRODUCT IMAGE
+   ========================================= */
+
+.product-image {
+    position: relative;
+    overflow: hidden;
+}
+
+.flash-product-photo {
+    transform: scale(2);
+    transform-origin: left center;
+}
+
+.product-card:hover .flash-product-photo {
+    transform: scale(2.05);
+}
+
+.flash-badge {
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    z-index: 10;
+
+    display: inline-flex;
+    align-items: center;
+
+    padding: 5px 9px;
+    border-radius: 5px;
+
+    background: #e74c3c;
+    color: #fff;
+
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1;
+
+    white-space: nowrap;
+}
