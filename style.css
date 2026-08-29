@@ -2412,6 +2412,173 @@ footer {
 
 
 /* =========================================
+   FLASH SALE - CLEAN MARKETPLACE FIX
+   ========================================= */
+
+.flash-products .product-image {
+    position: relative;
+    height: 210px;
+    background: #f7fafa;
+    overflow: hidden;
+}
+
+/* Foto Flash Sale */
+.flash-products .product-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    padding: 12px;
+
+    /* Penting: gambar tidak menangkap klik */
+    pointer-events: none;
+
+    transition: transform 0.3s ease;
+}
+
+/* Hilangkan grafis SALE besar dari sisi kanan */
+.flash-products .flash-product-photo {
+    transform: scale(1.65);
+    transform-origin: left center;
+}
+
+/* Hover */
+.flash-products .product-card:hover .flash-product-photo {
+    transform: scale(1.68);
+}
+
+/* =========================================
+   BADGE FLASH SALE
+   ========================================= */
+
+.flash-badge {
+    position: absolute;
+    left: 10px;
+    top: 10px;
+
+    z-index: 20;
+
+    display: inline-flex;
+    align-items: center;
+
+    padding: 5px 9px;
+
+    background: #e74c3c;
+    color: #fff;
+
+    border-radius: 6px;
+
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1.2;
+
+    white-space: nowrap;
+
+    /* Badge juga tidak menangkap klik */
+    pointer-events: none;
+}
+
+/* =========================================
+   KARTU FLASH SALE
+   ========================================= */
+
+.flash-products .product-card {
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+
+    background: #fff;
+    border: 1px solid #e5eeee;
+
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.flash-products .product-card:hover {
+    transform: translateY(-4px);
+
+    box-shadow:
+        0 10px 25px rgba(0,0,0,0.10);
+}
+
+/* =========================================
+   INFORMASI PRODUK
+   ========================================= */
+
+.flash-products .product-info {
+    position: relative;
+    z-index: 30;
+    padding: 13px;
+}
+
+.flash-products .product-info h3 {
+    font-size: 14px;
+    font-weight: 600;
+
+    min-height: 40px;
+    margin-bottom: 7px;
+
+    line-height: 1.4;
+}
+
+.flash-products .price {
+    font-size: 19px;
+    font-weight: 800;
+
+    color: var(--primary-dark);
+
+    margin-bottom: 3px;
+}
+
+.flash-products .old-price {
+    font-size: 11px;
+    color: #999;
+
+    margin-bottom: 8px;
+}
+
+.flash-products .product-bottom {
+    font-size: 11px;
+
+    display: flex;
+    justify-content: space-between;
+
+    margin-bottom: 10px;
+}
+
+/* =========================================
+   TOMBOL KERANJANG
+   ========================================= */
+
+.flash-products .add-cart {
+    position: relative;
+
+    z-index: 50;
+
+    width: 100%;
+    padding: 10px;
+
+    border-radius: 6px;
+
+    background: var(--primary);
+    color: white;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    border: none;
+
+    pointer-events: auto;
+}
+
+.flash-products .add-cart:hover {
+    background: var(--primary-dark);
+}
+
+/* =========================================
    MOBILE
    ========================================= */
 
@@ -2447,11 +2614,12 @@ footer {
         padding: 9px 6px;
     }
 
-    .flash-discount {
+    .flash-badge {
         left: 7px;
         top: 7px;
 
         padding: 4px 6px;
+
         font-size: 9px;
     }
 }
