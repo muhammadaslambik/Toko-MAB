@@ -1,12 +1,12 @@
 /* =========================================
-   MAB-STORE MARKETPLACE
-   JavaScript
+   MAB-STORE
+   Product Detail + Cart + Search
    ========================================= */
 
 
-/* =====================================
+/* =========================================
    ELEMENTS
-   ===================================== */
+   ========================================= */
 
 const cartButton = document.getElementById("cartButton");
 const closeCart = document.getElementById("closeCart");
@@ -17,28 +17,34 @@ const cartCount = document.getElementById("cartCount");
 const cartItems = document.getElementById("cartItems");
 const cartTotal = document.getElementById("cartTotal");
 
-const checkoutButton = document.getElementById("checkoutButton");
+const checkoutButton =
+    document.getElementById("checkoutButton");
 
-const searchInput = document.getElementById("searchInput");
-const searchButton = document.getElementById("searchButton");
+const searchInput =
+    document.getElementById("searchInput");
 
-const toast = document.getElementById("toast");
+const searchButton =
+    document.getElementById("searchButton");
 
-const countdown = document.getElementById("countdown");
+const toast =
+    document.getElementById("toast");
+
+const countdown =
+    document.getElementById("countdown");
 
 
-/* =====================================
-   CART DATA
-   ===================================== */
+/* =========================================
+   CART STORAGE
+   ========================================= */
 
-const CART_STORAGE_KEY = "mabstore_cart";
+const CART_KEY = "mabstore_cart_v2";
 
 let cart = [];
 
 try {
 
     const savedCart =
-        localStorage.getItem(CART_STORAGE_KEY);
+        localStorage.getItem(CART_KEY);
 
     cart = savedCart
         ? JSON.parse(savedCart)
@@ -51,7 +57,7 @@ try {
 } catch (error) {
 
     console.warn(
-        "Gagal membaca keranjang dari localStorage.",
+        "Gagal membaca data keranjang.",
         error
     );
 
@@ -60,16 +66,36 @@ try {
 }
 
 
-/* =====================================
+/* =========================================
+   FORMAT RUPIAH
+   ========================================= */
+
+function rupiah(value) {
+
+    return new Intl.NumberFormat(
+        "id-ID",
+        {
+            style: "currency",
+            currency: "IDR",
+            maximumFractionDigits: 0
+        }
+    ).format(
+        Number(value) || 0
+    );
+
+}
+
+
+/* =========================================
    SAVE CART
-   ===================================== */
+   ========================================= */
 
 function saveCart() {
 
     try {
 
         localStorage.setItem(
-            CART_STORAGE_KEY,
+            CART_KEY,
             JSON.stringify(cart)
         );
 
@@ -85,27 +111,9 @@ function saveCart() {
 }
 
 
-/* =====================================
-   FORMAT RUPIAH
-   ===================================== */
-
-function formatRupiah(number) {
-
-    return new Intl.NumberFormat(
-        "id-ID",
-        {
-            style: "currency",
-            currency: "IDR",
-            maximumFractionDigits: 0
-        }
-    ).format(number);
-
-}
-
-
-/* =====================================
-   SHOW TOAST
-   ===================================== */
+/* =========================================
+   TOAST
+   ========================================= */
 
 function showToast(message) {
 
@@ -115,76 +123,117 @@ function showToast(message) {
 
     toast.classList.add("show");
 
-    setTimeout(() => {
+    clearTimeout(
+        showToast.timer
+    );
 
-        toast.classList.remove("show");
+    showToast.timer =
+        setTimeout(
+            () => {
 
-    }, 2000);
+                toast.classList.remove(
+                    "show"
+                );
+
+            },
+            2200
+        );
 
 }
 
 
-/* =====================================
+/* =========================================
    OPEN CART
-   ===================================== */
+   ========================================= */
 
 function openCart() {
 
-    if (!cartDrawer || !overlay) return;
+    if (cartDrawer) {
 
-    cartDrawer.classList.add("open");
+        cartDrawer.classList.add(
+            "open"
+        );
 
-    overlay.classList.add("active");
+    }
+
+    if (overlay) {
+
+        overlay.classList.add(
+            "active"
+        );
+
+    }
 
 }
 
 
-/* =====================================
+/* =========================================
    CLOSE CART
-   ===================================== */
+   ========================================= */
 
 function closeCartDrawer() {
 
-    if (!cartDrawer || !overlay) return;
+    if (cartDrawer) {
 
-    cartDrawer.classList.remove("open");
+        cartDrawer.classList.remove(
+            "open"
+        );
 
-    overlay.classList.remove("active");
+    }
+
+    if (overlay) {
+
+        overlay.classList.remove(
+            "active"
+        );
+
+    }
 
 }
 
 
-/* =====================================
-   ADD PRODUCT TO CART
-   ===================================== */
+/* =========================================
+   ADD TO CART
+   ========================================= */
 
-function addToCart(
-    productName,
-    productPrice,
-    productImage
-) {
+function addToCart(product) {
 
-    const existingProduct =
+    const existing =
         cart.find(
-            item => item.name === productName
+            item =>
+                item.name ===
+                product.name
         );
 
 
-    if (existingProduct) {
+    if (existing) {
 
-        existingProduct.quantity += 1;
+        existing.quantity +=
+            product.quantity || 1;
+
+
+        if (product.image) {
+
+            existing.image =
+                product.image;
+
+        }
 
     } else {
 
         cart.push({
 
-            name: productName,
+            name:
+                product.name,
 
-            price: Number(productPrice),
+            price:
+                Number(product.price),
 
-            image: productImage || "",
+            image:
+                product.image || "",
 
-            quantity: 1
+            quantity:
+                product.quantity || 1
 
         });
 
@@ -196,15 +245,15 @@ function addToCart(
     updateCart();
 
     showToast(
-        `${productName} ditambahkan ke keranjang.`
+        `${product.name} ditambahkan ke keranjang.`
     );
 
 }
 
 
-/* =====================================
+/* =========================================
    UPDATE CART
-   ===================================== */
+   ========================================= */
 
 function updateCart() {
 
@@ -212,25 +261,37 @@ function updateCart() {
         !cartItems ||
         !cartCount ||
         !cartTotal
-    ) return;
+    ) {
+
+        return;
+
+    }
 
 
     cartItems.innerHTML = "";
 
 
-    /* KERANJANG KOSONG */
+    /* EMPTY */
 
-    if (cart.length === 0) {
+    if (
+        cart.length === 0
+    ) {
 
         cartItems.innerHTML = `
+
             <p class="empty-cart">
+
                 Keranjang masih kosong.
+
             </p>
+
         `;
 
-        cartCount.textContent = "0";
+        cartCount.textContent =
+            "0";
 
-        cartTotal.textContent = "Rp0";
+        cartTotal.textContent =
+            "Rp0";
 
         return;
 
@@ -239,204 +300,122 @@ function updateCart() {
 
     let total = 0;
 
-    let totalQuantity = 0;
+    let count = 0;
 
 
     cart.forEach(
         (item, index) => {
 
-            const price =
+            item.price =
                 Number(item.price) || 0;
 
-            const quantity =
-                Number(item.quantity) || 1;
+            item.quantity =
+                Math.max(
+                    1,
+                    Number(item.quantity) || 1
+                );
 
 
             total +=
-                price * quantity;
+                item.price *
+                item.quantity;
 
 
-            totalQuantity +=
-                quantity;
+            count +=
+                item.quantity;
 
 
-            const cartItem =
-                document.createElement("div");
+            const row =
+                document.createElement(
+                    "div"
+                );
 
 
-            cartItem.className =
+            row.className =
                 "cart-item-row";
 
 
-            cartItem.style.cssText = `
-                display:flex;
-                gap:12px;
-                padding:14px 0;
-                border-bottom:1px solid #eeeeee;
-                align-items:center;
-            `;
+            row.innerHTML = `
 
+                <div class="cart-product-image">
 
-            /* FOTO PRODUK */
+                    ${
+                        item.image
 
-            const imageHTML =
-                item.image
+                        ?
 
-                ? `
-                    <img
-                        src="${item.image}"
-                        alt="${item.name}"
-                        style="
-                            width:55px;
-                            height:55px;
-                            object-fit:cover;
-                            border-radius:8px;
-                            flex-shrink:0;
-                            background:#f5f5f5;
-                        "
-                    >
-                `
+                        `
+                        <img
+                            src="${item.image}"
+                            alt="${item.name}"
+                        >
+                        `
 
-                : `
-                    <div style="
-                        width:55px;
-                        height:55px;
-                        background:#f5f5f5;
-                        border-radius:8px;
-                        display:flex;
-                        align-items:center;
-                        justify-content:center;
-                        font-size:25px;
-                        flex-shrink:0;
-                    ">
+                        :
+
+                        `
                         🛍️
-                    </div>
-                `;
+                        `
+                    }
+
+                </div>
 
 
-            cartItem.innerHTML = `
+                <div class="cart-product-details">
 
-                ${imageHTML}
-
-
-                <div style="
-                    flex:1;
-                    min-width:0;
-                ">
-
-
-                    <!-- NAMA PRODUK -->
-
-                    <strong style="
-                        display:block;
-                        font-size:14px;
-                        margin-bottom:4px;
-                        line-height:1.35;
-                    ">
-
+                    <strong>
                         ${item.name}
-
                     </strong>
 
 
-                    <!-- HARGA -->
+                    <div class="cart-product-price">
 
-                    <div style="
-                        color:#00695c;
-                        font-weight:bold;
-                        font-size:14px;
-                    ">
-
-                        ${formatRupiah(price)}
+                        ${rupiah(item.price)}
 
                     </div>
 
 
-                    <!-- QUANTITY -->
-
-                    <div style="
-                        display:flex;
-                        align-items:center;
-                        gap:8px;
-                        margin-top:7px;
-                    ">
-
-
-                        <!-- MINUS -->
+                    <div class="cart-quantity">
 
                         <button
                             class="quantity-btn"
                             data-action="minus"
                             data-index="${index}"
-                            aria-label="Kurangi jumlah"
-                            style="
-                                width:28px;
-                                height:28px;
-                                border:1px solid #ddd;
-                                background:white;
-                                border-radius:5px;
-                                cursor:pointer;
-                            "
                         >
+
                             −
+
                         </button>
 
 
-                        <!-- JUMLAH -->
+                        <span>
 
-                        <span style="
-                            min-width:20px;
-                            text-align:center;
-                            font-weight:600;
-                        ">
-
-                            ${quantity}
+                            ${item.quantity}
 
                         </span>
 
-
-                        <!-- PLUS -->
 
                         <button
                             class="quantity-btn"
                             data-action="plus"
                             data-index="${index}"
-                            aria-label="Tambah jumlah"
-                            style="
-                                width:28px;
-                                height:28px;
-                                border:1px solid #ddd;
-                                background:white;
-                                border-radius:5px;
-                                cursor:pointer;
-                            "
                         >
+
                             +
+
                         </button>
 
-
-                        <!-- HAPUS -->
 
                         <button
                             class="remove-item"
                             data-index="${index}"
-                            style="
-                                margin-left:auto;
-                                background:transparent;
-                                color:#c62828;
-                                font-size:12px;
-                                border:none;
-                                cursor:pointer;
-                            "
                         >
 
                             Hapus
 
                         </button>
 
-
                     </div>
-
 
                 </div>
 
@@ -444,182 +423,68 @@ function updateCart() {
 
 
             cartItems.appendChild(
-                cartItem
+                row
             );
 
         }
     );
 
 
-    /* UPDATE JUMLAH */
-
     cartCount.textContent =
-        totalQuantity;
+        count;
 
-
-    /* UPDATE TOTAL */
 
     cartTotal.textContent =
-        formatRupiah(total);
+        rupiah(total);
 
 }
 
 
-/* =====================================
-   PRODUCT BUTTONS
-   ===================================== */
-
-const addCartButtons =
-    document.querySelectorAll(
-        ".add-cart"
-    );
-
-
-addCartButtons.forEach(
-    button => {
-
-        button.addEventListener(
-            "click",
-            () => {
-
-                const productCard =
-                    button.closest(
-                        ".product-card"
-                    );
-
-
-                if (!productCard) return;
-
-
-                const nameElement =
-                    productCard.querySelector(
-                        "h3"
-                    );
-
-
-                const priceElement =
-                    productCard.querySelector(
-                        ".price"
-                    );
-
-
-                const imageElement =
-                    productCard.querySelector(
-                        ".product-image"
-                    );
-
-
-                if (
-                    !nameElement ||
-                    !priceElement
-                ) return;
-
-
-                const productName =
-                    nameElement
-                        .textContent
-                        .trim();
-
-
-                const priceText =
-                    priceElement
-                        .textContent
-                        .replace(
-                            /[^\d]/g,
-                            ""
-                        );
-
-
-                const productPrice =
-                    Number(priceText);
-
-
-                /* AMBIL FOTO DARI IMG */
-
-                const imageElementInside =
-                    imageElement
-                        ? imageElement.querySelector(
-                            "img"
-                        )
-                        : null;
-
-
-                const productImage =
-                    imageElementInside
-                        ? imageElementInside.src
-                        : "";
-
-
-                addToCart(
-                    productName,
-                    productPrice,
-                    productImage
-                );
-
-            }
-        );
-
-    }
-);
-
-
-/* =====================================
+/* =========================================
    CART BUTTON
-   ===================================== */
+   ========================================= */
 
 if (cartButton) {
 
     cartButton.addEventListener(
         "click",
-        () => {
-
-            openCart();
-
-        }
+        openCart
     );
 
 }
 
 
-/* =====================================
-   CLOSE CART
-   ===================================== */
+/* =========================================
+   CLOSE CART BUTTON
+   ========================================= */
 
 if (closeCart) {
 
     closeCart.addEventListener(
         "click",
-        () => {
-
-            closeCartDrawer();
-
-        }
+        closeCartDrawer
     );
 
 }
 
 
-/* =====================================
+/* =========================================
    OVERLAY
-   ===================================== */
+   ========================================= */
 
 if (overlay) {
 
     overlay.addEventListener(
         "click",
-        () => {
-
-            closeCartDrawer();
-
-        }
+        closeCartDrawer
     );
 
 }
 
 
-/* =====================================
-   CART ITEM ACTIONS
-   ===================================== */
+/* =========================================
+   CART ACTIONS
+   ========================================= */
 
 if (cartItems) {
 
@@ -627,64 +492,56 @@ if (cartItems) {
         "click",
         event => {
 
-            const target =
-                event.target;
+            const button =
+                event.target.closest(
+                    "button"
+                );
 
 
-            /* =========================
-               PLUS / MINUS
-               ========================= */
+            if (!button) return;
+
+
+            const index =
+                Number(
+                    button.dataset.index
+                );
+
 
             if (
-                target.classList.contains(
+                !Number.isInteger(index) ||
+                !cart[index]
+            ) {
+
+                return;
+
+            }
+
+
+            /* PLUS / MINUS */
+
+            if (
+                button.classList.contains(
                     "quantity-btn"
                 )
             ) {
 
-                const index =
-                    Number(
-                        target.dataset.index
-                    );
-
-
-                const action =
-                    target.dataset.action;
-
-
-                /* CEK INDEX */
-
                 if (
-                    !cart[index]
-                ) return;
-
-
-                /* PLUS */
-
-                if (
-                    action === "plus"
+                    button.dataset.action ===
+                    "plus"
                 ) {
 
-                    cart[index]
-                        .quantity += 1;
+                    cart[index].quantity++;
 
                 }
 
 
-                /* MINUS */
+                else {
 
-                if (
-                    action === "minus"
-                ) {
+                    cart[index].quantity--;
 
-                    cart[index]
-                        .quantity -= 1;
-
-
-                    /* JIKA 0 → HAPUS */
 
                     if (
-                        cart[index]
-                            .quantity <= 0
+                        cart[index].quantity <= 0
                     ) {
 
                         cart.splice(
@@ -701,31 +558,20 @@ if (cartItems) {
 
                 updateCart();
 
+                return;
+
             }
 
 
-            /* =========================
-               REMOVE
-               ========================= */
+            /* REMOVE */
 
             if (
-                target.classList.contains(
+                button.classList.contains(
                     "remove-item"
                 )
             ) {
 
-                const index =
-                    Number(
-                        target.dataset.index
-                    );
-
-
-                if (
-                    !cart[index]
-                ) return;
-
-
-                const removedProduct =
+                const name =
                     cart[index].name;
 
 
@@ -741,7 +587,7 @@ if (cartItems) {
 
 
                 showToast(
-                    `${removedProduct} dihapus dari keranjang.`
+                    `${name} dihapus dari keranjang.`
                 );
 
             }
@@ -752,11 +598,664 @@ if (cartItems) {
 }
 
 
-/* =====================================
-   SEARCH
-   ===================================== */
+/* =========================================
+   PRODUCT CARDS
+   ========================================= */
 
-function searchProducts() {
+document
+    .querySelectorAll(
+        ".product-card"
+    )
+    .forEach(
+        card => {
+
+            const addButton =
+                card.querySelector(
+                    ".add-cart"
+                );
+
+
+            const image =
+                card.querySelector(
+                    ".product-photo"
+                );
+
+
+            function getProduct() {
+
+                const name =
+                    card.dataset.product ||
+                    card.querySelector(
+                        "h3"
+                    )?.textContent.trim() ||
+                    "Produk";
+
+
+                const price =
+                    Number(
+                        card.dataset.price ||
+
+                        card.querySelector(
+                            ".price"
+                        )?.textContent
+                            .replace(
+                                /[^\d]/g,
+                                ""
+                            ) ||
+
+                        0
+                    );
+
+
+                return {
+
+                    name:
+                        name,
+
+                    price:
+                        price,
+
+                    image:
+                        image?.src || "",
+
+                    quantity:
+                        1
+
+                };
+
+            }
+
+
+            /* ADD BUTTON */
+
+            if (addButton) {
+
+                addButton.addEventListener(
+                    "click",
+                    event => {
+
+                        event.stopPropagation();
+
+                        addToCart(
+                            getProduct()
+                        );
+
+                    }
+                );
+
+            }
+
+
+            /* PRODUCT DETAIL */
+
+            card.addEventListener(
+                "click",
+                event => {
+
+                    if (
+                        event.target.closest(
+                            ".add-cart"
+                        )
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    openProductModal(
+                        getProduct(),
+                        card
+                    );
+
+                }
+            );
+
+        }
+    );
+
+
+/* =========================================
+   PRODUCT DETAIL MODAL
+   ========================================= */
+
+function createProductModal() {
+
+    if (
+        document.getElementById(
+            "productModal"
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    const modal =
+        document.createElement(
+            "div"
+        );
+
+
+    modal.id =
+        "productModal";
+
+
+    modal.className =
+        "product-modal";
+
+
+    modal.innerHTML = `
+
+        <div
+            class="product-modal-backdrop"
+            data-close-product
+        ></div>
+
+
+        <div
+            class="product-modal-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Detail produk"
+        >
+
+
+            <button
+                class="product-modal-close"
+                data-close-product
+                aria-label="Tutup"
+            >
+
+                ✕
+
+            </button>
+
+
+            <div class="product-modal-grid">
+
+
+                <!-- FOTO -->
+
+                <div class="product-modal-image">
+
+                    <img
+                        id="detailProductImage"
+                        src=""
+                        alt=""
+                    >
+
+                </div>
+
+
+                <!-- INFORMASI -->
+
+                <div class="product-modal-info">
+
+
+                    <span class="detail-badge">
+
+                        MAB-Store
+
+                    </span>
+
+
+                    <h2
+                        id="detailProductName"
+                    ></h2>
+
+
+                    <div class="detail-rating">
+
+                        ⭐ 4.8
+
+                        <span>
+                            • Produk pilihan
+                        </span>
+
+                    </div>
+
+
+                    <div
+                        class="detail-price"
+                        id="detailProductPrice"
+                    ></div>
+
+
+                    <p class="detail-stock">
+
+                        ✓ Stok tersedia
+
+                    </p>
+
+
+                    <h3>
+
+                        Deskripsi Produk
+
+                    </h3>
+
+
+                    <p
+                        id="detailProductDescription"
+                    >
+
+                        Produk pilihan MAB-Store
+                        dengan kualitas yang cocok
+                        untuk kebutuhan sehari-hari.
+
+                    </p>
+
+
+                    <!-- JUMLAH -->
+
+                    <div class="detail-quantity">
+
+
+                        <span>
+
+                            Jumlah
+
+                        </span>
+
+
+                        <div>
+
+
+                            <button
+                                id="detailMinus"
+                            >
+
+                                −
+
+                            </button>
+
+
+                            <strong
+                                id="detailQuantity"
+                            >
+
+                                1
+
+                            </strong>
+
+
+                            <button
+                                id="detailPlus"
+                            >
+
+                                +
+
+                            </button>
+
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ACTION -->
+
+                    <div class="detail-actions">
+
+
+                        <button
+                            id="detailAddCart"
+                            class="detail-add-cart"
+                        >
+
+                            🛒
+                            Tambah ke Keranjang
+
+                        </button>
+
+
+                        <button
+                            id="detailBuyNow"
+                            class="detail-buy-now"
+                        >
+
+                            ⚡
+                            Beli Sekarang
+
+                        </button>
+
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+        </div>
+
+    `;
+
+
+    document.body.appendChild(
+        modal
+    );
+
+
+    /* CLOSE */
+
+    modal.addEventListener(
+        "click",
+        event => {
+
+            if (
+                event.target.closest(
+                    "[data-close-product]"
+                )
+            ) {
+
+                closeProductModal();
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================================
+   PRODUCT DETAIL STATE
+   ========================================= */
+
+let selectedProduct =
+    null;
+
+let detailQuantity =
+    1;
+
+
+/* =========================================
+   OPEN PRODUCT MODAL
+   ========================================= */
+
+function openProductModal(
+    product,
+    card
+) {
+
+    createProductModal();
+
+
+    selectedProduct =
+        product;
+
+
+    detailQuantity =
+        1;
+
+
+    const modal =
+        document.getElementById(
+            "productModal"
+        );
+
+
+    const image =
+        document.getElementById(
+            "detailProductImage"
+        );
+
+
+    const name =
+        document.getElementById(
+            "detailProductName"
+        );
+
+
+    const price =
+        document.getElementById(
+            "detailProductPrice"
+        );
+
+
+    const description =
+        document.getElementById(
+            "detailProductDescription"
+        );
+
+
+    image.src =
+        product.image;
+
+
+    image.alt =
+        product.name;
+
+
+    name.textContent =
+        product.name;
+
+
+    price.textContent =
+        rupiah(
+            product.price
+        );
+
+
+    const oldPrice =
+        card
+            ?.querySelector(
+                ".old-price"
+            )
+            ?.textContent
+            .trim();
+
+
+    const sold =
+        card
+            ?.querySelector(
+                ".product-bottom span:last-child"
+            )
+            ?.textContent
+            .trim();
+
+
+    description.textContent =
+
+        `${product.name} adalah salah satu ` +
+        `produk pilihan di MAB-Store. ` +
+        `Nikmati pengalaman belanja sederhana ` +
+        `dengan informasi produk yang jelas.` +
+
+        (
+            oldPrice
+                ? ` Harga sebelumnya ${oldPrice}.`
+                : ""
+        ) +
+
+        (
+            sold
+                ? ` ${sold}.`
+                : ""
+        );
+
+
+    document.getElementById(
+        "detailQuantity"
+    ).textContent =
+        detailQuantity;
+
+
+    modal.classList.add(
+        "show"
+    );
+
+
+    document.body.classList.add(
+        "modal-open"
+    );
+
+}
+
+
+/* =========================================
+   CLOSE PRODUCT MODAL
+   ========================================= */
+
+function closeProductModal() {
+
+    const modal =
+        document.getElementById(
+            "productModal"
+        );
+
+
+    if (!modal) return;
+
+
+    modal.classList.remove(
+        "show"
+    );
+
+
+    document.body.classList.remove(
+        "modal-open"
+    );
+
+}
+
+
+/* =========================================
+   PRODUCT MODAL BUTTONS
+   ========================================= */
+
+document.addEventListener(
+    "click",
+    event => {
+
+
+        /* PLUS */
+
+        if (
+            event.target.id ===
+            "detailPlus"
+        ) {
+
+            detailQuantity++;
+
+
+            document.getElementById(
+                "detailQuantity"
+            ).textContent =
+                detailQuantity;
+
+        }
+
+
+        /* MINUS */
+
+        if (
+            event.target.id ===
+            "detailMinus"
+        ) {
+
+            detailQuantity =
+                Math.max(
+                    1,
+                    detailQuantity - 1
+                );
+
+
+            document.getElementById(
+                "detailQuantity"
+            ).textContent =
+                detailQuantity;
+
+        }
+
+
+        /* ADD TO CART */
+
+        if (
+            event.target.id ===
+                "detailAddCart" &&
+            selectedProduct
+        ) {
+
+            addToCart({
+
+                ...selectedProduct,
+
+                quantity:
+                    detailQuantity
+
+            });
+
+
+            closeProductModal();
+
+            openCart();
+
+        }
+
+
+        /* BUY NOW */
+
+        if (
+            event.target.id ===
+                "detailBuyNow" &&
+            selectedProduct
+        ) {
+
+            addToCart({
+
+                ...selectedProduct,
+
+                quantity:
+                    detailQuantity
+
+            });
+
+
+            closeProductModal();
+
+            openCart();
+
+
+            showToast(
+                "Produk siap untuk checkout."
+            );
+
+        }
+
+    }
+);
+
+
+/* =========================================
+   ESCAPE KEY
+   ========================================= */
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        if (
+            event.key ===
+            "Escape"
+        ) {
+
+            closeProductModal();
+
+        }
+
+    }
+);
+
+
+/* =========================================
+   SEARCH
+   ========================================= */
+
+function filterProducts() {
 
     if (!searchInput) return;
 
@@ -773,43 +1272,37 @@ function searchProducts() {
         );
 
 
-    let found = false;
+    let found =
+        false;
 
 
     products.forEach(
-        product => {
+        card => {
 
-            const nameElement =
-                product.querySelector(
+            const name =
+                card.querySelector(
                     "h3"
+                )
+                ?.textContent
+                .toLowerCase() || "";
+
+
+            const match =
+                name.includes(
+                    keyword
                 );
 
 
-            if (!nameElement) return;
+            card.style.display =
+                match
+                    ? ""
+                    : "none";
 
 
-            const productName =
-                nameElement
-                    .textContent
-                    .toLowerCase();
+            if (match) {
 
-
-            if (
-                keyword === "" ||
-                productName.includes(
-                    keyword
-                )
-            ) {
-
-                product.style.display =
-                    "";
-
-                found = true;
-
-            } else {
-
-                product.style.display =
-                    "none";
+                found =
+                    true;
 
             }
 
@@ -817,14 +1310,12 @@ function searchProducts() {
     );
 
 
-    if (
-        keyword !== ""
-    ) {
+    if (keyword) {
 
         if (found) {
 
             showToast(
-                `Produk untuk "${keyword}" ditemukan.`
+                `Produk "${keyword}" ditemukan.`
             );
 
         } else {
@@ -840,23 +1331,23 @@ function searchProducts() {
 }
 
 
-/* =====================================
+/* =========================================
    SEARCH BUTTON
-   ===================================== */
+   ========================================= */
 
 if (searchButton) {
 
     searchButton.addEventListener(
         "click",
-        searchProducts
+        filterProducts
     );
 
 }
 
 
-/* =====================================
+/* =========================================
    SEARCH ENTER
-   ===================================== */
+   ========================================= */
 
 if (searchInput) {
 
@@ -865,10 +1356,11 @@ if (searchInput) {
         event => {
 
             if (
-                event.key === "Enter"
+                event.key ===
+                "Enter"
             ) {
 
-                searchProducts();
+                filterProducts();
 
             }
 
@@ -878,9 +1370,9 @@ if (searchInput) {
 }
 
 
-/* =====================================
+/* =========================================
    LIVE SEARCH
-   ===================================== */
+   ========================================= */
 
 if (searchInput) {
 
@@ -894,39 +1386,132 @@ if (searchInput) {
                     .toLowerCase();
 
 
-            const products =
-                document.querySelectorAll(
+            document
+                .querySelectorAll(
                     ".product-card"
+                )
+                .forEach(
+                    card => {
+
+                        const name =
+                            card.querySelector(
+                                "h3"
+                            )
+                            ?.textContent
+                            .toLowerCase() || "";
+
+
+                        card.style.display =
+                            name.includes(
+                                keyword
+                            )
+                                ? ""
+                                : "none";
+
+                    }
+                );
+
+        }
+    );
+
+}
+
+
+/* =========================================
+   HERO BUTTON
+   ========================================= */
+
+const heroButton =
+    document.querySelector(
+        ".hero-button"
+    );
+
+
+if (heroButton) {
+
+    heroButton.addEventListener(
+        "click",
+        () => {
+
+            const products =
+                document.querySelector(
+                    ".products"
                 );
 
 
-            products.forEach(
-                product => {
+            if (products) {
 
-                    const nameElement =
-                        product.querySelector(
-                            "h3"
-                        );
+                products.scrollIntoView({
+
+                    behavior:
+                        "smooth"
+
+                });
+
+            }
+
+        }
+    );
+
+}
 
 
-                    if (!nameElement)
-                        return;
+/* =========================================
+   CATEGORY BUTTONS
+   ========================================= */
 
+document
+    .querySelectorAll(
+        ".category-card"
+    )
+    .forEach(
+        category => {
+
+            category.addEventListener(
+                "click",
+                () => {
 
                     const name =
-                        nameElement
-                            .textContent
-                            .toLowerCase();
-
-
-                    product.style.display =
-                        name.includes(
-                            keyword
+                        category.querySelector(
+                            "span"
                         )
-                        ? ""
-                        : "none";
+                        ?.textContent ||
+                        "Kategori";
+
+
+                    showToast(
+                        `Kategori ${name} dipilih.`
+                    );
 
                 }
+            );
+
+        }
+    );
+
+
+/* =========================================
+   VOUCHER
+   ========================================= */
+
+const voucherButton =
+    document.querySelector(
+        ".voucher-box button"
+    );
+
+
+if (voucherButton) {
+
+    voucherButton.addEventListener(
+        "click",
+        event => {
+
+            event.currentTarget.textContent =
+                "Voucher Diklaim ✓";
+
+
+            showToast(
+                "Voucher MAB-Store berhasil diklaim."
             );
 
         }
@@ -935,9 +1520,9 @@ if (searchInput) {
 }
 
 
-/* =====================================
-   COUNTDOWN FLASH SALE
-   ===================================== */
+/* =========================================
+   FLASH SALE COUNTDOWN
+   ========================================= */
 
 let remainingSeconds =
     2 * 60 * 60;
@@ -950,23 +1535,31 @@ function updateCountdown() {
 
     const hours =
         Math.floor(
-            remainingSeconds / 3600
+            remainingSeconds /
+            3600
         );
 
 
     const minutes =
         Math.floor(
-            (remainingSeconds % 3600) / 60
+            (
+                remainingSeconds %
+                3600
+            ) / 60
         );
 
 
     const seconds =
-        remainingSeconds % 60;
+        remainingSeconds %
+        60;
 
 
     countdown.textContent =
+
         `${String(hours).padStart(2, "0")}:` +
+
         `${String(minutes).padStart(2, "0")}:` +
+
         `${String(seconds).padStart(2, "0")}`;
 
 
@@ -988,95 +1581,236 @@ function updateCountdown() {
 
 updateCountdown();
 
+
 setInterval(
     updateCountdown,
     1000
 );
 
 
-/* =====================================
-   HERO BUTTON
-   ===================================== */
+/* =========================================
+   SORT PRODUCTS
+   ========================================= */
 
-const heroButton =
-    document.querySelector(
-        ".hero-button"
-    );
+document
+    .querySelectorAll(
+        ".sort-buttons button"
+    )
+    .forEach(
+        (button, index) => {
 
-
-if (heroButton) {
-
-    heroButton.addEventListener(
-        "click",
-        () => {
-
-            const productSection =
-                document.querySelector(
-                    ".products"
-                );
+            button.addEventListener(
+                "click",
+                () => {
 
 
-            if (productSection) {
+                    /* ACTIVE */
 
-                productSection.scrollIntoView({
-                    behavior: "smooth"
-                });
+                    document
+                        .querySelectorAll(
+                            ".sort-buttons button"
+                        )
+                        .forEach(
+                            btn => {
 
-            }
+                                btn.classList.remove(
+                                    "active"
+                                );
+
+                            }
+                        );
+
+
+                    button.classList.add(
+                        "active"
+                    );
+
+
+                    const grid =
+                        document.querySelector(
+                            ".products .product-grid"
+                        );
+
+
+                    if (!grid) return;
+
+
+                    const cards =
+                        [
+                            ...grid.querySelectorAll(
+                                ".product-card"
+                            )
+                        ];
+
+
+                    /* TERLARIS */
+
+                    if (
+                        index === 1
+                    ) {
+
+                        cards.sort(
+                            (a, b) => {
+
+                                const soldA =
+                                    Number(
+                                        (
+                                            a.querySelector(
+                                                ".product-bottom span:last-child"
+                                            )
+                                            ?.textContent ||
+                                            ""
+                                        )
+                                        .replace(
+                                            /[^\d]/g,
+                                            ""
+                                        ) ||
+                                        0
+                                    );
+
+
+                                const soldB =
+                                    Number(
+                                        (
+                                            b.querySelector(
+                                                ".product-bottom span:last-child"
+                                            )
+                                            ?.textContent ||
+                                            ""
+                                        )
+                                        .replace(
+                                            /[^\d]/g,
+                                            ""
+                                        ) ||
+                                        0
+                                    );
+
+
+                                return (
+                                    soldB -
+                                    soldA
+                                );
+
+                            }
+                        );
+
+                    }
+
+
+                    /* TERMURAH */
+
+                    if (
+                        index === 2
+                    ) {
+
+                        cards.sort(
+                            (a, b) => {
+
+                                const priceA =
+                                    Number(
+                                        (
+                                            a.querySelector(
+                                                ".price"
+                                            )
+                                            ?.textContent ||
+                                            ""
+                                        )
+                                        .replace(
+                                            /[^\d]/g,
+                                            ""
+                                        ) ||
+                                        0
+                                    );
+
+
+                                const priceB =
+                                    Number(
+                                        (
+                                            b.querySelector(
+                                                ".price"
+                                            )
+                                            ?.textContent ||
+                                            ""
+                                        )
+                                        .replace(
+                                            /[^\d]/g,
+                                            ""
+                                        ) ||
+                                        0
+                                    );
+
+
+                                return (
+                                    priceA -
+                                    priceB
+                                );
+
+                            }
+                        );
+
+                    }
+
+
+                    cards.forEach(
+                        card => {
+
+                            grid.appendChild(
+                                card
+                            );
+
+                        }
+                    );
+
+
+                    if (
+                        index === 0
+                    ) {
+
+                        showToast(
+                            "Menampilkan produk terbaru."
+                        );
+
+                    }
+
+
+                    if (
+                        index === 1
+                    ) {
+
+                        showToast(
+                            "Menampilkan produk terlaris."
+                        );
+
+                    }
+
+
+                    if (
+                        index === 2
+                    ) {
+
+                        showToast(
+                            "Menampilkan harga terendah."
+                        );
+
+                    }
+
+                }
+            );
 
         }
     );
 
-}
 
-
-/* =====================================
-   CATEGORY BUTTONS
-   ===================================== */
-
-const categoryButtons =
-    document.querySelectorAll(
-        ".category-card"
-    );
-
-
-categoryButtons.forEach(
-    category => {
-
-        category.addEventListener(
-            "click",
-            () => {
-
-                const categoryName =
-                    category.querySelector(
-                        "span"
-                    );
-
-
-                if (!categoryName)
-                    return;
-
-
-                showToast(
-                    `Kategori ${categoryName.textContent} dipilih.`
-                );
-
-            }
-        );
-
-    }
-);
-
-
-/* =====================================
+/* =========================================
    CHECKOUT
-   ===================================== */
+   ========================================= */
 
 if (checkoutButton) {
 
     checkoutButton.addEventListener(
         "click",
         () => {
+
 
             if (
                 cart.length === 0
@@ -1098,11 +1832,13 @@ if (checkoutButton) {
                         item
                     ) => {
 
-                        return sum +
+                        return (
+                            sum +
                             (
                                 item.price *
                                 item.quantity
-                            );
+                            )
+                        );
 
                     },
                     0
@@ -1110,11 +1846,14 @@ if (checkoutButton) {
 
 
             alert(
+
                 "Checkout MAB-Store\n\n" +
-                "Total belanja: " +
-                formatRupiah(total) +
-                "\n\n" +
-                "Ini adalah simulasi checkout untuk belajar."
+
+                `Total belanja: ${rupiah(total)}\n\n` +
+
+                "Ini masih simulasi checkout " +
+                "untuk learning project."
+
             );
 
         }
@@ -1123,157 +1862,8 @@ if (checkoutButton) {
 }
 
 
-/* =====================================
-   SORT PRODUCTS
-   ===================================== */
-
-const sortButtons =
-    document.querySelectorAll(
-        ".sort-buttons button"
-    );
-
-
-sortButtons.forEach(
-    (button, index) => {
-
-        button.addEventListener(
-            "click",
-            () => {
-
-                sortButtons.forEach(
-                    btn =>
-                        btn.classList.remove(
-                            "active"
-                        )
-                );
-
-
-                button.classList.add(
-                    "active"
-                );
-
-
-                const productGrid =
-                    document.querySelector(
-                        ".products .product-grid"
-                    );
-
-
-                if (!productGrid)
-                    return;
-
-
-                const products =
-                    [
-                        ...productGrid.querySelectorAll(
-                            ".product-card"
-                        )
-                    ];
-
-
-                /* =====================
-                   HARGA TERENDAH
-                   ===================== */
-
-                if (
-                    index === 2
-                ) {
-
-                    products.sort(
-                        (a, b) => {
-
-                            const priceA =
-                                Number(
-                                    a.querySelector(
-                                        ".price"
-                                    )
-                                    .textContent
-                                    .replace(
-                                        /[^\d]/g,
-                                        ""
-                                    )
-                                );
-
-
-                            const priceB =
-                                Number(
-                                    b.querySelector(
-                                        ".price"
-                                    )
-                                    .textContent
-                                    .replace(
-                                        /[^\d]/g,
-                                        ""
-                                    )
-                                );
-
-
-                            return (
-                                priceA -
-                                priceB
-                            );
-
-                        }
-                    );
-
-                }
-
-
-                products.forEach(
-                    product =>
-                        productGrid.appendChild(
-                            product
-                        )
-                );
-
-
-                /* TERBARU */
-
-                if (
-                    index === 0
-                ) {
-
-                    showToast(
-                        "Menampilkan produk terbaru."
-                    );
-
-                }
-
-
-                /* TERLARIS */
-
-                if (
-                    index === 1
-                ) {
-
-                    showToast(
-                        "Menampilkan produk terlaris."
-                    );
-
-                }
-
-
-                /* TERMURAH */
-
-                if (
-                    index === 2
-                ) {
-
-                    showToast(
-                        "Menampilkan harga terendah."
-                    );
-
-                }
-
-            }
-        );
-
-    }
-);
-
-
-/* =====================================
+/* =========================================
    INITIALIZE
-   ===================================== */
+   ========================================= */
 
 updateCart();
