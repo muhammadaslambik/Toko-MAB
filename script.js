@@ -1,77 +1,14 @@
-/* =====================================================
+/* =========================================================
    MAB-STORE
+   MARKETPLACE FRONTEND
    STEP 3 — SEARCH + CATEGORY + SORTING
-   + CART
-   + PRODUCT DETAIL
-   + WISHLIST
-   + FLASH SALE
-   + LOCAL STORAGE
-   ===================================================== */
+   CART + PRODUCT DETAIL + WISHLIST
+   ========================================================= */
 
 
-/* =====================================================
-   STORAGE
-   ===================================================== */
-
-const CART_KEY = "mabstore_cart_v3";
-const WISHLIST_KEY = "mabstore_wishlist_v1";
-
-
-/* =====================================================
-   GLOBAL STATE
-   ===================================================== */
-
-let cart = [];
-let wishlist = [];
-
-let selectedProduct = null;
-let detailQuantity = 1;
-
-let activeCategory = "Semua";
-let activeSort = "terbaru";
-let searchKeyword = "";
-
-
-/* =====================================================
-   LOAD STORAGE
-   ===================================================== */
-
-try {
-
-    cart =
-        JSON.parse(
-            localStorage.getItem(CART_KEY)
-        ) || [];
-
-    wishlist =
-        JSON.parse(
-            localStorage.getItem(WISHLIST_KEY)
-        ) || [];
-
-    if (!Array.isArray(cart)) {
-        cart = [];
-    }
-
-    if (!Array.isArray(wishlist)) {
-        wishlist = [];
-    }
-
-} catch (error) {
-
-    console.warn(
-        "Storage MAB-Store gagal dibaca.",
-        error
-    );
-
-    cart = [];
-    wishlist = [];
-
-}
-
-
-/* =====================================================
-   ELEMENTS
-   ===================================================== */
+/* =========================================================
+   ELEMENT
+   ========================================================= */
 
 const cartButton =
     document.getElementById("cartButton");
@@ -85,11 +22,11 @@ const cartDrawer =
 const overlay =
     document.getElementById("overlay");
 
-const cartItems =
-    document.getElementById("cartItems");
-
 const cartCount =
     document.getElementById("cartCount");
+
+const cartItems =
+    document.getElementById("cartItems");
 
 const cartTotal =
     document.getElementById("cartTotal");
@@ -110,9 +47,90 @@ const countdown =
     document.getElementById("countdown");
 
 
-/* =====================================================
+/* =========================================================
+   STORAGE
+   ========================================================= */
+
+const CART_KEY =
+    "mabstore_cart_v2";
+
+const WISHLIST_KEY =
+    "mabstore_wishlist_v1";
+
+
+/* =========================================================
+   STATE
+   ========================================================= */
+
+let cart = [];
+
+let wishlist = [];
+
+let selectedProduct = null;
+
+let detailQuantity = 1;
+
+let activeCategory =
+    "Semua";
+
+let activeSort =
+    "terbaru";
+
+let searchKeyword =
+    "";
+
+
+/* =========================================================
+   LOAD CART
+   ========================================================= */
+
+try {
+
+    cart =
+        JSON.parse(
+            localStorage.getItem(
+                CART_KEY
+            ) || "[]"
+        );
+
+    if (!Array.isArray(cart)) {
+        cart = [];
+    }
+
+} catch {
+
+    cart = [];
+
+}
+
+
+/* =========================================================
+   LOAD WISHLIST
+   ========================================================= */
+
+try {
+
+    wishlist =
+        JSON.parse(
+            localStorage.getItem(
+                WISHLIST_KEY
+            ) || "[]"
+        );
+
+    if (!Array.isArray(wishlist)) {
+        wishlist = [];
+    }
+
+} catch {
+
+    wishlist = [];
+
+}
+
+
+/* =========================================================
    RUPIAH
-   ===================================================== */
+   ========================================================= */
 
 function rupiah(value) {
 
@@ -130,9 +148,9 @@ function rupiah(value) {
 }
 
 
-/* =====================================================
+/* =========================================================
    SAVE CART
-   ===================================================== */
+   ========================================================= */
 
 function saveCart() {
 
@@ -144,9 +162,9 @@ function saveCart() {
 }
 
 
-/* =====================================================
+/* =========================================================
    SAVE WISHLIST
-   ===================================================== */
+   ========================================================= */
 
 function saveWishlist() {
 
@@ -158,9 +176,9 @@ function saveWishlist() {
 }
 
 
-/* =====================================================
+/* =========================================================
    TOAST
-   ===================================================== */
+   ========================================================= */
 
 function showToast(message) {
 
@@ -198,93 +216,65 @@ function showToast(message) {
 }
 
 
-/* =====================================================
-   OPEN CART
-   ===================================================== */
+/* =========================================================
+   CART OPEN
+   ========================================================= */
 
 function openCart() {
 
-    if (cartDrawer) {
+    cartDrawer?.classList.add(
+        "open"
+    );
 
-        cartDrawer.classList.add(
-            "open"
-        );
-
-    }
-
-    if (overlay) {
-
-        overlay.classList.add(
-            "active"
-        );
-
-    }
+    overlay?.classList.add(
+        "active"
+    );
 
 }
 
 
-/* =====================================================
-   CLOSE CART
-   ===================================================== */
+/* =========================================================
+   CART CLOSE
+   ========================================================= */
 
 function closeCartDrawer() {
 
-    if (cartDrawer) {
+    cartDrawer?.classList.remove(
+        "open"
+    );
 
-        cartDrawer.classList.remove(
-            "open"
-        );
-
-    }
-
-    if (overlay) {
-
-        overlay.classList.remove(
-            "active"
-        );
-
-    }
+    overlay?.classList.remove(
+        "active"
+    );
 
 }
 
 
-/* =====================================================
+/* =========================================================
    CART BUTTON
-   ===================================================== */
+   ========================================================= */
 
-if (cartButton) {
-
-    cartButton.addEventListener(
-        "click",
-        openCart
-    );
-
-}
+cartButton?.addEventListener(
+    "click",
+    openCart
+);
 
 
-if (closeCart) {
-
-    closeCart.addEventListener(
-        "click",
-        closeCartDrawer
-    );
-
-}
+closeCart?.addEventListener(
+    "click",
+    closeCartDrawer
+);
 
 
-if (overlay) {
-
-    overlay.addEventListener(
-        "click",
-        closeCartDrawer
-    );
-
-}
+overlay?.addEventListener(
+    "click",
+    closeCartDrawer
+);
 
 
-/* =====================================================
-   PRODUCT CATEGORY MAP
-   ===================================================== */
+/* =========================================================
+   PRODUCT CATEGORY
+   ========================================================= */
 
 const categoryMap = {
 
@@ -327,54 +317,54 @@ const categoryMap = {
 };
 
 
-/* =====================================================
+/* =========================================================
    PRODUCT KEYWORDS
-   ===================================================== */
+   ========================================================= */
 
-const productKeywords = {
+const keywordMap = {
 
     "Smartphone Pro Max":
-        "smartphone hp ponsel elektronik",
+        "smartphone hp ponsel android elektronik",
 
     "Wireless Headphone":
-        "headphone audio wireless elektronik",
+        "headphone headset audio musik wireless elektronik",
 
     "Smartwatch Series 5":
-        "smartwatch jam tangan elektronik",
+        "smartwatch jam tangan elektronik kesehatan",
 
     "Tas Backpack Premium":
-        "tas backpack fashion aksesoris",
+        "tas backpack fashion aksesoris sekolah",
 
     "Sneakers Casual":
-        "sepatu sneakers fashion",
+        "sneakers sepatu fashion olahraga",
 
     "Laptop Slim":
-        "laptop komputer elektronik",
+        "laptop komputer notebook elektronik",
 
     "T-Shirt Premium":
-        "kaos tshirt fashion pakaian",
+        "tshirt kaos pakaian fashion",
 
     "Kursi Minimalis":
-        "kursi rumah furniture",
+        "kursi furniture rumah",
 
     "Kamera Mirrorless":
-        "kamera fotografi elektronik",
+        "kamera fotografi mirrorless elektronik",
 
     "Parfum Premium":
-        "parfum kecantikan fragrance",
+        "parfum fragrance kecantikan",
 
     "Mug Keramik":
-        "mug rumah keramik",
+        "mug gelas keramik rumah",
 
     "Keyboard Mechanical":
-        "keyboard gaming komputer elektronik"
+        "keyboard komputer gaming mechanical"
 
 };
 
 
-/* =====================================================
-   GET PRODUCT DATA
-   ===================================================== */
+/* =========================================================
+   GET PRODUCT
+   ========================================================= */
 
 function getProductFromCard(card) {
 
@@ -386,34 +376,32 @@ function getProductFromCard(card) {
         "Produk";
 
 
-    const priceText =
-        card.dataset.price ||
-        card.querySelector(
-            ".price"
-        )?.textContent ||
-        "0";
-
-
     const price =
         Number(
-            String(priceText)
+            card.dataset.price ||
+            card.querySelector(
+                ".price"
+            )?.textContent
                 .replace(
                     /[^\d]/g,
                     ""
-                )
-        ) || 0;
+                ) ||
+            0
+        );
 
 
     const image =
         card.querySelector(
             ".product-photo"
-        )?.src || "";
+        )?.src ||
+        "";
 
 
     const soldText =
         card.querySelector(
             ".product-bottom span:last-child"
-        )?.textContent || "";
+        )?.textContent ||
+        "";
 
 
     const sold =
@@ -427,20 +415,21 @@ function getProductFromCard(card) {
 
     const ratingText =
         card.querySelector(
-            ".rating"
-        )?.textContent || "";
+            ".product-bottom"
+        )?.textContent ||
+        "";
 
 
     const ratingMatch =
         ratingText.match(
-            /[\d.]+/
+            /⭐\s*([\d.]+)/
         );
 
 
     const rating =
         ratingMatch
             ? Number(
-                ratingMatch[0]
+                ratingMatch[1]
             )
             : 0;
 
@@ -462,7 +451,7 @@ function getProductFromCard(card) {
             "Lainnya",
 
         keywords:
-            productKeywords[name] ||
+            keywordMap[name] ||
             name.toLowerCase(),
 
         card
@@ -472,9 +461,9 @@ function getProductFromCard(card) {
 }
 
 
-/* =====================================================
-   GET ALL PRODUCTS
-   ===================================================== */
+/* =========================================================
+   ALL PRODUCTS
+   ========================================================= */
 
 function getAllProducts() {
 
@@ -489,9 +478,9 @@ function getAllProducts() {
 }
 
 
-/* =====================================================
-   ADD TO CART
-   ===================================================== */
+/* =========================================================
+   ADD CART
+   ========================================================= */
 
 function addToCart(
     product,
@@ -511,6 +500,13 @@ function addToCart(
         existing.quantity +=
             quantity;
 
+        if (product.image) {
+
+            existing.image =
+                product.image;
+
+        }
+
     } else {
 
         cart.push({
@@ -519,10 +515,13 @@ function addToCart(
                 product.name,
 
             price:
-                product.price,
+                Number(
+                    product.price
+                ),
 
             image:
-                product.image,
+                product.image ||
+                "",
 
             quantity:
                 quantity
@@ -537,15 +536,15 @@ function addToCart(
     updateCart();
 
     showToast(
-        `${product.name} masuk ke keranjang 🛒`
+        `${product.name} ditambahkan ke keranjang 🛒`
     );
 
 }
 
 
-/* =====================================================
+/* =========================================================
    UPDATE CART
-   ===================================================== */
+   ========================================================= */
 
 function updateCart() {
 
@@ -560,7 +559,8 @@ function updateCart() {
     }
 
 
-    cartItems.innerHTML = "";
+    cartItems.innerHTML =
+        "";
 
 
     if (
@@ -586,20 +586,31 @@ function updateCart() {
     }
 
 
-    let total = 0;
-    let count = 0;
+    let total =
+        0;
+
+    let count =
+        0;
 
 
     cart.forEach(
-        (item, index) => {
+        (
+            item,
+            index
+        ) => {
 
             item.price =
-                Number(item.price) || 0;
+                Number(
+                    item.price
+                ) || 0;
+
 
             item.quantity =
                 Math.max(
                     1,
-                    Number(item.quantity) || 1
+                    Number(
+                        item.quantity
+                    ) || 1
                 );
 
 
@@ -640,9 +651,7 @@ function updateCart() {
 
                         :
 
-                        `
-                        🛍️
-                        `
+                        "🛍️"
                     }
 
                 </div>
@@ -719,856 +728,179 @@ function updateCart() {
 }
 
 
-/* =====================================================
+/* =========================================================
    CART ACTIONS
-   ===================================================== */
+   ========================================================= */
 
-if (cartItems) {
+cartItems?.addEventListener(
+    "click",
+    event => {
 
-    cartItems.addEventListener(
-        "click",
-        event => {
-
-            const button =
-                event.target.closest(
-                    "button"
-                );
+        const button =
+            event.target.closest(
+                "button"
+            );
 
 
-            if (!button) return;
+        if (!button) {
+            return;
+        }
 
 
-            const index =
-                Number(
-                    button.dataset.index
-                );
+        const index =
+            Number(
+                button.dataset.index
+            );
 
+
+        if (
+            !Number.isInteger(index) ||
+            !cart[index]
+        ) {
+
+            return;
+
+        }
+
+
+        if (
+            button.classList.contains(
+                "quantity-btn"
+            )
+        ) {
 
             if (
-                !cart[index]
+                button.dataset.action ===
+                "plus"
             ) {
 
-                return;
+                cart[index].quantity++;
 
-            }
+            } else {
 
-
-            if (
-                button.classList.contains(
-                    "quantity-btn"
-                )
-            ) {
+                cart[index].quantity--;
 
                 if (
-                    button.dataset.action ===
-                    "plus"
+                    cart[index].quantity <=
+                    0
                 ) {
 
-                    cart[index].quantity++;
-
-                } else {
-
-                    cart[index].quantity--;
-
-
-                    if (
-                        cart[index].quantity <= 0
-                    ) {
-
-                        cart.splice(
-                            index,
-                            1
-                        );
-
-                    }
+                    cart.splice(
+                        index,
+                        1
+                    );
 
                 }
 
-
-                saveCart();
-
-                updateCart();
-
-                return;
-
             }
 
 
-            if (
-                button.classList.contains(
-                    "remove-item"
-                )
-            ) {
+            saveCart();
 
-                const name =
-                    cart[index].name;
+            updateCart();
 
-
-                cart.splice(
-                    index,
-                    1
-                );
-
-
-                saveCart();
-
-                updateCart();
-
-                showToast(
-                    `${name} dihapus.`
-                );
-
-            }
+            return;
 
         }
-    );
-
-}
 
 
-/* =====================================================
-   WISHLIST
-   ===================================================== */
+        if (
+            button.classList.contains(
+                "remove-item"
+            )
+        ) {
 
-function isInWishlist(name) {
-
-    return wishlist.includes(
-        name
-    );
-
-}
+            const name =
+                cart[index].name;
 
 
-function toggleWishlist(product) {
-
-    const index =
-        wishlist.indexOf(
-            product.name
-        );
+            cart.splice(
+                index,
+                1
+            );
 
 
-    if (index >= 0) {
+            saveCart();
 
-        wishlist.splice(
-            index,
-            1
-        );
+            updateCart();
 
-        showToast(
-            `${product.name} dihapus dari wishlist.`
-        );
+            showToast(
+                `${name} dihapus dari keranjang.`
+            );
 
-    } else {
-
-        wishlist.push(
-            product.name
-        );
-
-        showToast(
-            `${product.name} masuk wishlist ❤️`
-        );
+        }
 
     }
+);
 
 
-    saveWishlist();
+/* =========================================================
+   PRODUCT CARD
+   ========================================================= */
 
-    updateWishlistButtons();
+document
+    .querySelectorAll(
+        ".product-card"
+    )
+    .forEach(
+        card => {
 
-}
-
-
-/* =====================================================
-   WISHLIST BUTTONS
-   ===================================================== */
-
-function updateWishlistButtons() {
-
-    document
-        .querySelectorAll(
-            ".wishlist-button"
-        )
-        .forEach(
-            button => {
-
-                const name =
-                    button.dataset.product;
-
-
-                const active =
-                    isInWishlist(
-                        name
-                    );
-
-
-                button.textContent =
-                    active
-                        ? "♥"
-                        : "♡";
-
-
-                button.classList.toggle(
-                    "active",
-                    active
+            const addButton =
+                card.querySelector(
+                    ".add-cart"
                 );
 
-                button.title =
-                    active
-                        ? "Hapus dari wishlist"
-                        : "Tambah ke wishlist";
 
-            }
-        );
-
-}
-
-
-/* =====================================================
-   CREATE WISHLIST BUTTON
-   ===================================================== */
-
-function createWishlistButtons() {
-
-    document
-        .querySelectorAll(
-            ".product-card"
-        )
-        .forEach(
-            card => {
-
-                const product =
+            const getProduct =
+                () =>
                     getProductFromCard(
                         card
                     );
 
 
-                if (
-                    card.querySelector(
-                        ".wishlist-button"
-                    )
-                ) {
+            addButton?.addEventListener(
+                "click",
+                event => {
 
-                    return;
+                    event.stopPropagation();
 
-                }
-
-
-                const button =
-                    document.createElement(
-                        "button"
+                    addToCart(
+                        getProduct()
                     );
 
-
-                button.className =
-                    "wishlist-button";
-
-
-                button.dataset.product =
-                    product.name;
-
-
-                button.type =
-                    "button";
-
-
-                button.innerHTML =
-                    "♡";
-
-
-                button.addEventListener(
-                    "click",
-                    event => {
-
-                        event.stopPropagation();
-
-                        toggleWishlist(
-                            product
-                        );
-
-                    }
-                );
-
-
-                card.style.position =
-                    "relative";
-
-
-                card.appendChild(
-                    button
-                );
-
-            }
-        );
-
-
-    updateWishlistButtons();
-
-}
-
-
-/* =====================================================
-   FILTER SYSTEM
-   ===================================================== */
-
-function productMatchesSearch(
-    product
-) {
-
-    if (
-        !searchKeyword
-    ) {
-
-        return true;
-
-    }
-
-
-    const searchableText = `
-
-        ${product.name}
-
-        ${product.category}
-
-        ${product.keywords}
-
-    `.toLowerCase();
-
-
-    return searchableText.includes(
-        searchKeyword
-    );
-
-}
-
-
-function productMatchesCategory(
-    product
-) {
-
-    if (
-        activeCategory ===
-        "Semua"
-    ) {
-
-        return true;
-
-    }
-
-
-    return (
-        product.category ===
-        activeCategory
-    );
-
-}
-
-
-/* =====================================================
-   SORT PRODUCTS
-   ===================================================== */
-
-function sortProducts(
-    products
-) {
-
-    const sorted =
-        [...products];
-
-
-    if (
-        activeSort ===
-        "terbaru"
-    ) {
-
-        return sorted;
-
-    }
-
-
-    if (
-        activeSort ===
-        "terlaris"
-    ) {
-
-        sorted.sort(
-            (
-                a,
-                b
-            ) =>
-                b.sold -
-                a.sold
-        );
-
-    }
-
-
-    if (
-        activeSort ===
-        "termurah"
-    ) {
-
-        sorted.sort(
-            (
-                a,
-                b
-            ) =>
-                a.price -
-                b.price
-        );
-
-    }
-
-
-    if (
-        activeSort ===
-        "termahal"
-    ) {
-
-        sorted.sort(
-            (
-                a,
-                b
-            ) =>
-                b.price -
-                a.price
-        );
-
-    }
-
-
-    if (
-        activeSort ===
-        "rating"
-    ) {
-
-        sorted.sort(
-            (
-                a,
-                b
-            ) =>
-                b.rating -
-                a.rating
-        );
-
-    }
-
-
-    return sorted;
-
-}
-
-
-/* =====================================================
-   APPLY PRODUCT FILTER
-   ===================================================== */
-
-function applyProductFilter() {
-
-    const products =
-        getAllProducts();
-
-
-    const filtered =
-        products.filter(
-            product =>
-
-                productMatchesSearch(
-                    product
-                ) &&
-
-                productMatchesCategory(
-                    product
-                )
-        );
-
-
-    const sorted =
-        sortProducts(
-            filtered
-        );
-
-
-    const grid =
-        document.querySelector(
-            ".product-grid"
-        );
-
-
-    if (!grid) return;
-
-
-    /* Semua produk disembunyikan dulu */
-
-    products.forEach(
-        product => {
-
-            product.card.style.display =
-                "none";
-
-        }
-    );
-
-
-    /* Tampilkan sesuai urutan */
-
-    sorted.forEach(
-        product => {
-
-            product.card.style.display =
-                "";
-
-            grid.appendChild(
-                product.card
+                }
             );
-
-
-            product.card.classList.remove(
-                "filter-animation"
-            );
-
-
-            void product.card.offsetWidth;
-
-
-            product.card.classList.add(
-                "filter-animation"
-            );
-
-        }
-    );
-
-
-    updateResultCounter(
-        sorted.length,
-        products.length
-    );
-
-
-    if (
-        sorted.length === 0
-    ) {
-
-        showNoResults();
-
-    } else {
-
-        removeNoResults();
-
-    }
-
-}
-
-
-/* =====================================================
-   RESULT COUNTER
-   ===================================================== */
-
-function updateResultCounter(
-    visible,
-    total
-) {
-
-    let counter =
-        document.getElementById(
-            "productResultCount"
-        );
-
-
-    if (!counter) {
-
-        counter =
-            document.createElement(
-                "div"
-            );
-
-        counter.id =
-            "productResultCount";
-
-
-        counter.className =
-            "product-result-count";
-
-
-        const grid =
-            document.querySelector(
-                ".product-grid"
-            );
-
-
-        if (
-            grid &&
-            grid.parentNode
-        ) {
-
-            grid.parentNode.insertBefore(
-                counter,
-                grid
-            );
-
-        }
-
-    }
-
-
-    if (
-        searchKeyword ||
-        activeCategory !==
-            "Semua"
-    ) {
-
-        counter.textContent =
-            `${visible} dari ${total} produk ditemukan`;
-
-    } else {
-
-        counter.textContent =
-            `${total} produk`;
-
-    }
-
-}
-
-
-/* =====================================================
-   NO RESULTS
-   ===================================================== */
-
-function showNoResults() {
-
-    if (
-        document.getElementById(
-            "noProductResults"
-        )
-    ) {
-
-        return;
-
-    }
-
-
-    const grid =
-        document.querySelector(
-            ".product-grid"
-        );
-
-
-    if (!grid) return;
-
-
-    const empty =
-        document.createElement(
-            "div"
-        );
-
-
-    empty.id =
-        "noProductResults";
-
-
-    empty.className =
-        "no-product-results";
-
-
-    empty.innerHTML = `
-
-        <div>
-            🔍
-        </div>
-
-        <h3>
-            Produk tidak ditemukan
-        </h3>
-
-        <p>
-            Coba gunakan kata kunci atau
-            kategori yang berbeda.
-        </p>
-
-        <button
-            id="resetProductFilter"
-        >
-            Reset Filter
-        </button>
-
-    `;
-
-
-    grid.appendChild(
-        empty
-    );
-
-
-    document
-        .getElementById(
-            "resetProductFilter"
-        )
-        ?.addEventListener(
-            "click",
-            resetFilters
-        );
-
-}
-
-
-function removeNoResults() {
-
-    document
-        .getElementById(
-            "noProductResults"
-        )
-        ?.remove();
-
-}
-
-
-/* =====================================================
-   RESET FILTER
-   ===================================================== */
-
-function resetFilters() {
-
-    activeCategory =
-        "Semua";
-
-    activeSort =
-        "terbaru";
-
-    searchKeyword =
-        "";
-
-
-    if (searchInput) {
-
-        searchInput.value =
-            "";
-
-    }
-
-
-    updateCategoryButtons();
-
-    updateSortButtons();
-
-    applyProductFilter();
-
-
-    showToast(
-        "Filter berhasil direset."
-    );
-
-}
-
-
-/* =====================================================
-   SEARCH
-   ===================================================== */
-
-function performSearch() {
-
-    searchKeyword =
-        searchInput
-            ? searchInput.value
-                .trim()
-                .toLowerCase()
-            : "";
-
-
-    applyProductFilter();
-
-}
-
-
-if (searchInput) {
-
-    searchInput.addEventListener(
-        "input",
-        performSearch
-    );
-
-
-    searchInput.addEventListener(
-        "keydown",
-        event => {
-
-            if (
-                event.key ===
-                "Enter"
-            ) {
-
-                performSearch();
-
-            }
-
-        }
-    );
-
-}
-
-
-if (searchButton) {
-
-    searchButton.addEventListener(
-        "click",
-        performSearch
-    );
-
-}
-
-
-/* =====================================================
-   CATEGORY BUTTONS
-   ===================================================== */
-
-function createCategorySystem() {
-
-    const categories =
-        document.querySelectorAll(
-            ".category-card"
-        );
-
-
-    categories.forEach(
-        card => {
-
-            if (
-                card.dataset.filterReady ===
-                "true"
-            ) {
-
-                return;
-
-            }
-
-
-            card.dataset.filterReady =
-                "true";
 
 
             card.addEventListener(
                 "click",
-                () => {
+                event => {
 
-                    const text =
-                        card.textContent
-                            .replace(
-                                /[^\p{L}\s]/gu,
-                                ""
-                            )
-                            .trim();
+                    if (
+                        event.target.closest(
+                            ".add-cart"
+                        )
+                    ) {
 
+                        return;
 
-                    activeCategory =
-                        text ||
-                        "Semua";
+                    }
 
 
-                    updateCategoryButtons();
+                    if (
+                        event.target.closest(
+                            ".wishlist-button"
+                        )
+                    ) {
 
-                    applyProductFilter();
+                        return;
+
+                    }
 
 
-                    showToast(
-                        `Kategori ${activeCategory}`
+                    openProductModal(
+                        getProduct(),
+                        card
                     );
 
                 }
@@ -1577,333 +909,10 @@ function createCategorySystem() {
         }
     );
 
-}
 
-
-/* =====================================================
-   CATEGORY ACTIVE STYLE
-   ===================================================== */
-
-function updateCategoryButtons() {
-
-    document
-        .querySelectorAll(
-            ".category-card"
-        )
-        .forEach(
-            card => {
-
-                const text =
-                    card.textContent
-                        .replace(
-                            /[^\p{L}\s]/gu,
-                            ""
-                        )
-                        .trim();
-
-
-                card.classList.toggle(
-                    "active",
-                    text ===
-                    activeCategory
-                );
-
-            }
-        );
-
-}
-
-
-/* =====================================================
-   SORT BUTTONS
-   ===================================================== */
-
-function createSortSystem() {
-
-    const buttons =
-        document.querySelectorAll(
-            ".sort-buttons button"
-        );
-
-
-    buttons.forEach(
-        (button, index) => {
-
-            if (
-                button.dataset.sortReady ===
-                "true"
-            ) {
-
-                return;
-
-            }
-
-
-            button.dataset.sortReady =
-                "true";
-
-
-            button.addEventListener(
-                "click",
-                () => {
-
-                    const text =
-                        button.textContent
-                            .toLowerCase();
-
-
-                    if (
-                        text.includes(
-                            "terlaris"
-                        )
-                    ) {
-
-                        activeSort =
-                            "terlaris";
-
-                    }
-
-                    else if (
-                        text.includes(
-                            "terendah"
-                        ) ||
-                        text.includes(
-                            "termurah"
-                        )
-                    ) {
-
-                        activeSort =
-                            "termurah";
-
-                    }
-
-                    else if (
-                        text.includes(
-                            "termahal"
-                        )
-                    ) {
-
-                        activeSort =
-                            "termahal";
-
-                    }
-
-                    else if (
-                        text.includes(
-                            "rating"
-                        )
-                    ) {
-
-                        activeSort =
-                            "rating";
-
-                    }
-
-                    else {
-
-                        activeSort =
-                            "terbaru";
-
-                    }
-
-
-                    updateSortButtons();
-
-                    applyProductFilter();
-
-                }
-            );
-
-        }
-    );
-
-}
-
-
-/* =====================================================
-   SORT ACTIVE
-   ===================================================== */
-
-function updateSortButtons() {
-
-    document
-        .querySelectorAll(
-            ".sort-buttons button"
-        )
-        .forEach(
-            button => {
-
-                const text =
-                    button.textContent
-                        .toLowerCase();
-
-
-                let type =
-                    "terbaru";
-
-
-                if (
-                    text.includes(
-                        "terlaris"
-                    )
-                ) {
-
-                    type =
-                        "terlaris";
-
-                }
-
-                else if (
-                    text.includes(
-                        "terendah"
-                    ) ||
-                    text.includes(
-                        "termurah"
-                    )
-                ) {
-
-                    type =
-                        "termurah";
-
-                }
-
-                else if (
-                    text.includes(
-                        "termahal"
-                    )
-                ) {
-
-                    type =
-                        "termahal";
-
-                }
-
-                else if (
-                    text.includes(
-                        "rating"
-                    )
-                ) {
-
-                    type =
-                        "rating";
-
-                }
-
-
-                button.classList.toggle(
-                    "active",
-                    type ===
-                    activeSort
-                );
-
-            }
-        );
-
-}
-
-
-/* =====================================================
-   CREATE EXTRA SORT BUTTONS
-   ===================================================== */
-
-function addExtraSortButtons() {
-
-    const container =
-        document.querySelector(
-            ".sort-buttons"
-        );
-
-
-    if (!container) return;
-
-
-    if (
-        container.dataset.expanded ===
-        "true"
-    ) {
-
-        return;
-
-    }
-
-
-    container.dataset.expanded =
-        "true";
-
-
-    const existingTexts =
-        [
-            ...container.querySelectorAll(
-                "button"
-            )
-        ]
-        .map(
-            button =>
-                button.textContent
-                    .toLowerCase()
-        );
-
-
-    if (
-        !existingTexts.some(
-            text =>
-                text.includes(
-                    "rating"
-                )
-        )
-    ) {
-
-        const ratingButton =
-            document.createElement(
-                "button"
-            );
-
-
-        ratingButton.textContent =
-            "⭐ Rating Tertinggi";
-
-
-        container.appendChild(
-            ratingButton
-        );
-
-    }
-
-
-    if (
-        !existingTexts.some(
-            text =>
-                text.includes(
-                    "termahal"
-                )
-        )
-    ) {
-
-        const expensiveButton =
-            document.createElement(
-                "button"
-            );
-
-
-        expensiveButton.textContent =
-            "💎 Termahal";
-
-
-        container.appendChild(
-            expensiveButton
-        );
-
-    }
-
-
-    createSortSystem();
-
-}
-
-
-/* =====================================================
-   PRODUCT DETAIL MODAL
-   ===================================================== */
+/* =========================================================
+   PRODUCT MODAL
+   ========================================================= */
 
 function createProductModal() {
 
@@ -1942,18 +951,22 @@ function createProductModal() {
 
         <div
             class="product-modal-dialog"
+            role="dialog"
+            aria-modal="true"
         >
 
             <button
                 class="product-modal-close"
                 data-close-product
+                aria-label="Tutup"
             >
                 ✕
             </button>
 
 
-            <div class="product-modal-grid">
-
+            <div
+                class="product-modal-grid"
+            >
 
                 <div
                     class="product-modal-image"
@@ -1987,7 +1000,11 @@ function createProductModal() {
                     <div
                         class="detail-rating"
                     >
-                        ⭐ 4.8
+                        ⭐
+                        <span id="detailRating">
+                            0
+                        </span>
+
                         <span>
                             • Produk pilihan
                         </span>
@@ -2108,12 +1125,13 @@ function createProductModal() {
 }
 
 
-/* =====================================================
+/* =========================================================
    OPEN PRODUCT MODAL
-   ===================================================== */
+   ========================================================= */
 
 function openProductModal(
-    product
+    product,
+    card
 ) {
 
     createProductModal();
@@ -2133,48 +1151,102 @@ function openProductModal(
         );
 
 
-    document.getElementById(
-        "detailProductImage"
-    ).src =
+    const image =
+        document.getElementById(
+            "detailProductImage"
+        );
+
+
+    const name =
+        document.getElementById(
+            "detailProductName"
+        );
+
+
+    const price =
+        document.getElementById(
+            "detailProductPrice"
+        );
+
+
+    const description =
+        document.getElementById(
+            "detailProductDescription"
+        );
+
+
+    const rating =
+        document.getElementById(
+            "detailRating"
+        );
+
+
+    image.src =
         product.image;
 
 
-    document.getElementById(
-        "detailProductImage"
-    ).alt =
+    image.alt =
         product.name;
 
 
-    document.getElementById(
-        "detailProductName"
-    ).textContent =
+    name.textContent =
         product.name;
 
 
-    document.getElementById(
-        "detailProductPrice"
-    ).textContent =
+    price.textContent =
         rupiah(
             product.price
         );
 
 
-    document.getElementById(
-        "detailProductDescription"
-    ).textContent =
+    rating.textContent =
+        product.rating ||
+        "0";
 
-        `${product.name} merupakan produk ` +
-        `kategori ${product.category}. ` +
-        `Produk ini memiliki rating ${product.rating || 4.8} ` +
-        `dan telah terjual sekitar ${product.sold || 0} unit. ` +
-        `Nikmati pengalaman belanja mudah ` +
-        `di MAB-Store.`;
+
+    const oldPrice =
+        card
+            ?.querySelector(
+                ".old-price"
+            )
+            ?.textContent
+            .trim();
+
+
+    const sold =
+        card
+            ?.querySelector(
+                ".product-bottom span:last-child"
+            )
+            ?.textContent
+            .trim();
+
+
+    description.textContent =
+
+        `${product.name} adalah produk ` +
+
+        `kategori ${product.category} ` +
+
+        `yang tersedia di MAB-Store. ` +
+
+        `Produk memiliki rating ` +
+
+        `${product.rating || 0} ` +
+
+        `dan ${sold || "belum ada data penjualan"}. ` +
+
+        (
+            oldPrice
+                ? `Harga sebelumnya ${oldPrice}.`
+                : ""
+        );
 
 
     document.getElementById(
         "detailQuantity"
     ).textContent =
-        "1";
+        detailQuantity;
 
 
     modal.classList.add(
@@ -2189,9 +1261,9 @@ function openProductModal(
 }
 
 
-/* =====================================================
-   CLOSE PRODUCT MODAL
-   ===================================================== */
+/* =========================================================
+   CLOSE MODAL
+   ========================================================= */
 
 function closeProductModal() {
 
@@ -2201,7 +1273,9 @@ function closeProductModal() {
         );
 
 
-    if (!modal) return;
+    if (!modal) {
+        return;
+    }
 
 
     modal.classList.remove(
@@ -2216,85 +1290,13 @@ function closeProductModal() {
 }
 
 
-/* =====================================================
-   PRODUCT CARD CLICK
-   ===================================================== */
-
-document
-    .querySelectorAll(
-        ".product-card"
-    )
-    .forEach(
-        card => {
-
-            const product =
-                getProductFromCard(
-                    card
-                );
-
-
-            const addButton =
-                card.querySelector(
-                    ".add-cart"
-                );
-
-
-            if (addButton) {
-
-                addButton.addEventListener(
-                    "click",
-                    event => {
-
-                        event.stopPropagation();
-
-                        addToCart(
-                            product
-                        );
-
-                    }
-                );
-
-            }
-
-
-            card.addEventListener(
-                "click",
-                event => {
-
-                    if (
-                        event.target.closest(
-                            ".add-cart"
-                        ) ||
-
-                        event.target.closest(
-                            ".wishlist-button"
-                        )
-                    ) {
-
-                        return;
-
-                    }
-
-
-                    openProductModal(
-                        product
-                    );
-
-                }
-            );
-
-        }
-    );
-
-
-/* =====================================================
-   PRODUCT MODAL ACTIONS
-   ===================================================== */
+/* =========================================================
+   DETAIL MODAL ACTION
+   ========================================================= */
 
 document.addEventListener(
     "click",
     event => {
-
 
         if (
             event.target.id ===
@@ -2367,26 +1369,57 @@ document.addEventListener(
 
             openCart();
 
+            showToast(
+                "Produk siap untuk checkout ⚡"
+            );
+
         }
 
     }
 );
 
 
-/* =====================================================
-   ESCAPE
-   ===================================================== */
+/* =========================================================
+   SEARCH
+   ========================================================= */
 
-document.addEventListener(
+function performSearch() {
+
+    searchKeyword =
+        searchInput
+            ?.value
+            .trim()
+            .toLowerCase() ||
+        "";
+
+
+    applyFilters();
+
+}
+
+
+searchButton?.addEventListener(
+    "click",
+    performSearch
+);
+
+
+searchInput?.addEventListener(
+    "input",
+    performSearch
+);
+
+
+searchInput?.addEventListener(
     "keydown",
     event => {
 
         if (
             event.key ===
-            "Escape"
+            "Enter"
         ) {
 
-            closeProductModal();
+            performSearch();
 
         }
 
@@ -2394,9 +1427,1049 @@ document.addEventListener(
 );
 
 
-/* =====================================================
-   FLASH SALE COUNTDOWN
-   ===================================================== */
+/* =========================================================
+   CATEGORY FILTER
+   ========================================================= */
+
+function getCategoryName(
+    category
+) {
+
+    const span =
+        category.querySelector(
+            "span"
+        );
+
+
+    if (
+        span
+    ) {
+
+        return span.textContent
+            .trim();
+
+    }
+
+
+    return category.textContent
+        .replace(
+            /[^\p{L}\s]/gu,
+            ""
+        )
+        .trim();
+
+}
+
+
+document
+    .querySelectorAll(
+        ".category-card"
+    )
+    .forEach(
+        category => {
+
+            category.addEventListener(
+                "click",
+                () => {
+
+                    activeCategory =
+                        getCategoryName(
+                            category
+                        );
+
+
+                    updateCategoryButtons();
+
+                    applyFilters();
+
+
+                    showToast(
+                        `Kategori ${activeCategory} dipilih.`
+                    );
+
+                }
+            );
+
+        }
+    );
+
+
+/* =========================================================
+   CATEGORY ACTIVE
+   ========================================================= */
+
+function updateCategoryButtons() {
+
+    document
+        .querySelectorAll(
+            ".category-card"
+        )
+        .forEach(
+            category => {
+
+                category.classList.toggle(
+                    "active",
+                    getCategoryName(
+                        category
+                    ) ===
+                    activeCategory
+                );
+
+            }
+        );
+
+}
+
+
+/* =========================================================
+   SORT SYSTEM
+   ========================================================= */
+
+function createSortButtons() {
+
+    const container =
+        document.querySelector(
+            ".sort-buttons"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
+    const currentButtons =
+        [
+            ...container.querySelectorAll(
+                "button"
+            )
+        ];
+
+
+    const hasRating =
+        currentButtons.some(
+            button =>
+                button.textContent
+                    .toLowerCase()
+                    .includes(
+                        "rating"
+                    )
+        );
+
+
+    const hasExpensive =
+        currentButtons.some(
+            button =>
+                button.textContent
+                    .toLowerCase()
+                    .includes(
+                        "termahal"
+                    )
+        );
+
+
+    if (!hasRating) {
+
+        const button =
+            document.createElement(
+                "button"
+            );
+
+
+        button.textContent =
+            "⭐ Rating Tertinggi";
+
+
+        container.appendChild(
+            button
+        );
+
+    }
+
+
+    if (!hasExpensive) {
+
+        const button =
+            document.createElement(
+                "button"
+            );
+
+
+        button.textContent =
+            "💎 Termahal";
+
+
+        container.appendChild(
+            button
+        );
+
+    }
+
+
+    bindSortButtons();
+
+}
+
+
+/* =========================================================
+   SORT TYPE
+   ========================================================= */
+
+function getSortType(
+    button
+) {
+
+    const text =
+        button.textContent
+            .toLowerCase();
+
+
+    if (
+        text.includes(
+            "terlaris"
+        )
+    ) {
+
+        return "terlaris";
+
+    }
+
+
+    if (
+        text.includes(
+            "terendah"
+        ) ||
+        text.includes(
+            "termurah"
+        )
+    ) {
+
+        return "termurah";
+
+    }
+
+
+    if (
+        text.includes(
+            "rating"
+        )
+    ) {
+
+        return "rating";
+
+    }
+
+
+    if (
+        text.includes(
+            "termahal"
+        )
+    ) {
+
+        return "termahal";
+
+    }
+
+
+    return "terbaru";
+
+}
+
+
+/* =========================================================
+   BIND SORT BUTTON
+   ========================================================= */
+
+function bindSortButtons() {
+
+    document
+        .querySelectorAll(
+            ".sort-buttons button"
+        )
+        .forEach(
+            button => {
+
+                if (
+                    button.dataset.sortReady ===
+                    "true"
+                ) {
+
+                    return;
+
+                }
+
+
+                button.dataset.sortReady =
+                    "true";
+
+
+                button.addEventListener(
+                    "click",
+                    () => {
+
+                        activeSort =
+                            getSortType(
+                                button
+                            );
+
+
+                        updateSortButtons();
+
+                        applyFilters();
+
+
+                        const messages = {
+
+                            terbaru:
+                                "Menampilkan produk terbaru.",
+
+                            terlaris:
+                                "Menampilkan produk terlaris 🔥",
+
+                            termurah:
+                                "Menampilkan harga terendah 💰",
+
+                            rating:
+                                "Menampilkan rating tertinggi ⭐",
+
+                            termahal:
+                                "Menampilkan produk termahal 💎"
+
+                        };
+
+
+                        showToast(
+                            messages[
+                                activeSort
+                            ]
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+}
+
+
+/* =========================================================
+   SORT ACTIVE
+   ========================================================= */
+
+function updateSortButtons() {
+
+    document
+        .querySelectorAll(
+            ".sort-buttons button"
+        )
+        .forEach(
+            button => {
+
+                button.classList.toggle(
+                    "active",
+                    getSortType(
+                        button
+                    ) ===
+                    activeSort
+                );
+
+            }
+        );
+
+}
+
+
+/* =========================================================
+   SORT PRODUCTS
+   ========================================================= */
+
+function sortProducts(
+    products
+) {
+
+    const result =
+        [...products];
+
+
+    switch (
+        activeSort
+    ) {
+
+        case "terlaris":
+
+            result.sort(
+                (
+                    a,
+                    b
+                ) =>
+                    b.sold -
+                    a.sold
+            );
+
+            break;
+
+
+        case "termurah":
+
+            result.sort(
+                (
+                    a,
+                    b
+                ) =>
+                    a.price -
+                    b.price
+            );
+
+            break;
+
+
+        case "rating":
+
+            result.sort(
+                (
+                    a,
+                    b
+                ) =>
+                    b.rating -
+                    a.rating
+            );
+
+            break;
+
+
+        case "termahal":
+
+            result.sort(
+                (
+                    a,
+                    b
+                ) =>
+                    b.price -
+                    a.price
+            );
+
+            break;
+
+
+        case "terbaru":
+
+        default:
+
+            /*
+               Urutan HTML asli dianggap
+               sebagai urutan terbaru.
+            */
+
+            break;
+
+    }
+
+
+    return result;
+
+}
+
+
+/* =========================================================
+   SEARCH MATCH
+   ========================================================= */
+
+function matchesSearch(
+    product
+) {
+
+    if (
+        !searchKeyword
+    ) {
+
+        return true;
+
+    }
+
+
+    const text = `
+
+        ${product.name}
+
+        ${product.category}
+
+        ${product.keywords}
+
+    `.toLowerCase();
+
+
+    return text.includes(
+        searchKeyword
+    );
+
+}
+
+
+/* =========================================================
+   CATEGORY MATCH
+   ========================================================= */
+
+function matchesCategory(
+    product
+) {
+
+    if (
+        activeCategory ===
+        "Semua"
+    ) {
+
+        return true;
+
+    }
+
+
+    return (
+        product.category ===
+        activeCategory
+    );
+
+}
+
+
+/* =========================================================
+   APPLY FILTER
+   ========================================================= */
+
+function applyFilters() {
+
+    const allProducts =
+        getAllProducts();
+
+
+    const filtered =
+        allProducts.filter(
+            product =>
+
+                matchesSearch(
+                    product
+                ) &&
+
+                matchesCategory(
+                    product
+                )
+        );
+
+
+    const sorted =
+        sortProducts(
+            filtered
+        );
+
+
+    const grid =
+        document.querySelector(
+            ".product-grid"
+        );
+
+
+    if (!grid) {
+        return;
+    }
+
+
+    allProducts.forEach(
+        product => {
+
+            product.card.style.display =
+                "none";
+
+        }
+    );
+
+
+    sorted.forEach(
+        product => {
+
+            product.card.style.display =
+                "";
+
+
+            grid.appendChild(
+                product.card
+            );
+
+
+            product.card.classList.remove(
+                "mab-filter-animation"
+            );
+
+
+            void product.card.offsetWidth;
+
+
+            product.card.classList.add(
+                "mab-filter-animation"
+            );
+
+        }
+    );
+
+
+    updateProductCounter(
+        sorted.length,
+        allProducts.length
+    );
+
+
+    if (
+        sorted.length ===
+        0
+    ) {
+
+        showNoResults();
+
+    } else {
+
+        removeNoResults();
+
+    }
+
+}
+
+
+/* =========================================================
+   RESULT COUNTER
+   ========================================================= */
+
+function updateProductCounter(
+    visible,
+    total
+) {
+
+    let counter =
+        document.getElementById(
+            "mabProductCounter"
+        );
+
+
+    if (!counter) {
+
+        counter =
+            document.createElement(
+                "div"
+            );
+
+
+        counter.id =
+            "mabProductCounter";
+
+
+        counter.className =
+            "mab-product-counter";
+
+
+        const grid =
+            document.querySelector(
+                ".product-grid"
+            );
+
+
+        grid?.parentNode?.insertBefore(
+            counter,
+            grid
+        );
+
+    }
+
+
+    counter.textContent =
+        (
+            searchKeyword ||
+            activeCategory !==
+                "Semua"
+        )
+
+        ?
+
+        `${visible} dari ${total} produk ditemukan`
+
+        :
+
+        `${total} produk tersedia`;
+
+}
+
+
+/* =========================================================
+   NO RESULTS
+   ========================================================= */
+
+function showNoResults() {
+
+    if (
+        document.getElementById(
+            "mabNoResults"
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    const grid =
+        document.querySelector(
+            ".product-grid"
+        );
+
+
+    if (!grid) {
+        return;
+    }
+
+
+    const empty =
+        document.createElement(
+            "div"
+        );
+
+
+    empty.id =
+        "mabNoResults";
+
+
+    empty.className =
+        "mab-no-results";
+
+
+    empty.innerHTML = `
+
+        <div class="no-result-icon">
+            🔍
+        </div>
+
+        <h3>
+            Produk tidak ditemukan
+        </h3>
+
+        <p>
+            Coba gunakan kata kunci
+            atau kategori lain.
+        </p>
+
+        <button
+            id="resetMabFilter"
+        >
+            Reset Filter
+        </button>
+
+    `;
+
+
+    grid.appendChild(
+        empty
+    );
+
+
+    document
+        .getElementById(
+            "resetMabFilter"
+        )
+        ?.addEventListener(
+            "click",
+            resetFilters
+        );
+
+}
+
+
+/* =========================================================
+   REMOVE NO RESULTS
+   ========================================================= */
+
+function removeNoResults() {
+
+    document
+        .getElementById(
+            "mabNoResults"
+        )
+        ?.remove();
+
+}
+
+
+/* =========================================================
+   RESET FILTER
+   ========================================================= */
+
+function resetFilters() {
+
+    activeCategory =
+        "Semua";
+
+
+    activeSort =
+        "terbaru";
+
+
+    searchKeyword =
+        "";
+
+
+    if (searchInput) {
+
+        searchInput.value =
+            "";
+
+    }
+
+
+    updateCategoryButtons();
+
+    updateSortButtons();
+
+    applyFilters();
+
+
+    showToast(
+        "Filter berhasil direset."
+    );
+
+}
+
+
+/* =========================================================
+   WISHLIST
+   ========================================================= */
+
+function isWishlist(
+    productName
+) {
+
+    return wishlist.includes(
+        productName
+    );
+
+}
+
+
+function toggleWishlist(
+    product
+) {
+
+    const index =
+        wishlist.indexOf(
+            product.name
+        );
+
+
+    if (
+        index >=
+        0
+    ) {
+
+        wishlist.splice(
+            index,
+            1
+        );
+
+
+        showToast(
+            `${product.name} dihapus dari wishlist.`
+        );
+
+    } else {
+
+        wishlist.push(
+            product.name
+        );
+
+
+        showToast(
+            `${product.name} masuk wishlist ❤️`
+        );
+
+    }
+
+
+    saveWishlist();
+
+    updateWishlistButtons();
+
+}
+
+
+/* =========================================================
+   WISHLIST BUTTON
+   ========================================================= */
+
+function createWishlistButtons() {
+
+    document
+        .querySelectorAll(
+            ".product-card"
+        )
+        .forEach(
+            card => {
+
+                if (
+                    card.querySelector(
+                        ".wishlist-button"
+                    )
+                ) {
+
+                    return;
+
+                }
+
+
+                const product =
+                    getProductFromCard(
+                        card
+                    );
+
+
+                const button =
+                    document.createElement(
+                        "button"
+                    );
+
+
+                button.type =
+                    "button";
+
+
+                button.className =
+                    "wishlist-button";
+
+
+                button.dataset.product =
+                    product.name;
+
+
+                button.textContent =
+                    isWishlist(
+                        product.name
+                    )
+                        ? "♥"
+                        : "♡";
+
+
+                button.addEventListener(
+                    "click",
+                    event => {
+
+                        event.stopPropagation();
+
+                        toggleWishlist(
+                            product
+                        );
+
+                    }
+                );
+
+
+                card.style.position =
+                    "relative";
+
+
+                card.appendChild(
+                    button
+                );
+
+            }
+        );
+
+
+    updateWishlistButtons();
+
+}
+
+
+/* =========================================================
+   UPDATE WISHLIST
+   ========================================================= */
+
+function updateWishlistButtons() {
+
+    document
+        .querySelectorAll(
+            ".wishlist-button"
+        )
+        .forEach(
+            button => {
+
+                const active =
+                    isWishlist(
+                        button.dataset.product
+                    );
+
+
+                button.textContent =
+                    active
+                        ? "♥"
+                        : "♡";
+
+
+                button.classList.toggle(
+                    "active",
+                    active
+                );
+
+            }
+        );
+
+}
+
+
+/* =========================================================
+   HERO
+   ========================================================= */
+
+document
+    .querySelector(
+        ".hero-button"
+    )
+    ?.addEventListener(
+        "click",
+        () => {
+
+            document
+                .querySelector(
+                    ".products"
+                )
+                ?.scrollIntoView({
+                    behavior:
+                        "smooth"
+                });
+
+        }
+    );
+
+
+/* =========================================================
+   VOUCHER
+   ========================================================= */
+
+document
+    .querySelector(
+        ".voucher-box button"
+    )
+    ?.addEventListener(
+        "click",
+        event => {
+
+            event.currentTarget.textContent =
+                "Voucher Diklaim ✓";
+
+
+            showToast(
+                "Voucher MAB-Store berhasil diklaim 🎟️"
+            );
+
+        }
+    );
+
+
+/* =========================================================
+   FLASH SALE
+   ========================================================= */
 
 let remainingSeconds =
     2 * 60 * 60;
@@ -2404,7 +2477,9 @@ let remainingSeconds =
 
 function updateCountdown() {
 
-    if (!countdown) return;
+    if (!countdown) {
+        return;
+    }
 
 
     const hours =
@@ -2419,7 +2494,8 @@ function updateCountdown() {
             (
                 remainingSeconds %
                 3600
-            ) / 60
+            ) /
+            60
         );
 
 
@@ -2438,7 +2514,8 @@ function updateCountdown() {
 
 
     if (
-        remainingSeconds > 0
+        remainingSeconds >
+        0
     ) {
 
         remainingSeconds--;
@@ -2462,136 +2539,66 @@ setInterval(
 );
 
 
-/* =====================================================
-   VOUCHER
-   ===================================================== */
+/* =========================================================
+   CHECKOUT
+   ========================================================= */
 
-const voucherButton =
-    document.querySelector(
-        ".voucher-box button"
-    );
+checkoutButton?.addEventListener(
+    "click",
+    () => {
 
-
-if (voucherButton) {
-
-    voucherButton.addEventListener(
-        "click",
-        event => {
-
-            event.currentTarget.textContent =
-                "Voucher Diklaim ✓";
-
+        if (
+            cart.length ===
+            0
+        ) {
 
             showToast(
-                "Voucher berhasil diklaim 🎟️"
+                "Keranjang masih kosong."
             );
 
-        }
-    );
-
-}
-
-
-/* =====================================================
-   HERO BUTTON
-   ===================================================== */
-
-const heroButton =
-    document.querySelector(
-        ".hero-button"
-    );
-
-
-if (heroButton) {
-
-    heroButton.addEventListener(
-        "click",
-        () => {
-
-            const products =
-                document.querySelector(
-                    ".products"
-                );
-
-
-            if (products) {
-
-                products.scrollIntoView({
-                    behavior:
-                        "smooth"
-                });
-
-            }
+            return;
 
         }
-    );
-
-}
 
 
-/* =====================================================
-   CHECKOUT
-   ===================================================== */
-
-if (checkoutButton) {
-
-    checkoutButton.addEventListener(
-        "click",
-        () => {
-
-            if (
-                cart.length === 0
-            ) {
-
-                showToast(
-                    "Keranjang masih kosong."
-                );
-
-                return;
-
-            }
-
-
-            const total =
-                cart.reduce(
+        const total =
+            cart.reduce(
+                (
+                    sum,
+                    item
+                ) =>
+                    sum +
                     (
-                        sum,
-                        item
-                    ) =>
-                        sum +
-                        (
-                            item.price *
-                            item.quantity
-                        ),
-                    0
-                );
-
-
-            alert(
-
-                "🛒 CHECKOUT MAB-STORE\n\n" +
-
-                `Total belanja: ${rupiah(total)}\n\n` +
-
-                "Checkout masih dalam mode simulasi."
-
+                        item.price *
+                        item.quantity
+                    ),
+                0
             );
 
-        }
-    );
 
-}
+        alert(
+
+            "🛒 CHECKOUT MAB-STORE\n\n" +
+
+            `Total belanja: ${rupiah(total)}\n\n` +
+
+            "Checkout saat ini masih berupa simulasi."
+
+        );
+
+    }
+);
 
 
-/* =====================================================
-   CSS TAMBAHAN OTOMATIS
-   ===================================================== */
+/* =========================================================
+   EXTRA CSS
+   ========================================================= */
 
-function injectEnhancementCSS() {
+function injectMabCSS() {
 
     if (
         document.getElementById(
-            "mabstore-step3-css"
+            "mabStep3CSS"
         )
     ) {
 
@@ -2607,17 +2614,49 @@ function injectEnhancementCSS() {
 
 
     style.id =
-        "mabstore-step3-css";
+        "mabStep3CSS";
 
 
     style.textContent = `
 
-        /* SEARCH / FILTER */
+        .mab-filter-animation {
 
-        .product-result-count {
+            animation:
+                mabFilterAppear
+                .35s ease both;
+
+        }
+
+
+        @keyframes mabFilterAppear {
+
+            from {
+
+                opacity:
+                    0;
+
+                transform:
+                    translateY(15px);
+
+            }
+
+            to {
+
+                opacity:
+                    1;
+
+                transform:
+                    translateY(0);
+
+            }
+
+        }
+
+
+        .mab-product-counter {
 
             margin:
-                10px 0 18px;
+                0 0 15px;
 
             font-size:
                 14px;
@@ -2631,14 +2670,118 @@ function injectEnhancementCSS() {
         }
 
 
-        .category-card.active {
+        .mab-no-results {
 
-            transform:
-                translateY(-3px);
+            grid-column:
+                1 / -1;
+
+            text-align:
+                center;
+
+            padding:
+                55px 20px;
+
+        }
+
+
+        .no-result-icon {
+
+            font-size:
+                48px;
+
+            margin-bottom:
+                10px;
+
+        }
+
+
+        .mab-no-results button {
+
+            border:
+                0;
+
+            padding:
+                11px 20px;
+
+            border-radius:
+                10px;
+
+            cursor:
+                pointer;
+
+            font-weight:
+                700;
+
+        }
+
+
+        .wishlist-button {
+
+            position:
+                absolute;
+
+            top:
+                10px;
+
+            right:
+                10px;
+
+            width:
+                38px;
+
+            height:
+                38px;
+
+            border:
+                none;
+
+            border-radius:
+                50%;
+
+            background:
+                rgba(
+                    255,
+                    255,
+                    255,
+                    .95
+                );
+
+            cursor:
+                pointer;
+
+            font-size:
+                21px;
+
+            z-index:
+                10;
 
             box-shadow:
-                0 10px 25px
-                rgba(0,0,0,.12);
+                0 4px 12px
+                rgba(
+                    0,
+                    0,
+                    0,
+                    .12
+                );
+
+            transition:
+                .25s ease;
+
+        }
+
+
+        .wishlist-button:hover {
+
+            transform:
+                scale(1.12);
+
+        }
+
+
+        .wishlist-button.active {
+
+            transform:
+                scale(1.08);
 
         }
 
@@ -2670,504 +2813,37 @@ function injectEnhancementCSS() {
 
         .sort-buttons button.active {
 
+            font-weight:
+                700;
+
             transform:
                 translateY(-2px);
 
-            font-weight:
-                700;
-
         }
 
 
-        /* PRODUCT ANIMATION */
+        @media (
+            max-width: 700px
+        ) {
 
-        .filter-animation {
+            .sort-buttons {
 
-            animation:
-                mabProductFilter
-                .35s ease both;
+                overflow-x:
+                    auto;
 
-        }
+                flex-wrap:
+                    nowrap;
 
-
-        @keyframes mabProductFilter {
-
-            from {
-
-                opacity:
-                    0;
-
-                transform:
-                    translateY(12px)
-                    scale(.98);
-
-            }
-
-            to {
-
-                opacity:
-                    1;
-
-                transform:
-                    translateY(0)
-                    scale(1);
-
-            }
-
-        }
-
-
-        /* WISHLIST */
-
-        .wishlist-button {
-
-            position:
-                absolute;
-
-            top:
-                10px;
-
-            right:
-                10px;
-
-            width:
-                38px;
-
-            height:
-                38px;
-
-            border:
-                0;
-
-            border-radius:
-                50%;
-
-            background:
-                rgba(255,255,255,.95);
-
-            cursor:
-                pointer;
-
-            font-size:
-                22px;
-
-            z-index:
-                5;
-
-            box-shadow:
-                0 4px 12px
-                rgba(0,0,0,.12);
-
-            transition:
-                .25s ease;
-
-        }
-
-
-        .wishlist-button:hover {
-
-            transform:
-                scale(1.12);
-
-        }
-
-
-        .wishlist-button.active {
-
-            font-weight:
-                900;
-
-        }
-
-
-        /* NO RESULT */
-
-        .no-product-results {
-
-            grid-column:
-                1 / -1;
-
-            text-align:
-                center;
-
-            padding:
-                50px 20px;
-
-        }
-
-
-        .no-product-results > div {
-
-            font-size:
-                50px;
-
-            margin-bottom:
-                10px;
-
-        }
-
-
-        .no-product-results button {
-
-            border:
-                0;
-
-            padding:
-                11px 20px;
-
-            border-radius:
-                10px;
-
-            cursor:
-                pointer;
-
-        }
-
-
-        /* MODAL */
-
-        .product-modal {
-
-            position:
-                fixed;
-
-            inset:
-                0;
-
-            z-index:
-                9999;
-
-            display:
-                flex;
-
-            align-items:
-                center;
-
-            justify-content:
-                center;
-
-            opacity:
-                0;
-
-            visibility:
-                hidden;
-
-            transition:
-                .25s ease;
-
-        }
-
-
-        .product-modal.show {
-
-            opacity:
-                1;
-
-            visibility:
-                visible;
-
-        }
-
-
-        .product-modal-backdrop {
-
-            position:
-                absolute;
-
-            inset:
-                0;
-
-            background:
-                rgba(0,0,0,.55);
-
-            backdrop-filter:
-                blur(5px);
-
-        }
-
-
-        .product-modal-dialog {
-
-            position:
-                relative;
-
-            z-index:
-                2;
-
-            width:
-                min(920px, 92%);
-
-            max-height:
-                90vh;
-
-            overflow:
-                auto;
-
-            border-radius:
-                24px;
-
-            background:
-                white;
-
-            box-shadow:
-                0 30px 80px
-                rgba(0,0,0,.25);
-
-            transform:
-                translateY(25px)
-                scale(.96);
-
-            transition:
-                .3s ease;
-
-        }
-
-
-        .product-modal.show
-        .product-modal-dialog {
-
-            transform:
-                translateY(0)
-                scale(1);
-
-        }
-
-
-        .product-modal-close {
-
-            position:
-                absolute;
-
-            right:
-                16px;
-
-            top:
-                16px;
-
-            z-index:
-                5;
-
-            width:
-                38px;
-
-            height:
-                38px;
-
-            border:
-                0;
-
-            border-radius:
-                50%;
-
-            cursor:
-                pointer;
-
-            font-size:
-                18px;
-
-        }
-
-
-        .product-modal-grid {
-
-            display:
-                grid;
-
-            grid-template-columns:
-                1fr 1fr;
-
-            gap:
-                30px;
-
-            padding:
-                35px;
-
-        }
-
-
-        .product-modal-image img {
-
-            width:
-                100%;
-
-            aspect-ratio:
-                1 / 1;
-
-            object-fit:
-                cover;
-
-            border-radius:
-                18px;
-
-        }
-
-
-        .detail-badge {
-
-            display:
-                inline-block;
-
-            padding:
-                6px 10px;
-
-            border-radius:
-                20px;
-
-            font-size:
-                12px;
-
-            font-weight:
-                700;
-
-            background:
-                #e8f8f3;
-
-        }
-
-
-        .detail-price {
-
-            font-size:
-                28px;
-
-            font-weight:
-                800;
-
-            margin:
-                15px 0;
-
-        }
-
-
-        .detail-stock {
-
-            font-weight:
-                600;
-
-        }
-
-
-        .detail-quantity {
-
-            display:
-                flex;
-
-            align-items:
-                center;
-
-            justify-content:
-                space-between;
-
-            margin:
-                25px 0;
-
-        }
-
-
-        .detail-quantity > div {
-
-            display:
-                flex;
-
-            align-items:
-                center;
-
-            gap:
-                15px;
-
-        }
-
-
-        .detail-quantity button {
-
-            width:
-                36px;
-
-            height:
-                36px;
-
-            border:
-                0;
-
-            border-radius:
-                9px;
-
-            cursor:
-                pointer;
-
-        }
-
-
-        .detail-actions {
-
-            display:
-                flex;
-
-            gap:
-                10px;
-
-        }
-
-
-        .detail-actions button {
-
-            flex:
-                1;
-
-            padding:
-                13px;
-
-            border:
-                0;
-
-            border-radius:
-                12px;
-
-            cursor:
-                pointer;
-
-            font-weight:
-                700;
-
-        }
-
-
-        .modal-open {
-
-            overflow:
-                hidden;
-
-        }
-
-
-        @media (max-width: 700px) {
-
-            .product-modal-grid {
-
-                grid-template-columns:
-                    1fr;
-
-                padding:
-                    20px;
+                padding-bottom:
+                    5px;
 
             }
 
 
-            .product-modal-dialog {
+            .sort-buttons button {
 
-                width:
-                    94%;
-
-                max-height:
-                    94vh;
-
-            }
-
-
-            .detail-actions {
-
-                flex-direction:
-                    column;
+                flex:
+                    0 0 auto;
 
             }
 
@@ -3183,27 +2859,24 @@ function injectEnhancementCSS() {
 }
 
 
-/* =====================================================
+/* =========================================================
    INITIALIZE
-   ===================================================== */
+   ========================================================= */
 
-injectEnhancementCSS();
+injectMabCSS();
+
+createSortButtons();
 
 createWishlistButtons();
-
-createCategorySystem();
-
-createSortSystem();
-
-addExtraSortButtons();
 
 updateCategoryButtons();
 
 updateSortButtons();
 
-applyProductFilter();
+applyFilters();
 
 updateCart();
+
 
 console.log(
     "MAB-Store STEP 3 aktif 🚀"
