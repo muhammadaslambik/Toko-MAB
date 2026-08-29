@@ -1,6 +1,6 @@
 /* =========================================
    MAB-STORE MARKETPLACE
-   Teal + Dark Green Theme
+   Modern Teal Marketplace Theme
    ========================================= */
 
 * {
@@ -10,24 +10,15 @@
 }
 
 :root {
-    --primary: #0f9d9a;
-    --primary-dark: #00695c;
-    --primary-light: #e6f8f7;
-
-    --dark-green: #00695c;
-    --dark-green-hover: #004d40;
-
+--primary: #0f9d9a;
+--primary-dark: #087f7c;
+--primary-light: #e6f8f7;
     --text: #222222;
     --muted: #777777;
     --background: #f5f5f5;
     --white: #ffffff;
     --border: #eeeeee;
-
     --shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-}
-
-html {
-    scroll-behavior: smooth;
 }
 
 body {
@@ -58,7 +49,7 @@ button {
    ========================================= */
 
 .top-bar {
-    background: var(--dark-green);
+    background: var(--primary-dark);
     color: rgba(255, 255, 255, 0.95);
     font-size: 13px;
 }
@@ -81,12 +72,12 @@ button {
    ========================================= */
 
 .navbar {
-    background: var(--white);
-    color: var(--dark-green);
+    background: var(--primary);
+    color: white;
     position: sticky;
     top: 0;
     z-index: 100;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.10);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
 }
 
 .navbar-content {
@@ -96,33 +87,16 @@ button {
     gap: 28px;
 }
 
-
-/* =========================================
-   LOGO
-   ========================================= */
-
 .logo {
     font-size: 28px;
     font-weight: 800;
     white-space: nowrap;
     letter-spacing: -1px;
-    color: var(--dark-green);
-    transition: transform 0.25s ease;
-}
-
-.logo:hover {
-    transform: scale(1.03);
 }
 
 .logo span {
     font-weight: 400;
-    color: var(--dark-green);
 }
-
-
-/* =========================================
-   SEARCH
-   ========================================= */
 
 .search-box {
     flex: 1;
@@ -130,18 +104,9 @@ button {
     height: 44px;
     display: flex;
     background: white;
-    border: 1px solid #d7e7e5;
-    border-radius: 8px;
+    border-radius: 5px;
     overflow: hidden;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
-    transition:
-        border-color 0.25s ease,
-        box-shadow 0.25s ease;
-}
-
-.search-box:focus-within {
-    border-color: var(--dark-green);
-    box-shadow: 0 0 0 3px rgba(0, 105, 92, 0.10);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12);
 }
 
 .search-box input {
@@ -159,35 +124,21 @@ button {
 
 .search-box button {
     width: 58px;
-    background: var(--dark-green);
+    background: var(--primary-dark);
     color: white;
     font-size: 18px;
-    transition: background 0.2s ease;
 }
 
 .search-box button:hover {
-    background: var(--dark-green-hover);
+    background: var(--primary-dark);
 }
-
-
-/* =========================================
-   CART BUTTON
-   ========================================= */
 
 .cart-button {
     position: relative;
     background: transparent;
-    color: var(--dark-green);
+    color: white;
     font-size: 25px;
     width: 50px;
-    transition:
-        transform 0.25s ease,
-        color 0.25s ease;
-}
-
-.cart-button:hover {
-    color: var(--dark-green-hover);
-    transform: scale(1.08);
 }
 
 #cartCount {
@@ -200,10 +151,8 @@ button {
     display: flex;
     align-items: center;
     justify-content: center;
-
-    background: var(--dark-green);
-    color: white;
-
+    background: white;
+    color: var(--primary);
     border-radius: 20px;
     font-size: 11px;
     font-weight: bold;
@@ -215,43 +164,21 @@ button {
    ========================================= */
 
 .hero {
-    background:
-        radial-gradient(
-            circle at 85% 30%,
-            rgba(255, 255, 255, 0.12),
-            transparent 30%
-        ),
-        linear-gradient(
-            135deg,
-            var(--primary),
-            var(--primary-dark)
-        );
-
+    background: linear-gradient(
+        135deg,
+        var(--primary),
+        var(--primary-dark)
+    );
     color: white;
     overflow: hidden;
-    position: relative;
-}
-
-.hero::before {
-    content: "";
-    position: absolute;
-    width: 350px;
-    height: 350px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.06);
-    top: -180px;
-    right: -80px;
-    animation: heroGlow 6s ease-in-out infinite;
 }
 
 .hero-content {
-    min-height: 330px;
+    min-height: 300px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 40px;
-    position: relative;
-    z-index: 2;
 }
 
 .small-title {
@@ -276,35 +203,23 @@ button {
 
 .hero-button {
     background: white;
-    color: var(--dark-green);
+    color: var(--primary);
     padding: 13px 24px;
-    border-radius: 7px;
+    border-radius: 5px;
     font-weight: bold;
     font-size: 14px;
-    transition:
-        transform 0.25s ease,
-        box-shadow 0.25s ease;
+    transition: 0.2s ease;
 }
 
 .hero-button:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
 }
-
-.hero-button:active {
-    transform: translateY(-1px);
-}
-
-
-/* =========================================
-   HERO ICON
-   ========================================= */
 
 .hero-icon {
     font-size: 150px;
     opacity: 0.95;
-    animation: floating 3s ease-in-out infinite;
-    transform-origin: center;
+    transform: rotate(-8deg);
 }
 
 
@@ -344,21 +259,15 @@ button {
     min-height: 105px;
     background: white;
     border: 1px solid var(--border);
-    border-radius: 10px;
-
+    border-radius: 8px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-
     gap: 8px;
     font-size: 32px;
     color: var(--text);
-
-    transition:
-        transform 0.25s ease,
-        border-color 0.25s ease,
-        box-shadow 0.25s ease;
+    transition: 0.2s ease;
 }
 
 .category-card span {
@@ -366,8 +275,8 @@ button {
 }
 
 .category-card:hover {
-    transform: translateY(-5px);
-    border-color: var(--primary);
+    transform: translateY(-3px);
+    border-color: #ffc4c4;
     box-shadow: var(--shadow);
 }
 
@@ -392,7 +301,7 @@ button {
 .flash-title {
     font-size: 24px;
     font-weight: 800;
-    color: var(--dark-green);
+    color: var(--primary);
 }
 
 .flash-timer {
@@ -402,19 +311,14 @@ button {
 }
 
 .flash-timer strong {
-    color: var(--dark-green);
+    color: var(--primary);
     margin-left: 5px;
 }
 
 .flash-header button {
     background: transparent;
-    color: var(--dark-green);
+    color: var(--primary);
     font-weight: bold;
-    transition: transform 0.2s ease;
-}
-
-.flash-header button:hover {
-    transform: translateX(4px);
 }
 
 
@@ -430,62 +334,26 @@ button {
 
 .product-card {
     background: white;
-    border-radius: 10px;
+    border-radius: 8px;
     overflow: hidden;
     border: 1px solid #eeeeee;
-
-    animation: productAppear 0.6s ease both;
-
-    transition:
-        transform 0.3s ease,
-        box-shadow 0.3s ease,
-        border-color 0.3s ease;
+    transition: 0.25s ease;
 }
 
 .product-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 18px 35px rgba(0, 0, 0, 0.12);
-    border-color: #c8e5e1;
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
-
-
-/* =========================================
-   PRODUCT IMAGE
-   ========================================= */
 
 .product-image {
     height: 210px;
     background: var(--primary-light);
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     font-size: 90px;
-    border-bottom: 1px solid #d7efed;
-
-    overflow: hidden;
+    border-bottom: 1px solid #f3dada;
 }
-
-.product-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-
-    transition:
-        transform 0.4s ease,
-        filter 0.4s ease;
-}
-
-.product-card:hover .product-image img {
-    transform: scale(1.06);
-}
-
-
-/* =========================================
-   PRODUCT INFO
-   ========================================= */
 
 .product-info {
     padding: 15px;
@@ -499,7 +367,7 @@ button {
 }
 
 .price {
-    color: var(--dark-green);
+    color: var(--primary);
     font-size: 20px;
     font-weight: 700;
     margin-bottom: 2px;
@@ -516,42 +384,25 @@ button {
     display: flex;
     align-items: center;
     justify-content: space-between;
-
     color: #666;
     font-size: 12px;
     margin-bottom: 13px;
 }
 
-
-/* =========================================
-   ADD TO CART
-   ========================================= */
-
 .add-cart {
     width: 100%;
     padding: 10px;
-
-    border: 1px solid var(--dark-green);
+    border: 1px solid var(--primary);
     background: var(--primary-light);
-    color: var(--dark-green);
-
-    border-radius: 6px;
+    color: var(--primary);
+    border-radius: 5px;
     font-weight: bold;
-
-    transition:
-        background 0.2s ease,
-        color 0.2s ease,
-        transform 0.2s ease;
+    transition: 0.2s ease;
 }
 
 .add-cart:hover {
-    background: var(--dark-green);
+    background: var(--primary);
     color: white;
-    transform: translateY(-2px);
-}
-
-.add-cart:active {
-    transform: translateY(0);
 }
 
 
@@ -562,15 +413,12 @@ button {
 .voucher-box {
     background: linear-gradient(
         90deg,
-        #e9f8f6,
+        #fff1f1,
         #ffffff
     );
-
-    border: 1px solid #c9e9e5;
+    border: 1px solid #ffd6d6;
     border-radius: 10px;
-
     padding: 22px 28px;
-
     display: flex;
     align-items: center;
     gap: 20px;
@@ -593,21 +441,14 @@ button {
 .voucher-box button {
     margin-left: auto;
     padding: 11px 20px;
-
-    background: var(--dark-green);
+    background: var(--primary);
     color: white;
-
-    border-radius: 6px;
+    border-radius: 5px;
     font-weight: bold;
-
-    transition:
-        transform 0.2s ease,
-        background 0.2s ease;
 }
 
 .voucher-box button:hover {
-    background: var(--dark-green-hover);
-    transform: translateY(-2px);
+    background: var(--primary-dark);
 }
 
 
@@ -629,21 +470,15 @@ button {
 .sort-buttons button {
     background: white;
     border: 1px solid #ddd;
-
     padding: 8px 14px;
     border-radius: 5px;
     font-size: 13px;
-
-    transition:
-        color 0.2s ease,
-        border-color 0.2s ease,
-        background 0.2s ease;
 }
 
 .sort-buttons button:hover,
 .sort-buttons button.active {
-    color: var(--dark-green);
-    border-color: var(--dark-green);
+    color: var(--primary);
+    border-color: var(--primary);
     background: var(--primary-light);
 }
 
@@ -654,22 +489,16 @@ button {
 
 .cart-drawer {
     position: fixed;
-
     top: 0;
     right: -420px;
-
     width: 400px;
     max-width: 92%;
     height: 100vh;
-
     background: white;
     z-index: 1000;
-
     box-shadow: -5px 0 20px rgba(0, 0, 0, 0.18);
-
     display: flex;
     flex-direction: column;
-
     transition: right 0.3s ease;
 }
 
@@ -679,10 +508,8 @@ button {
 
 .cart-header {
     padding: 20px;
-
-    background: var(--dark-green);
+    background: var(--primary);
     color: white;
-
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -696,15 +523,6 @@ button {
     background: transparent;
     color: white;
     font-size: 20px;
-
-    transition:
-        transform 0.2s ease,
-        opacity 0.2s ease;
-}
-
-.cart-header button:hover {
-    transform: rotate(90deg);
-    opacity: 0.8;
 }
 
 #cartItems {
@@ -731,28 +549,21 @@ button {
 }
 
 #cartTotal {
-    color: var(--dark-green);
+    color: var(--primary);
     font-size: 18px;
 }
 
 #checkoutButton {
     width: 100%;
     padding: 13px;
-
-    background: var(--dark-green);
+    background: var(--primary);
     color: white;
-
-    border-radius: 6px;
+    border-radius: 5px;
     font-weight: bold;
-
-    transition:
-        background 0.2s ease,
-        transform 0.2s ease;
 }
 
 #checkoutButton:hover {
-    background: var(--dark-green-hover);
-    transform: translateY(-2px);
+    background: var(--primary-dark);
 }
 
 
@@ -763,17 +574,11 @@ button {
 .overlay {
     position: fixed;
     inset: 0;
-
     background: rgba(0, 0, 0, 0.45);
-
     z-index: 900;
-
     opacity: 0;
     visibility: hidden;
-
-    transition:
-        opacity 0.3s ease,
-        visibility 0.3s ease;
+    transition: 0.3s ease;
 }
 
 .overlay.active {
@@ -783,32 +588,22 @@ button {
 
 
 /* =========================================
-   TOAST
+   TOAST NOTIFICATION
    ========================================= */
 
 .toast {
     position: fixed;
-
     bottom: 30px;
     left: 50%;
-
     transform: translate(-50%, 100px);
-
     background: #222;
     color: white;
-
     padding: 12px 20px;
-    border-radius: 6px;
-
+    border-radius: 5px;
     font-size: 14px;
-
     z-index: 2000;
-
     opacity: 0;
-
-    transition:
-        transform 0.3s ease,
-        opacity 0.3s ease;
+    transition: 0.3s ease;
 }
 
 .toast.show {
@@ -829,7 +624,6 @@ footer {
 
 .footer-content {
     padding: 45px 0;
-
     display: grid;
     grid-template-columns: 2fr 1fr 1fr;
     gap: 40px;
@@ -856,47 +650,6 @@ footer {
     text-align: center;
     color: #999;
     font-size: 12px;
-}
-
-
-/* =========================================
-   ANIMATIONS
-   ========================================= */
-
-@keyframes productAppear {
-    from {
-        opacity: 0;
-        transform: translateY(25px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes floating {
-    0%,
-    100% {
-        transform: translateY(0) rotate(-5deg);
-    }
-
-    50% {
-        transform: translateY(-12px) rotate(5deg);
-    }
-}
-
-@keyframes heroGlow {
-    0%,
-    100% {
-        transform: scale(1);
-        opacity: 0.6;
-    }
-
-    50% {
-        transform: scale(1.15);
-        opacity: 1;
-    }
 }
 
 
@@ -941,7 +694,6 @@ footer {
     .navbar-content {
         min-height: 125px;
         padding: 12px 0;
-
         flex-wrap: wrap;
         gap: 10px;
     }
@@ -962,7 +714,6 @@ footer {
 
     .hero-content {
         min-height: 360px;
-
         text-align: center;
         justify-content: center;
     }
@@ -1087,35 +838,57 @@ footer {
     .hero h1 {
         font-size: 32px;
     }
-
-    .logo {
-        font-size: 21px;
-    }
-
-    .cart-button {
-        font-size: 23px;
-    }
-}
-
-
-/* =========================================
-   ACCESSIBILITY
-   ========================================= */
-
-@media (prefers-reduced-motion: reduce) {
-
-    *,
-    *::before,
-    *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-        scroll-behavior: auto !important;
-    }
 }
 /* =================================
-   FOTO PRODUK MAB-STORE
+   ANIMASI MAB-STORE
    ================================= */
+
+.product-card {
+    animation: productAppear 0.6s ease both;
+    transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease;
+}
+
+.product-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 18px 35px rgba(0, 0, 0, 0.12);
+}
+
+@keyframes productAppear {
+    from {
+        opacity: 0;
+        transform: translateY(25px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* =================================
+   HERO BERGERAK
+   ================================= */
+
+.hero-icon {
+    animation: floating 3s ease-in-out infinite;
+}
+
+@keyframes floating {
+    0%, 100% {
+        transform: translateY(0) rotate(-5deg);
+    }
+
+    50% {
+        transform: translateY(-12px) rotate(5deg);
+    }
+}
+
+/* =========================================
+   PRODUCT PHOTOS
+   ========================================= */
 
 .product-image {
     overflow: hidden;
@@ -1126,4 +899,338 @@ footer {
     height: 100%;
     object-fit: cover;
     display: block;
+    transition: transform 0.35s ease;
+}
+
+.product-card:hover .product-photo {
+    transform: scale(1.03);
+}
+
+.product-card {
+    cursor: pointer;
+}
+
+.add-cart {
+    position: relative;
+    z-index: 2;
+}
+
+
+/* =========================================
+   CART ITEM PHOTOS
+   ========================================= */
+
+.cart-item-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.cart-product-image {
+    width: 58px;
+    height: 58px;
+    flex: 0 0 58px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--primary-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cart-product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.cart-product-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.cart-product-details strong {
+    display: block;
+    font-size: 14px;
+    line-height: 1.35;
+    margin-bottom: 4px;
+}
+
+.cart-product-price {
+    color: var(--primary);
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.cart-quantity {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.quantity-btn {
+    width: 28px;
+    height: 28px;
+    border: 1px solid #ddd;
+    background: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.quantity-btn:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.remove-item {
+    margin-left: auto;
+    background: transparent;
+    color: #c62828;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+
+/* =========================================
+   PRODUCT DETAIL MODAL
+   ========================================= */
+
+body.modal-open {
+    overflow: hidden;
+}
+
+.product-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 3000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.product-modal.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.product-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+}
+
+.product-modal-dialog {
+    position: relative;
+    width: min(900px, 100%);
+    max-height: 90vh;
+    overflow-y: auto;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.25);
+    transform: translateY(25px) scale(0.97);
+    transition: transform 0.3s ease;
+}
+
+.product-modal.show .product-modal-dialog {
+    transform: translateY(0) scale(1);
+}
+
+.product-modal-close {
+    position: absolute;
+    right: 16px;
+    top: 16px;
+    z-index: 2;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.95);
+    color: #333;
+    font-size: 18px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.12);
+}
+
+.product-modal-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.product-modal-image {
+    min-height: 480px;
+    background: var(--primary-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+}
+
+.product-modal-image img {
+    width: 100%;
+    height: 420px;
+    object-fit: contain;
+    border-radius: 12px;
+}
+
+.product-modal-info {
+    padding: 50px 38px 35px;
+}
+
+.detail-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    background: var(--primary-light);
+    color: var(--primary-dark);
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.product-modal-info h2 {
+    font-size: 30px;
+    line-height: 1.15;
+    margin-bottom: 10px;
+}
+
+.detail-rating {
+    font-size: 13px;
+    margin-bottom: 18px;
+}
+
+.detail-rating span {
+    color: var(--muted);
+}
+
+.detail-price {
+    color: var(--primary);
+    font-size: 30px;
+    font-weight: 800;
+    margin-bottom: 8px;
+}
+
+.detail-stock {
+    color: #16825d;
+    font-weight: 700;
+    font-size: 13px;
+    margin-bottom: 28px;
+}
+
+.product-modal-info h3 {
+    font-size: 16px;
+    margin-bottom: 8px;
+}
+
+#detailProductDescription {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.7;
+    margin-bottom: 25px;
+}
+
+.detail-quantity {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 22px;
+}
+
+.detail-quantity > span {
+    font-weight: 700;
+}
+
+.detail-quantity > div {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.detail-quantity button {
+    width: 34px;
+    height: 34px;
+    border: 1px solid #ddd;
+    background: #fff;
+    border-radius: 6px;
+    font-size: 18px;
+}
+
+.detail-actions {
+    display: grid;
+    gap: 10px;
+}
+
+.detail-add-cart,
+.detail-buy-now {
+    width: 100%;
+    padding: 13px 16px;
+    border-radius: 7px;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.detail-add-cart {
+    color: var(--primary);
+    background: var(--primary-light);
+    border: 1px solid var(--primary);
+}
+
+.detail-buy-now {
+    color: #fff;
+    background: var(--primary);
+}
+
+.detail-add-cart:hover {
+    background: var(--primary);
+    color: #fff;
+}
+
+.detail-buy-now:hover {
+    background: var(--primary-dark);
+}
+
+
+/* =========================================
+   MODAL MOBILE
+   ========================================= */
+
+@media (max-width: 700px) {
+
+    .product-modal {
+        padding: 10px;
+    }
+
+    .product-modal-dialog {
+        max-height: 94vh;
+        border-radius: 12px;
+    }
+
+    .product-modal-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .product-modal-image {
+        min-height: 260px;
+        padding: 20px;
+    }
+
+    .product-modal-image img {
+        height: 240px;
+    }
+
+    .product-modal-info {
+        padding: 28px 20px 25px;
+    }
+
+    .product-modal-info h2 {
+        font-size: 23px;
+    }
+
+    .detail-price {
+        font-size: 25px;
+    }
 }
