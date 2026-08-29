@@ -1,13 +1,13 @@
 /* =========================================================
    MAB-STORE
    MARKETPLACE FRONTEND
-   CATEGORY + SEARCH + SORTING + CART
+   CLEAN FINAL JAVASCRIPT
    ========================================================= */
 
 
 /* =========================================================
    PRODUCT DATABASE
-========================================================= */
+   ========================================================= */
 
 const products = [
 
@@ -184,48 +184,56 @@ const products = [
 
 /* =========================================================
    CATEGORY INFORMATION
-========================================================= */
+   ========================================================= */
 
 const categoryInfo = {
 
     Elektronik: {
         icon: "📱",
-        description: "Temukan smartphone, laptop, kamera, audio, dan perangkat elektronik pilihan."
+        description:
+            "Temukan smartphone, laptop, kamera, audio, dan perangkat elektronik pilihan."
     },
 
     Fashion: {
         icon: "👕",
-        description: "Temukan pakaian dan produk fashion pilihan untuk melengkapi gaya kamu."
+        description:
+            "Temukan pakaian dan produk fashion pilihan untuk melengkapi gaya kamu."
     },
 
     Rumah: {
         icon: "🏠",
-        description: "Berbagai kebutuhan rumah dan perlengkapan pilihan untuk rumah kamu."
+        description:
+            "Berbagai kebutuhan rumah dan perlengkapan pilihan untuk rumah kamu."
     },
 
     Kecantikan: {
         icon: "💄",
-        description: "Temukan berbagai produk kecantikan dan perawatan pilihan."
+        description:
+            "Temukan berbagai produk kecantikan dan perawatan pilihan."
     },
 
     Gaming: {
         icon: "🎮",
-        description: "Perlengkapan gaming dan aksesori untuk pengalaman bermain yang lebih seru."
+        description:
+            "Perlengkapan gaming dan aksesori untuk pengalaman bermain yang lebih seru."
     },
 
     Olahraga: {
         icon: "⚽",
-        description: "Berbagai perlengkapan olahraga untuk mendukung aktivitas kamu."
+        description:
+            "Berbagai perlengkapan olahraga untuk mendukung aktivitas kamu."
     },
 
     Buku: {
         icon: "📚",
-        description: "Temukan buku dan bahan bacaan pilihan."
+        description:
+            "Temukan buku dan bahan bacaan pilihan."
     },
 
     Aksesoris: {
         icon: "👜",
-        description: "Lengkapi gaya dan kebutuhan kamu dengan berbagai aksesoris pilihan."
+        description:
+            "Lengkapi gaya dan kebutuhan kamu dengan berbagai aksesoris pilihan."
     }
 
 };
@@ -233,28 +241,23 @@ const categoryInfo = {
 
 /* =========================================================
    STATE
-========================================================= */
+   ========================================================= */
 
 let activeCategory = null;
-
 let activeSort = "terbaru";
-
 let categorySort = "terbaru";
-
 let searchKeyword = "";
 
 let cart = [];
-
 let wishlist = [];
 
 let selectedProduct = null;
-
 let detailQuantity = 1;
 
 
 /* =========================================================
    DOM
-========================================================= */
+   ========================================================= */
 
 const homePage =
     document.getElementById("homePage");
@@ -306,8 +309,8 @@ const toast =
 
 
 /* =========================================================
-   LOCAL STORAGE
-========================================================= */
+   STORAGE
+   ========================================================= */
 
 function loadStorage() {
 
@@ -318,13 +321,11 @@ function loadStorage() {
 
         if (savedCart) {
 
-            const parsedCart =
+            const parsed =
                 JSON.parse(savedCart);
 
-            if (Array.isArray(parsedCart)) {
-
-                cart = parsedCart;
-
+            if (Array.isArray(parsed)) {
+                cart = parsed;
             }
 
         }
@@ -348,13 +349,11 @@ function loadStorage() {
 
         if (savedWishlist) {
 
-            const parsedWishlist =
+            const parsed =
                 JSON.parse(savedWishlist);
 
-            if (Array.isArray(parsedWishlist)) {
-
-                wishlist = parsedWishlist;
-
+            if (Array.isArray(parsed)) {
+                wishlist = parsed;
             }
 
         }
@@ -394,8 +393,8 @@ function saveWishlist() {
 
 
 /* =========================================================
-   FORMAT RUPIAH
-========================================================= */
+   RUPIAH
+   ========================================================= */
 
 function rupiah(number) {
 
@@ -413,7 +412,7 @@ function rupiah(number) {
 
 /* =========================================================
    TOAST
-========================================================= */
+   ========================================================= */
 
 function showToast(message) {
 
@@ -423,21 +422,24 @@ function showToast(message) {
 
     toast.classList.add("show");
 
-    clearTimeout(showToast.timer);
+    clearTimeout(
+        showToast.timer
+    );
 
     showToast.timer =
-        setTimeout(() => {
-
-            toast.classList.remove("show");
-
-        }, 2200);
+        setTimeout(
+            () => {
+                toast.classList.remove("show");
+            },
+            2200
+        );
 
 }
 
 
 /* =========================================================
    PRODUCT CARD
-========================================================= */
+   ========================================================= */
 
 function createProductCard(product) {
 
@@ -454,21 +456,23 @@ function createProductCard(product) {
 
             <div class="product-image">
 
-                <img
-                     class="product-photo ${product.flash ? "flash-product-photo" : ""}"
-                    src="${product.image}"
-                    alt="${product.name}"
-                    loading="lazy"
-                >
-
                 ${
-                    product.flash
-                        ? `
-                            <span class="flash-badge">
-                                ⚡ FLASH SALE
-                            </span>
-                          `
-                        : ""
+                    product.image
+                    ?
+                    `
+                    <img
+                        class="product-photo"
+                        src="${product.image}"
+                        alt="${product.name}"
+                        loading="lazy"
+                    >
+                    `
+                    :
+                    `
+                    <div class="product-placeholder">
+                        ${product.icon}
+                    </div>
+                    `
                 }
 
 
@@ -480,6 +484,19 @@ function createProductCard(product) {
                 >
                     ${liked ? "♥" : "♡"}
                 </button>
+
+
+                ${
+                    product.flash
+                    ?
+                    `
+                    <span class="flash-badge">
+                        ⚡ FLASH SALE
+                    </span>
+                    `
+                    :
+                    ""
+                }
 
             </div>
 
@@ -498,12 +515,14 @@ function createProductCard(product) {
 
                 ${
                     product.oldPrice > 0
-                        ? `
-                            <div class="old-price">
-                                ${rupiah(product.oldPrice)}
-                            </div>
-                          `
-                        : ""
+                    ?
+                    `
+                    <div class="old-price">
+                        ${rupiah(product.oldPrice)}
+                    </div>
+                    `
+                    :
+                    ""
                 }
 
 
@@ -539,18 +558,16 @@ function createProductCard(product) {
 
 /* =========================================================
    SEARCH
-========================================================= */
+   ========================================================= */
 
 function matchesSearch(product) {
 
     if (!searchKeyword) {
-
         return true;
-
     }
 
 
-    const searchText = `
+    const text = `
 
         ${product.name}
 
@@ -561,7 +578,7 @@ function matchesSearch(product) {
     `.toLowerCase();
 
 
-    return searchText.includes(
+    return text.includes(
         searchKeyword
     );
 
@@ -569,10 +586,13 @@ function matchesSearch(product) {
 
 
 /* =========================================================
-   SORTING
-========================================================= */
+   SORT
+   ========================================================= */
 
-function sortProducts(list, sortType) {
+function sortProducts(
+    list,
+    sortType
+) {
 
     const sorted =
         [...list];
@@ -616,12 +636,6 @@ function sortProducts(list, sortType) {
 
     else {
 
-        /*
-         * ID lebih kecil dianggap
-         * produk lebih baru dalam
-         * database demo ini.
-         */
-
         sorted.sort(
             (a, b) =>
                 a.id - b.id
@@ -636,12 +650,14 @@ function sortProducts(list, sortType) {
 
 
 /* =========================================================
-   RENDER HOME PRODUCTS
-========================================================= */
+   RENDER HOME
+   ========================================================= */
 
 function renderHomeProducts() {
 
-    if (!homeProducts) return;
+    if (!homeProducts) {
+        return;
+    }
 
 
     let list =
@@ -689,12 +705,14 @@ function renderHomeProducts() {
 
 
 /* =========================================================
-   RENDER FLASH SALE
-========================================================= */
+   FLASH SALE
+   ========================================================= */
 
 function renderFlashSale() {
 
-    if (!flashProducts) return;
+    if (!flashProducts) {
+        return;
+    }
 
 
     const flashList =
@@ -713,11 +731,13 @@ function renderFlashSale() {
 
 
 /* =========================================================
-   HOME SORT BUTTON
-========================================================= */
+   HOME SORT BUTTONS
+   ========================================================= */
 
 document
-    .querySelectorAll("[data-sort]")
+    .querySelectorAll(
+        "[data-sort]"
+    )
     .forEach(button => {
 
         button.addEventListener(
@@ -729,7 +749,9 @@ document
 
 
                 document
-                    .querySelectorAll("[data-sort]")
+                    .querySelectorAll(
+                        "[data-sort]"
+                    )
                     .forEach(item => {
 
                         item.classList.remove(
@@ -753,11 +775,13 @@ document
 
 
 /* =========================================================
-   CATEGORY BUTTON
-========================================================= */
+   CATEGORY BUTTONS
+   ========================================================= */
 
 document
-    .querySelectorAll(".category-card")
+    .querySelectorAll(
+        ".category-card"
+    )
     .forEach(button => {
 
         button.addEventListener(
@@ -780,39 +804,31 @@ document
 
 
 /* =========================================================
-   SHOW CATEGORY PAGE
-========================================================= */
+   SHOW CATEGORY
+   ========================================================= */
 
 function showCategory(
     category,
     updateUrl = true
 ) {
 
-    if (
-        !categoryInfo[category]
-    ) {
-
+    if (!categoryInfo[category]) {
         return;
-
     }
 
 
     activeCategory =
         category;
 
-
     categorySort =
         "terbaru";
-
 
     searchKeyword =
         "";
 
 
     if (searchInput) {
-
         searchInput.value = "";
-
     }
 
 
@@ -825,12 +841,10 @@ function showCategory(
             "categoryPageIcon"
         );
 
-
     const title =
         document.getElementById(
             "categoryPageTitle"
         );
-
 
     const description =
         document.getElementById(
@@ -839,26 +853,20 @@ function showCategory(
 
 
     if (icon) {
-
         icon.textContent =
             info.icon;
-
     }
 
 
     if (title) {
-
         title.textContent =
             category;
-
     }
 
 
     if (description) {
-
         description.textContent =
             info.description;
-
     }
 
 
@@ -866,12 +874,6 @@ function showCategory(
 
     renderCategoryProducts();
 
-
-    /*
-     * PENTING:
-     * Beranda disembunyikan.
-     * Halaman kategori ditampilkan.
-     */
 
     if (homePage) {
 
@@ -927,8 +929,8 @@ function showCategory(
 
 
 /* =========================================================
-   RENDER CATEGORY PRODUCTS
-========================================================= */
+   CATEGORY PRODUCTS
+   ========================================================= */
 
 function renderCategoryProducts() {
 
@@ -936,9 +938,7 @@ function renderCategoryProducts() {
         !categoryProducts ||
         !activeCategory
     ) {
-
         return;
-
     }
 
 
@@ -1011,7 +1011,7 @@ function renderCategoryProducts() {
 
 /* =========================================================
    CATEGORY SORT
-========================================================= */
+   ========================================================= */
 
 document
     .querySelectorAll(
@@ -1058,7 +1058,7 @@ function updateCategoryButtons() {
 
 /* =========================================================
    RETURN HOME
-========================================================= */
+   ========================================================= */
 
 function showHome(
     updateUrl = true
@@ -1067,15 +1067,12 @@ function showHome(
     activeCategory =
         null;
 
-
     searchKeyword =
         "";
 
 
     if (searchInput) {
-
         searchInput.value = "";
-
     }
 
 
@@ -1133,8 +1130,8 @@ function showHome(
 
 
 /* =========================================================
-   BACK HOME BUTTON
-========================================================= */
+   BACK HOME
+   ========================================================= */
 
 const backHomeButton =
     document.getElementById(
@@ -1148,9 +1145,7 @@ if (backHomeButton) {
         "click",
         () => {
 
-            showHome(
-                true
-            );
+            showHome(true);
 
         }
     );
@@ -1159,8 +1154,8 @@ if (backHomeButton) {
 
 
 /* =========================================================
-   LOGO → HOME
-========================================================= */
+   LOGO HOME
+   ========================================================= */
 
 const homeLogo =
     document.getElementById(
@@ -1174,9 +1169,7 @@ if (homeLogo) {
         "click",
         () => {
 
-            showHome(
-                true
-            );
+            showHome(true);
 
         }
     );
@@ -1186,15 +1179,16 @@ if (homeLogo) {
 
 /* =========================================================
    SEARCH
-========================================================= */
+   ========================================================= */
 
 function performSearch() {
 
     searchKeyword =
         searchInput
-            .value
-            .trim()
-            .toLowerCase();
+            ? searchInput.value
+                .trim()
+                .toLowerCase()
+            : "";
 
 
     if (activeCategory) {
@@ -1238,8 +1232,7 @@ if (searchInput) {
         () => {
 
             searchKeyword =
-                searchInput
-                    .value
+                searchInput.value
                     .trim()
                     .toLowerCase();
 
@@ -1280,7 +1273,7 @@ if (searchInput) {
 
 /* =========================================================
    HERO BUTTON
-========================================================= */
+   ========================================================= */
 
 const heroButton =
     document.getElementById(
@@ -1315,141 +1308,8 @@ if (heroButton) {
 
 
 /* =========================================================
-   PRODUCT EVENTS
-========================================================= */
-
-document.addEventListener(
-    "click",
-    event => {
-
-
-        /* -----------------------------------------
-           ADD TO CART
-        ----------------------------------------- */
-
-        const addButton =
-            event.target.closest(
-                "[data-cart-id]"
-            );
-
-
-        if (addButton) {
-
-            event.stopPropagation();
-
-
-            const id =
-                Number(
-                    addButton.dataset.cartId
-                );
-
-
-            const product =
-                products.find(
-                    item =>
-                        item.id === id
-                );
-
-
-            if (product) {
-
-                addToCart(
-                    product,
-                    1
-                );
-
-            }
-
-
-            return;
-
-        }
-
-
-        /* -----------------------------------------
-           WISHLIST
-        ----------------------------------------- */
-
-        const wishlistButton =
-            event.target.closest(
-                "[data-wishlist-id]"
-            );
-
-
-        if (wishlistButton) {
-
-            event.stopPropagation();
-
-
-            const id =
-                Number(
-                    wishlistButton.dataset.wishlistId
-                );
-
-
-            const product =
-                products.find(
-                    item =>
-                        item.id === id
-                );
-
-
-            if (product) {
-
-                toggleWishlist(
-                    product
-                );
-
-            }
-
-
-            return;
-
-        }
-
-
-        /* -----------------------------------------
-           PRODUCT CARD
-        ----------------------------------------- */
-
-        const productCard =
-            event.target.closest(
-                ".product-card"
-            );
-
-
-        if (productCard) {
-
-            const id =
-                Number(
-                    productCard.dataset.productId
-                );
-
-
-            const product =
-                products.find(
-                    item =>
-                        item.id === id
-                );
-
-
-            if (product) {
-
-                openProductModal(
-                    product
-                );
-
-            }
-
-        }
-
-    }
-);
-
-
-/* =========================================================
    ADD TO CART
-========================================================= */
+   ========================================================= */
 
 function addToCart(
     product,
@@ -1508,8 +1368,135 @@ function addToCart(
 
 
 /* =========================================================
+   PRODUCT EVENTS
+   ========================================================= */
+
+document.addEventListener(
+    "click",
+    event => {
+
+
+        /* ADD CART */
+
+        const addButton =
+            event.target.closest(
+                "[data-cart-id]"
+            );
+
+
+        if (addButton) {
+
+            event.stopPropagation();
+
+
+            const id =
+                Number(
+                    addButton.dataset.cartId
+                );
+
+
+            const product =
+                products.find(
+                    item =>
+                        item.id === id
+                );
+
+
+            if (product) {
+
+                addToCart(
+                    product,
+                    1
+                );
+
+            }
+
+
+            return;
+
+        }
+
+
+        /* WISHLIST */
+
+        const wishlistButton =
+            event.target.closest(
+                "[data-wishlist-id]"
+            );
+
+
+        if (wishlistButton) {
+
+            event.stopPropagation();
+
+
+            const id =
+                Number(
+                    wishlistButton.dataset.wishlistId
+                );
+
+
+            const product =
+                products.find(
+                    item =>
+                        item.id === id
+                );
+
+
+            if (product) {
+
+                toggleWishlist(
+                    product
+                );
+
+            }
+
+
+            return;
+
+        }
+
+
+        /* PRODUCT CARD */
+
+        const productCard =
+            event.target.closest(
+                ".product-card"
+            );
+
+
+        if (productCard) {
+
+            const id =
+                Number(
+                    productCard.dataset.productId
+                );
+
+
+            const product =
+                products.find(
+                    item =>
+                        item.id === id
+                );
+
+
+            if (product) {
+
+                openProductModal(
+                    product
+                );
+
+            }
+
+        }
+
+    }
+);
+
+
+/* =========================================================
    UPDATE CART
-========================================================= */
+   ========================================================= */
 
 function updateCart() {
 
@@ -1518,15 +1505,11 @@ function updateCart() {
         !cartCount ||
         !cartTotal
     ) {
-
         return;
-
     }
 
 
-    if (
-        cart.length === 0
-    ) {
+    if (cart.length === 0) {
 
         cartItems.innerHTML = `
 
@@ -1550,11 +1533,9 @@ function updateCart() {
     }
 
 
-    let total =
-        0;
+    let total = 0;
 
-    let quantityTotal =
-        0;
+    let quantityTotal = 0;
 
 
     cartItems.innerHTML = "";
@@ -1565,6 +1546,7 @@ function updateCart() {
             item,
             index
         ) => {
+
 
             total +=
                 item.price *
@@ -1669,13 +1651,14 @@ function updateCart() {
 
 /* =========================================================
    CART QUANTITY
-========================================================= */
+   ========================================================= */
 
 if (cartItems) {
 
     cartItems.addEventListener(
         "click",
         event => {
+
 
             const plus =
                 event.target.closest(
@@ -1775,11 +1758,13 @@ if (cartItems) {
 
 /* =========================================================
    OPEN CART
-========================================================= */
+   ========================================================= */
 
 function openCart() {
 
-    if (!cartDrawer) return;
+    if (!cartDrawer) {
+        return;
+    }
 
 
     cartDrawer.classList.add(
@@ -1798,9 +1783,19 @@ function openCart() {
 }
 
 
+if (cartButton) {
+
+    cartButton.addEventListener(
+        "click",
+        openCart
+    );
+
+}
+
+
 /* =========================================================
    CLOSE CART
-========================================================= */
+   ========================================================= */
 
 function closeCartDrawer() {
 
@@ -1820,16 +1815,6 @@ function closeCartDrawer() {
         );
 
     }
-
-}
-
-
-if (cartButton) {
-
-    cartButton.addEventListener(
-        "click",
-        openCart
-    );
 
 }
 
@@ -1856,7 +1841,7 @@ if (overlay) {
 
 /* =========================================================
    WISHLIST
-========================================================= */
+   ========================================================= */
 
 function toggleWishlist(
     product
@@ -1915,7 +1900,7 @@ function toggleWishlist(
 
 /* =========================================================
    PRODUCT DETAIL MODAL
-========================================================= */
+   ========================================================= */
 
 function createProductModal() {
 
@@ -1924,9 +1909,7 @@ function createProductModal() {
             "productModal"
         )
     ) {
-
         return;
-
     }
 
 
@@ -1995,26 +1978,26 @@ function createProductModal() {
 
                     <h2
                         id="detailProductName"
-                    >
-                    </h2>
+                    ></h2>
 
 
                     <div
                         class="detail-rating"
                     >
+
                         ⭐
+
                         <span
                             id="detailRating"
-                        >
-                        </span>
+                        ></span>
+
                     </div>
 
 
                     <div
                         class="detail-price"
                         id="detailProductPrice"
-                    >
-                    </div>
+                    ></div>
 
 
                     <p
@@ -2026,8 +2009,7 @@ function createProductModal() {
 
                     <p
                         id="detailProductDescription"
-                    >
-                    </p>
+                    ></p>
 
 
                     <div
@@ -2125,7 +2107,7 @@ function createProductModal() {
 
 /* =========================================================
    OPEN PRODUCT MODAL
-========================================================= */
+   ========================================================= */
 
 function openProductModal(
     product
@@ -2258,7 +2240,7 @@ function openProductModal(
 
 /* =========================================================
    CLOSE PRODUCT MODAL
-========================================================= */
+   ========================================================= */
 
 function closeProductModal() {
 
@@ -2286,11 +2268,12 @@ function closeProductModal() {
 
 /* =========================================================
    MODAL BUTTONS
-========================================================= */
+   ========================================================= */
 
 document.addEventListener(
     "click",
     event => {
+
 
         if (
             event.target.id ===
@@ -2387,7 +2370,7 @@ document.addEventListener(
 
 /* =========================================================
    CHECKOUT
-========================================================= */
+   ========================================================= */
 
 if (checkoutButton) {
 
@@ -2395,8 +2378,10 @@ if (checkoutButton) {
         "click",
         () => {
 
+
             if (
-                cart.length === 0
+                cart.length ===
+                0
             ) {
 
                 showToast(
@@ -2441,7 +2426,7 @@ if (checkoutButton) {
 
 /* =========================================================
    VOUCHER
-========================================================= */
+   ========================================================= */
 
 const voucherButton =
     document.getElementById(
@@ -2471,7 +2456,7 @@ if (voucherButton) {
 
 /* =========================================================
    FLASH SALE COUNTDOWN
-========================================================= */
+   ========================================================= */
 
 let remainingSeconds =
     2 * 60 * 60;
@@ -2486,9 +2471,7 @@ function updateCountdown() {
 
 
     if (!countdown) {
-
         return;
-
     }
 
 
@@ -2501,13 +2484,15 @@ function updateCountdown() {
     const minutes =
         Math.floor(
             (
-                remainingSeconds % 3600
+                remainingSeconds %
+                3600
             ) / 60
         );
 
 
     const seconds =
-        remainingSeconds % 60;
+        remainingSeconds %
+        60;
 
 
     countdown.textContent =
@@ -2547,8 +2532,8 @@ setInterval(
 
 
 /* =========================================================
-   URL CATEGORY
-========================================================= */
+   CATEGORY FROM URL
+   ========================================================= */
 
 function loadCategoryFromURL() {
 
@@ -2589,7 +2574,7 @@ function loadCategoryFromURL() {
 
 /* =========================================================
    BROWSER BACK / FORWARD
-========================================================= */
+   ========================================================= */
 
 window.addEventListener(
     "popstate",
@@ -2632,8 +2617,8 @@ window.addEventListener(
 
 
 /* =========================================================
-   ESC → CLOSE
-========================================================= */
+   ESCAPE
+   ========================================================= */
 
 document.addEventListener(
     "keydown",
@@ -2655,7 +2640,7 @@ document.addEventListener(
 
 /* =========================================================
    INITIALIZATION
-========================================================= */
+   ========================================================= */
 
 loadStorage();
 
@@ -2671,42 +2656,3 @@ loadCategoryFromURL();
 console.log(
     "MAB-Store berhasil dijalankan 🚀"
 );
-/* =========================================
-   FLASH SALE - CLEAN PRODUCT IMAGE
-   ========================================= */
-
-.product-image {
-    position: relative;
-    overflow: hidden;
-}
-
-.flash-product-photo {
-    transform: scale(2);
-    transform-origin: left center;
-}
-
-.product-card:hover .flash-product-photo {
-    transform: scale(2.05);
-}
-
-.flash-badge {
-    position: absolute;
-    left: 10px;
-    top: 10px;
-    z-index: 10;
-
-    display: inline-flex;
-    align-items: center;
-
-    padding: 5px 9px;
-    border-radius: 5px;
-
-    background: #e74c3c;
-    color: #fff;
-
-    font-size: 11px;
-    font-weight: 800;
-    line-height: 1;
-
-    white-space: nowrap;
-}
