@@ -20,7 +20,7 @@ const products = [
         oldPrice: 3499000,
         rating: 4.9,
         sold: 120,
-        image: "https://images.pexels.com/photos/12882840/pexels-photo-12882840.png?auto=compress&cs=tinysrgb&w=800",
+        image: "https://images.pexels.com/photos/8408537/pexels-photo-8408537.jpeg?auto=compress&cs=tinysrgb&w=800",
         flash: true,
         keywords: "smartphone hp ponsel android elektronik"
     },
@@ -34,7 +34,7 @@ const products = [
         oldPrice: 599000,
         rating: 4.8,
         sold: 85,
-        image: "https://images.pexels.com/photos/16303233/pexels-photo-16303233.jpeg?auto=compress&cs=tinysrgb&w=800",
+        image: "https://images.pexels.com/photos/7772547/pexels-photo-7772547.jpeg?auto=compress&cs=tinysrgb&w=800",
         flash: true,
         keywords: "headphone headset audio musik wireless elektronik"
     },
@@ -48,7 +48,7 @@ const products = [
         oldPrice: 799000,
         rating: 4.7,
         sold: 64,
-        image: "https://images.pexels.com/photos/14979022/pexels-photo-14979022.jpeg?auto=compress&cs=tinysrgb&w=800",
+        image: "https://images.pexels.com/photos/14691505/pexels-photo-14691505.jpeg?auto=compress&cs=tinysrgb&w=800",
         flash: true,
         keywords: "smartwatch jam tangan elektronik"
     },
@@ -62,7 +62,7 @@ const products = [
         oldPrice: 399000,
         rating: 4.9,
         sold: 210,
-        image: "https://images.pexels.com/photos/13869858/pexels-photo-13869858.jpeg?auto=compress&cs=tinysrgb&w=800",
+        image: "https://images.pexels.com/photos/11726029/pexels-photo-11726029.jpeg?auto=compress&cs=tinysrgb&w=800",
         flash: true,
         keywords: "tas backpack fashion aksesoris sekolah"
     },
