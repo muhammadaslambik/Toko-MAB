@@ -1,7 +1,13 @@
-/* =========================================
-   MAB-STORE MARKETPLACE
-   Modern Teal Marketplace Theme
-   ========================================= */
+/* =========================================================
+   MAB-STORE
+   FINAL STYLE.CSS
+   Marketplace Theme - Dark Green
+   ========================================================= */
+
+
+/* =========================================================
+   RESET
+   ========================================================= */
 
 * {
     box-sizing: border-box;
@@ -10,20 +16,27 @@
 }
 
 :root {
-    --primary: #0f9d9a;
-    --primary-dark: #087f7c;
-    --primary-light: #e6f8f7;
+    --primary: #087f7c;
+    --primary-dark: #056360;
+    --primary-deep: #034f4d;
+    --primary-light: #e8f7f6;
+
     --text: #222222;
     --muted: #777777;
+
     --background: #f5f5f5;
     --white: #ffffff;
-    --border: #eeeeee;
 
-    --flash-primary: #ff4d4f;
-    --flash-dark: #d9363e;
-    --flash-light: #fff1f1;
+    --border: #e5e5e5;
+
+    --danger: #e74c3c;
+    --gold: #f5b400;
 
     --shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+html {
+    scroll-behavior: smooth;
 }
 
 body {
@@ -31,6 +44,10 @@ body {
     background: var(--background);
     color: var(--text);
     line-height: 1.5;
+}
+
+body.modal-open {
+    overflow: hidden;
 }
 
 button,
@@ -43,18 +60,22 @@ button {
     border: none;
 }
 
+img {
+    max-width: 100%;
+}
+
 .container {
     width: min(1180px, 92%);
     margin: 0 auto;
 }
 
 
-/* =========================================
+/* =========================================================
    TOP BAR
-   ========================================= */
+   ========================================================= */
 
 .top-bar {
-    background: var(--primary-dark);
+    background: var(--primary-deep);
     color: rgba(255, 255, 255, 0.95);
     font-size: 13px;
 }
@@ -72,17 +93,17 @@ button {
 }
 
 
-/* =========================================
-   NAVBAR
-   ========================================= */
+/* =========================================================
+   NAVBAR - HIJAU TUA
+   ========================================================= */
 
 .navbar {
-    background: var(--primary);
+    background: var(--primary-dark);
     color: white;
     position: sticky;
     top: 0;
     z-index: 100;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.18);
 }
 
 .navbar-content {
@@ -92,33 +113,51 @@ button {
     gap: 28px;
 }
 
+
+/* =========================================================
+   LOGO
+   ========================================================= */
+
 .logo {
     font-size: 28px;
     font-weight: 800;
     white-space: nowrap;
     letter-spacing: -1px;
+    color: white;
 }
 
 .logo span {
     font-weight: 400;
 }
 
+
+/* =========================================================
+   SEARCH
+   ========================================================= */
+
 .search-box {
     flex: 1;
     max-width: 720px;
     height: 44px;
+
     display: flex;
+
     background: white;
-    border-radius: 5px;
+
+    border-radius: 6px;
     overflow: hidden;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12);
+
+    box-shadow: 0 2px 7px rgba(0, 0, 0, 0.12);
 }
 
 .search-box input {
     flex: 1;
+
     border: none;
     outline: none;
+
     padding: 0 18px;
+
     font-size: 14px;
     color: var(--text);
 }
@@ -129,110 +168,156 @@ button {
 
 .search-box button {
     width: 58px;
-    background: var(--primary-dark);
+
+    background: var(--primary-deep);
     color: white;
+
     font-size: 18px;
+
+    transition: background 0.2s ease;
 }
 
 .search-box button:hover {
-    background: #066b69;
+    background: #023f3d;
 }
+
+
+/* =========================================================
+   CART BUTTON
+   ========================================================= */
 
 .cart-button {
     position: relative;
+
     background: transparent;
     color: white;
+
     font-size: 25px;
+
     width: 50px;
+    height: 44px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cart-button:hover {
+    transform: scale(1.05);
 }
 
 #cartCount {
     position: absolute;
-    top: -6px;
+
+    top: -5px;
     right: 0;
+
     min-width: 20px;
     height: 20px;
+
     padding: 0 5px;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
     background: white;
-    color: var(--primary);
+    color: var(--primary-dark);
+
     border-radius: 20px;
+
     font-size: 11px;
     font-weight: bold;
 }
 
 
-/* =========================================
+/* =========================================================
    HERO
-   ========================================= */
+   ========================================================= */
 
 .hero {
     background:
-        radial-gradient(circle at 85% 20%, rgba(255,255,255,0.12), transparent 25%),
         linear-gradient(
             135deg,
-            var(--primary),
-            var(--primary-dark)
+            var(--primary-dark),
+            var(--primary-deep)
         );
+
     color: white;
+
     overflow: hidden;
 }
 
 .hero-content {
     min-height: 300px;
+
     display: flex;
     align-items: center;
     justify-content: space-between;
+
     gap: 40px;
 }
 
 .small-title {
     font-size: 13px;
     font-weight: bold;
+
     letter-spacing: 1.5px;
+
     margin-bottom: 12px;
+
     opacity: 0.9;
 }
 
 .hero h1 {
     font-size: clamp(34px, 5vw, 58px);
+
     line-height: 1.05;
+
     margin-bottom: 18px;
 }
 
 .hero p:not(.small-title) {
     font-size: 17px;
+
     opacity: 0.9;
+
     margin-bottom: 25px;
 }
 
 .hero-button {
     background: white;
-    color: var(--primary);
+    color: var(--primary-dark);
+
     padding: 13px 24px;
-    border-radius: 5px;
+
+    border-radius: 6px;
+
     font-weight: bold;
     font-size: 14px;
+
     transition: 0.2s ease;
 }
 
 .hero-button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+
+    box-shadow:
+        0 6px 15px rgba(0, 0, 0, 0.15);
 }
 
 .hero-icon {
     font-size: 150px;
+
     opacity: 0.95;
-    transform: rotate(-8deg);
+
+    animation: floating 3s ease-in-out infinite;
 }
 
 
-/* =========================================
-   SECTION GENERAL
-   ========================================= */
+/* =========================================================
+   GENERAL SECTIONS
+   ========================================================= */
 
 .categories,
 .flash-sale,
@@ -252,29 +337,42 @@ button {
 }
 
 
-/* =========================================
+/* =========================================================
    CATEGORY
-   ========================================= */
+   ========================================================= */
 
 .category-grid {
     display: grid;
+
     grid-template-columns: repeat(8, 1fr);
+
     gap: 12px;
 }
 
 .category-card {
     min-height: 105px;
+
     background: white;
+
     border: 1px solid var(--border);
+
     border-radius: 8px;
+
     display: flex;
     flex-direction: column;
+
     align-items: center;
     justify-content: center;
+
     gap: 8px;
+
     font-size: 32px;
     color: var(--text);
-    transition: 0.2s ease;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
 }
 
 .category-card span {
@@ -283,308 +381,457 @@ button {
 
 .category-card:hover {
     transform: translateY(-3px);
+
     border-color: var(--primary);
+
     box-shadow: var(--shadow);
 }
 
 
-/* =========================================
-   FLASH SALE - MARKETPLACE STYLE
-   ========================================= */
+/* =========================================================
+   FLASH SALE SECTION
+   ========================================================= */
 
 .flash-sale {
-    background:
-        linear-gradient(
-            135deg,
-            #fff8f8 0%,
-            #ffffff 45%,
-            #fff5f5 100%
-        );
-    border-top: 1px solid #ffdede;
-    border-bottom: 1px solid #ffdede;
-    position: relative;
-    overflow: hidden;
+    background: white;
+
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
 }
 
-.flash-sale::before {
-    content: "";
-    position: absolute;
-    width: 280px;
-    height: 280px;
-    right: -120px;
-    top: -150px;
-    border-radius: 50%;
-    background: rgba(255, 77, 79, 0.06);
-    pointer-events: none;
-}
 
-.flash-sale::after {
-    content: "";
-    position: absolute;
-    width: 220px;
-    height: 220px;
-    left: -120px;
-    bottom: -150px;
-    border-radius: 50%;
-    background: rgba(255, 77, 79, 0.05);
-    pointer-events: none;
-}
+/* =========================================================
+   FLASH HEADER
+   ========================================================= */
 
 .flash-header {
     display: flex;
+
     justify-content: space-between;
     align-items: center;
-    gap: 20px;
-    margin-bottom: 22px;
-    position: relative;
-    z-index: 2;
-}
 
-.flash-title-area {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    flex-wrap: wrap;
+    margin-bottom: 20px;
 }
 
 .flash-title {
-    font-size: 25px;
-    font-weight: 900;
-    color: #222;
-    display: flex;
-    align-items: center;
-    gap: 7px;
-}
+    font-size: 24px;
+    font-weight: 800;
 
-.flash-title::before {
-    content: "⚡";
-    font-size: 26px;
+    color: var(--primary-dark);
 }
 
 .flash-timer {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    margin-left: 0;
-    font-size: 13px;
-    color: #666;
-}
+    margin-left: 20px;
 
-.flash-timer::before {
-    content: "Berakhir dalam";
-    color: #777;
+    font-size: 13px;
+
+    color: var(--muted);
 }
 
 .flash-timer strong {
+    display: inline-block;
+
     color: white;
-    background: var(--flash-primary);
-    padding: 6px 9px;
+
+    background: var(--primary-deep);
+
+    padding: 7px 10px;
+
     border-radius: 5px;
-    min-width: 34px;
-    text-align: center;
-    font-size: 14px;
-    box-shadow: 0 3px 8px rgba(255, 77, 79, 0.22);
+
+    margin-left: 5px;
+
+    font-size: 13px;
+
+    letter-spacing: 1px;
 }
 
 .flash-header button {
     background: transparent;
-    color: var(--flash-dark);
+
+    color: var(--primary-dark);
+
     font-weight: bold;
-    font-size: 13px;
+
     transition: 0.2s ease;
 }
 
 .flash-header button:hover {
-    transform: translateX(3px);
+    color: var(--primary-deep);
 }
 
 
-/* =========================================
-   FLASH SALE PRODUCT AREA
-   ========================================= */
+/* =========================================================
+   FLASH PRODUCTS
+   ========================================================= */
 
-.flash-sale .product-grid {
-    position: relative;
-    z-index: 2;
-}
-
-.flash-sale .product-card {
-    border: 1px solid #f0d7d7;
-    border-radius: 10px;
-    background: #fff;
-    overflow: hidden;
-    position: relative;
-}
-
-.flash-sale .product-card:hover {
-    border-color: #ffb7b7;
-    box-shadow: 0 12px 30px rgba(255, 77, 79, 0.13);
-    transform: translateY(-6px);
-}
-
-.flash-sale .product-image {
-    position: relative;
-    height: 205px;
-    background: #fafafa;
-    border-bottom: 1px solid #f3eeee;
-}
-
-.flash-sale .product-image::after {
-    content: "FLASH SALE";
-    position: absolute;
-    top: 10px;
-    left: 0;
-    background: var(--flash-primary);
-    color: white;
-    font-size: 10px;
-    font-weight: 800;
-    padding: 5px 9px 5px 8px;
-    border-radius: 0 4px 4px 0;
-    letter-spacing: 0.4px;
-}
-
-.flash-sale .product-info {
-    padding: 14px;
-}
-
-.flash-sale .product-info h3 {
-    font-size: 14px;
-    font-weight: 600;
-    min-height: 42px;
-    margin-bottom: 7px;
-    line-height: 1.4;
-}
-
-.flash-sale .price {
-    color: var(--flash-dark);
-    font-size: 20px;
-    font-weight: 800;
-    margin-bottom: 2px;
-}
-
-.flash-sale .old-price {
-    color: #999;
-    font-size: 12px;
-    text-decoration: line-through;
-    margin-bottom: 8px;
-}
-
-.flash-sale .product-bottom {
-    margin-bottom: 9px;
-    font-size: 11px;
-}
-
-
-/* =========================================
-   FLASH SALE BADGE
-   ========================================= */
-
-.flash-sale .product-info::before {
-    content: "-20%";
-    display: inline-block;
-    background: #fff0f0;
-    color: var(--flash-dark);
-    border: 1px solid #ffd0d0;
-    border-radius: 4px;
-    padding: 3px 6px;
-    font-size: 10px;
-    font-weight: 800;
-    margin-bottom: 7px;
-}
-
-
-/* =========================================
-   FLASH SALE STOCK BAR
-   ========================================= */
-
-.flash-stock {
-    margin: 5px 0 11px;
-}
-
-.flash-stock-bar {
-    height: 7px;
-    background: #ffe5e5;
-    border-radius: 20px;
-    overflow: hidden;
-    margin-bottom: 4px;
-}
-
-.flash-stock-progress {
-    height: 100%;
-    width: 70%;
-    background: linear-gradient(
-        90deg,
-        #ff7875,
-        #ff4d4f
-    );
-    border-radius: 20px;
-}
-
-.flash-stock-text {
-    color: #888;
-    font-size: 10px;
-}
-
-
-/* =========================================
-   FLASH SALE BUTTON
-   ========================================= */
-
-.flash-sale .add-cart {
-    width: 100%;
-    padding: 10px;
-    border: none;
-    background: var(--flash-primary);
-    color: white;
-    border-radius: 6px;
-    font-weight: 800;
-    font-size: 13px;
-    transition: 0.2s ease;
-}
-
-.flash-sale .add-cart:hover {
-    background: var(--flash-dark);
-    transform: translateY(-1px);
-    box-shadow: 0 5px 12px rgba(255, 77, 79, 0.2);
-}
-
-
-/* =========================================
-   GENERAL PRODUCT GRID
-   ========================================= */
-
-.product-grid {
+.flash-products {
     display: grid;
+
     grid-template-columns: repeat(4, 1fr);
+
     gap: 16px;
 }
 
-.product-card {
+
+/* =========================================================
+   FLASH PRODUCT CARD
+   ========================================================= */
+
+.flash-products .product-card {
+    position: relative;
+
     background: white;
-    border-radius: 8px;
+
+    border-radius: 10px;
+
     overflow: hidden;
-    border: 1px solid #eeeeee;
+
+    border: 1px solid #e2eeee;
+
+    box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.05);
+
     transition:
-        transform 0.3s ease,
-        box-shadow 0.3s ease;
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.flash-products .product-card:hover {
+    transform: translateY(-5px);
+
+    box-shadow:
+        0 12px 28px rgba(0, 0, 0, 0.12);
+}
+
+
+/* =========================================================
+   FLASH PRODUCT IMAGE
+   ========================================================= */
+
+.flash-products .product-image {
+    position: relative;
+
+    height: 210px;
+
+    background: #f7fafa;
+
+    overflow: hidden;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+/*
+   PENTING:
+   Jangan gunakan pseudo-element SALE besar.
+*/
+
+.flash-products .product-image::before,
+.flash-products .product-image::after {
+    content: none !important;
+    display: none !important;
+}
+
+
+/* =========================================================
+   FLASH PRODUCT PHOTO
+   ========================================================= */
+
+.flash-products .product-photo {
+    width: 100%;
+    height: 100%;
+
+    object-fit: contain;
+
+    display: block;
+
+    padding: 12px;
+
+    pointer-events: none;
+
+    transition:
+        transform 0.35s ease;
+}
+
+.flash-products .product-card:hover .product-photo {
+    transform: scale(1.04);
+}
+
+
+/*
+   Jika HTML menggunakan class flash-product-photo,
+   tetap pastikan tidak memperbesar gambar.
+*/
+
+.flash-products .flash-product-photo {
+    transform: none !important;
+}
+
+.flash-products .product-card:hover .flash-product-photo {
+    transform: scale(1.04) !important;
+}
+
+
+/* =========================================================
+   FLASH SALE BADGE
+   ========================================================= */
+
+.flash-badge {
+    position: absolute;
+
+    left: 10px;
+    top: 10px;
+
+    z-index: 20;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    padding: 5px 9px;
+
+    background: var(--danger);
+
+    color: white;
+
+    border-radius: 6px;
+
+    font-size: 11px;
+    font-weight: 800;
+
+    line-height: 1.2;
+
+    white-space: nowrap;
+
+    pointer-events: none;
+
+    box-shadow:
+        0 2px 6px rgba(231, 76, 60, 0.18);
+}
+
+
+/* =========================================================
+   FLASH DISCOUNT
+   ========================================================= */
+
+.flash-discount {
+    display: inline-block;
+
+    padding: 4px 7px;
+
+    background: #fff4f4;
+
+    color: var(--danger);
+
+    border: 1px solid #ffd1d1;
+
+    border-radius: 4px;
+
+    font-size: 11px;
+    font-weight: 800;
+
+    margin-bottom: 7px;
+}
+
+
+/* =========================================================
+   FLASH PRODUCT INFO
+   ========================================================= */
+
+.flash-products .product-info {
+    position: relative;
+
+    z-index: 30;
+
+    padding: 13px;
+}
+
+.flash-products .product-info h3 {
+    font-size: 14px;
+
+    font-weight: 600;
+
+    min-height: 40px;
+
+    margin-bottom: 7px;
+
+    line-height: 1.4;
+}
+
+
+/* =========================================================
+   FLASH PRICE
+   ========================================================= */
+
+.flash-products .price {
+    font-size: 19px;
+
+    font-weight: 800;
+
+    color: var(--primary-dark);
+
+    margin-bottom: 3px;
+}
+
+.flash-products .old-price {
+    font-size: 11px;
+
+    color: #999;
+
+    margin-bottom: 8px;
+
+    text-decoration: line-through;
+}
+
+
+/* =========================================================
+   FLASH PRODUCT BOTTOM
+   ========================================================= */
+
+.flash-products .product-bottom {
+    font-size: 11px;
+
+    display: flex;
+
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 10px;
+}
+
+
+/* =========================================================
+   FLASH CART BUTTON
+   ========================================================= */
+
+.flash-products .add-cart {
+    position: relative;
+
+    z-index: 50;
+
+    width: 100%;
+
+    padding: 10px;
+
+    border-radius: 6px;
+
+    background: var(--primary);
+
+    color: white;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    border: none;
+
+    pointer-events: auto;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+.flash-products .add-cart:hover {
+    background: var(--primary-dark);
+
+    transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   NORMAL PRODUCT GRID
+   ========================================================= */
+
+.product-grid {
+    display: grid;
+
+    grid-template-columns: repeat(4, 1fr);
+
+    gap: 16px;
+}
+
+
+/* =========================================================
+   NORMAL PRODUCT CARD
+   ========================================================= */
+
+.product-card {
+    position: relative;
+
+    background: white;
+
+    border-radius: 8px;
+
+    overflow: hidden;
+
+    border: 1px solid #eeeeee;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+
     animation: productAppear 0.6s ease both;
 }
 
 .product-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 18px 35px rgba(0, 0, 0, 0.12);
+    transform: translateY(-5px);
+
+    box-shadow:
+        0 12px 28px rgba(0, 0, 0, 0.12);
 }
 
+
+/* =========================================================
+   NORMAL PRODUCT IMAGE
+   ========================================================= */
+
 .product-image {
+    position: relative;
+
     height: 210px;
+
     background: var(--primary-light);
+
     display: flex;
+
     align-items: center;
     justify-content: center;
-    font-size: 90px;
-    border-bottom: 1px solid #eeeeee;
+
     overflow: hidden;
+
+    border-bottom: 1px solid #eeeeee;
 }
+
+
+/* =========================================================
+   NORMAL PRODUCT PHOTO
+   ========================================================= */
+
+.product-photo {
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+
+    display: block;
+
+    transition:
+        transform 0.35s ease;
+}
+
+.product-card:hover .product-photo {
+    transform: scale(1.03);
+}
+
+
+/* =========================================================
+   NORMAL PRODUCT INFO
+   ========================================================= */
 
 .product-info {
     padding: 15px;
@@ -592,92 +839,122 @@ button {
 
 .product-info h3 {
     font-size: 15px;
+
     font-weight: 500;
+
     min-height: 44px;
+
     margin-bottom: 8px;
 }
 
+
+/* =========================================================
+   NORMAL PRICE
+   ========================================================= */
+
 .price {
     color: var(--primary);
+
     font-size: 20px;
+
     font-weight: 700;
+
     margin-bottom: 2px;
 }
 
 .old-price {
     color: #999;
+
     font-size: 12px;
+
     text-decoration: line-through;
+
     margin-bottom: 10px;
 }
 
+
+/* =========================================================
+   PRODUCT BOTTOM
+   ========================================================= */
+
 .product-bottom {
     display: flex;
+
     align-items: center;
     justify-content: space-between;
+
     color: #666;
+
     font-size: 12px;
+
     margin-bottom: 13px;
 }
 
+
+/* =========================================================
+   ADD CART
+   ========================================================= */
+
 .add-cart {
+    position: relative;
+
+    z-index: 2;
+
     width: 100%;
+
     padding: 10px;
+
     border: 1px solid var(--primary);
+
     background: var(--primary-light);
-    color: var(--primary);
+
+    color: var(--primary-dark);
+
     border-radius: 5px;
+
     font-weight: bold;
-    transition: 0.2s ease;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease;
 }
 
 .add-cart:hover {
     background: var(--primary);
+
     color: white;
+
+    transform: translateY(-1px);
 }
 
 
-/* =========================================
-   PRODUCT PHOTOS
-   ========================================= */
-
-.product-photo {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    transition: transform 0.35s ease;
-}
-
-.product-card:hover .product-photo {
-    transform: scale(1.03);
-}
-
-.product-card {
-    cursor: pointer;
-}
-
-.add-cart {
-    position: relative;
-    z-index: 2;
-}
-
-
-/* =========================================
+/* =========================================================
    VOUCHER
-   ========================================= */
+   ========================================================= */
+
+.voucher-section {
+    padding: 32px 0;
+}
 
 .voucher-box {
-    background: linear-gradient(
-        90deg,
-        #e9fbfa,
-        #ffffff
-    );
-    border: 1px solid #bcebe8;
+    background:
+        linear-gradient(
+            90deg,
+            #edf9f8,
+            #ffffff
+        );
+
+    border: 1px solid #cdebea;
+
     border-radius: 10px;
+
     padding: 22px 28px;
+
     display: flex;
+
     align-items: center;
+
     gap: 20px;
 }
 
@@ -687,21 +964,30 @@ button {
 
 .voucher-box h3 {
     font-size: 19px;
+
     margin-bottom: 4px;
 }
 
 .voucher-box p {
     color: var(--muted);
+
     font-size: 13px;
 }
 
 .voucher-box button {
     margin-left: auto;
+
     padding: 11px 20px;
+
     background: var(--primary);
+
     color: white;
+
     border-radius: 5px;
+
     font-weight: bold;
+
+    transition: 0.2s ease;
 }
 
 .voucher-box button:hover {
@@ -709,65 +995,95 @@ button {
 }
 
 
-/* =========================================
+/* =========================================================
    PRODUCTS HEADER
-   ========================================= */
+   ========================================================= */
 
 .section-header {
     display: flex;
+
     align-items: center;
     justify-content: space-between;
 }
 
 .sort-buttons {
     display: flex;
+
     gap: 8px;
 }
 
 .sort-buttons button {
     background: white;
+
     border: 1px solid #ddd;
+
     padding: 8px 14px;
+
     border-radius: 5px;
+
     font-size: 13px;
+
+    transition: 0.2s ease;
 }
 
 .sort-buttons button:hover,
 .sort-buttons button.active {
-    color: var(--primary);
+    color: var(--primary-dark);
+
     border-color: var(--primary);
+
     background: var(--primary-light);
 }
 
 
-/* =========================================
+/* =========================================================
    CART DRAWER
-   ========================================= */
+   ========================================================= */
 
 .cart-drawer {
     position: fixed;
+
     top: 0;
     right: -420px;
+
     width: 400px;
+
     max-width: 92%;
+
     height: 100vh;
+
     background: white;
+
     z-index: 1000;
-    box-shadow: -5px 0 20px rgba(0, 0, 0, 0.18);
+
+    box-shadow:
+        -5px 0 20px rgba(0, 0, 0, 0.18);
+
     display: flex;
     flex-direction: column;
-    transition: right 0.3s ease;
+
+    transition:
+        right 0.3s ease;
 }
 
 .cart-drawer.open {
     right: 0;
 }
 
+
+/* =========================================================
+   CART HEADER
+   ========================================================= */
+
 .cart-header {
     padding: 20px;
-    background: var(--primary);
+
+    background: var(--primary-dark);
+
     color: white;
+
     display: flex;
+
     justify-content: space-between;
     align-items: center;
 }
@@ -778,72 +1094,64 @@ button {
 
 .cart-header button {
     background: transparent;
+
     color: white;
+
     font-size: 20px;
 }
 
+
+/* =========================================================
+   CART ITEMS
+   ========================================================= */
+
 #cartItems {
     flex: 1;
+
     overflow-y: auto;
+
     padding: 20px;
 }
 
 .empty-cart {
     text-align: center;
+
     color: #888;
+
     padding: 40px 10px;
 }
 
-.cart-footer {
-    padding: 20px;
-    border-top: 1px solid #eee;
-}
 
-.cart-footer > div {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 15px;
-}
-
-#cartTotal {
-    color: var(--primary);
-    font-size: 18px;
-}
-
-#checkoutButton {
-    width: 100%;
-    padding: 13px;
-    background: var(--primary);
-    color: white;
-    border-radius: 5px;
-    font-weight: bold;
-}
-
-#checkoutButton:hover {
-    background: var(--primary-dark);
-}
-
-
-/* =========================================
-   CART ITEM PHOTOS
-   ========================================= */
+/* =========================================================
+   CART ITEM
+   ========================================================= */
 
 .cart-item-row {
     display: flex;
+
     gap: 12px;
+
     align-items: center;
+
     padding: 14px 0;
+
     border-bottom: 1px solid var(--border);
 }
 
 .cart-product-image {
     width: 58px;
     height: 58px;
+
     flex: 0 0 58px;
+
     border-radius: 8px;
+
     overflow: hidden;
+
     background: var(--primary-light);
+
     display: flex;
+
     align-items: center;
     justify-content: center;
 }
@@ -851,184 +1159,339 @@ button {
 .cart-product-image img {
     width: 100%;
     height: 100%;
+
     object-fit: cover;
 }
 
 .cart-product-details {
     flex: 1;
+
     min-width: 0;
 }
 
 .cart-product-details strong {
     display: block;
+
     font-size: 14px;
+
     line-height: 1.35;
+
     margin-bottom: 4px;
 }
 
 .cart-product-price {
-    color: var(--primary);
+    color: var(--primary-dark);
+
     font-weight: 700;
+
     font-size: 14px;
 }
 
 .cart-quantity {
     display: flex;
+
     align-items: center;
+
     gap: 8px;
+
     margin-top: 8px;
 }
 
 .quantity-btn {
     width: 28px;
     height: 28px;
+
     border: 1px solid #ddd;
+
     background: #fff;
+
     border-radius: 5px;
+
     cursor: pointer;
 }
 
 .quantity-btn:hover {
     border-color: var(--primary);
-    color: var(--primary);
+
+    color: var(--primary-dark);
 }
 
 .remove-item {
     margin-left: auto;
+
     background: transparent;
+
     color: #c62828;
+
     font-size: 12px;
+
     cursor: pointer;
 }
 
 
-/* =========================================
+/* =========================================================
+   CART FOOTER
+   ========================================================= */
+
+.cart-footer {
+    padding: 20px;
+
+    border-top: 1px solid #eee;
+}
+
+.cart-footer > div {
+    display: flex;
+
+    justify-content: space-between;
+
+    margin-bottom: 15px;
+}
+
+#cartTotal {
+    color: var(--primary-dark);
+
+    font-size: 18px;
+}
+
+#checkoutButton {
+    width: 100%;
+
+    padding: 13px;
+
+    background: var(--primary);
+
+    color: white;
+
+    border-radius: 5px;
+
+    font-weight: bold;
+
+    transition: 0.2s ease;
+}
+
+#checkoutButton:hover {
+    background: var(--primary-dark);
+}
+
+
+/* =========================================================
    OVERLAY
-   ========================================= */
+   ========================================================= */
 
 .overlay {
     position: fixed;
+
     inset: 0;
+
     background: rgba(0, 0, 0, 0.45);
+
     z-index: 900;
+
     opacity: 0;
+
     visibility: hidden;
-    transition: 0.3s ease;
+
+    transition:
+        opacity 0.3s ease,
+        visibility 0.3s ease;
 }
 
 .overlay.active {
     opacity: 1;
+
     visibility: visible;
 }
 
 
-/* =========================================
-   TOAST NOTIFICATION
-   ========================================= */
+/* =========================================================
+   TOAST
+   ========================================================= */
 
 .toast {
     position: fixed;
+
     bottom: 30px;
     left: 50%;
-    transform: translate(-50%, 100px);
+
+    transform:
+        translate(-50%, 100px);
+
     background: #222;
+
     color: white;
+
     padding: 12px 20px;
+
     border-radius: 5px;
+
     font-size: 14px;
+
     z-index: 2000;
+
     opacity: 0;
-    transition: 0.3s ease;
+
+    transition:
+        0.3s ease;
 }
 
 .toast.show {
-    transform: translate(-50%, 0);
+    transform:
+        translate(-50%, 0);
+
     opacity: 1;
 }
 
 
-/* =========================================
+/* =========================================================
    PRODUCT DETAIL MODAL
-   ========================================= */
-
-body.modal-open {
-    overflow: hidden;
-}
+   ========================================================= */
 
 .product-modal {
     position: fixed;
+
     inset: 0;
+
     z-index: 3000;
+
     display: flex;
+
     align-items: center;
     justify-content: center;
+
     padding: 20px;
+
     opacity: 0;
+
     visibility: hidden;
-    transition: opacity 0.25s ease, visibility 0.25s ease;
+
+    transition:
+        opacity 0.25s ease,
+        visibility 0.25s ease;
 }
 
 .product-modal.show {
     opacity: 1;
+
     visibility: visible;
 }
 
 .product-modal-backdrop {
     position: absolute;
+
     inset: 0;
+
     background: rgba(0, 0, 0, 0.55);
 }
 
 .product-modal-dialog {
     position: relative;
+
     width: min(900px, 100%);
+
     max-height: 90vh;
+
     overflow-y: auto;
+
     background: #fff;
+
     border-radius: 16px;
-    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.25);
-    transform: translateY(25px) scale(0.97);
-    transition: transform 0.3s ease;
+
+    box-shadow:
+        0 25px 70px rgba(0, 0, 0, 0.25);
+
+    transform:
+        translateY(25px)
+        scale(0.97);
+
+    transition:
+        transform 0.3s ease;
 }
 
 .product-modal.show .product-modal-dialog {
-    transform: translateY(0) scale(1);
+    transform:
+        translateY(0)
+        scale(1);
 }
+
+
+/* =========================================================
+   MODAL CLOSE
+   ========================================================= */
 
 .product-modal-close {
     position: absolute;
+
     right: 16px;
     top: 16px;
-    z-index: 2;
+
+    z-index: 20;
+
     width: 38px;
     height: 38px;
+
     border-radius: 50%;
+
     background: rgba(255, 255, 255, 0.95);
+
     color: #333;
+
     font-size: 18px;
-    box-shadow: 0 3px 12px rgba(0,0,0,0.12);
+
+    box-shadow:
+        0 3px 12px rgba(0, 0, 0, 0.12);
+
+    transition: 0.2s ease;
 }
+
+.product-modal-close:hover {
+    transform: rotate(90deg);
+
+    background: #f5f5f5;
+}
+
+
+/* =========================================================
+   MODAL GRID
+   ========================================================= */
 
 .product-modal-grid {
     display: grid;
+
     grid-template-columns: 1fr 1fr;
 }
 
+
+/* =========================================================
+   MODAL IMAGE
+   ========================================================= */
+
 .product-modal-image {
     min-height: 480px;
+
     background: var(--primary-light);
+
     display: flex;
+
     align-items: center;
     justify-content: center;
+
     padding: 30px;
 }
 
 .product-modal-image img {
     width: 100%;
+
     height: 420px;
+
     object-fit: contain;
+
     border-radius: 12px;
 }
+
+
+/* =========================================================
+   MODAL INFO
+   ========================================================= */
 
 .product-modal-info {
     padding: 50px 38px 35px;
@@ -1036,23 +1499,33 @@ body.modal-open {
 
 .detail-badge {
     display: inline-block;
+
     padding: 5px 10px;
+
     border-radius: 20px;
+
     background: var(--primary-light);
+
     color: var(--primary-dark);
+
     font-size: 12px;
+
     font-weight: 700;
+
     margin-bottom: 12px;
 }
 
 .product-modal-info h2 {
     font-size: 30px;
+
     line-height: 1.15;
+
     margin-bottom: 10px;
 }
 
 .detail-rating {
     font-size: 13px;
+
     margin-bottom: 18px;
 }
 
@@ -1061,35 +1534,52 @@ body.modal-open {
 }
 
 .detail-price {
-    color: var(--primary);
+    color: var(--primary-dark);
+
     font-size: 30px;
+
     font-weight: 800;
+
     margin-bottom: 8px;
 }
 
 .detail-stock {
     color: #16825d;
+
     font-weight: 700;
+
     font-size: 13px;
+
     margin-bottom: 28px;
 }
 
 .product-modal-info h3 {
     font-size: 16px;
+
     margin-bottom: 8px;
 }
 
 #detailProductDescription {
     color: var(--muted);
+
     font-size: 14px;
+
     line-height: 1.7;
+
     margin-bottom: 25px;
 }
 
+
+/* =========================================================
+   MODAL QUANTITY
+   ========================================================= */
+
 .detail-quantity {
     display: flex;
+
     align-items: center;
     justify-content: space-between;
+
     margin-bottom: 22px;
 }
 
@@ -1099,46 +1589,72 @@ body.modal-open {
 
 .detail-quantity > div {
     display: flex;
+
     align-items: center;
+
     gap: 14px;
 }
 
 .detail-quantity button {
     width: 34px;
     height: 34px;
+
     border: 1px solid #ddd;
+
     background: #fff;
+
     border-radius: 6px;
+
     font-size: 18px;
 }
 
+.detail-quantity button:hover {
+    border-color: var(--primary);
+
+    color: var(--primary-dark);
+}
+
+
+/* =========================================================
+   MODAL ACTIONS
+   ========================================================= */
+
 .detail-actions {
     display: grid;
+
     gap: 10px;
 }
 
 .detail-add-cart,
 .detail-buy-now {
     width: 100%;
+
     padding: 13px 16px;
+
     border-radius: 7px;
+
     font-weight: 700;
+
     font-size: 14px;
 }
 
 .detail-add-cart {
-    color: var(--primary);
+    color: var(--primary-dark);
+
     background: var(--primary-light);
+
     border: 1px solid var(--primary);
 }
 
 .detail-buy-now {
     color: #fff;
+
     background: var(--primary);
 }
 
 .detail-add-cart:hover {
     background: var(--primary);
+
     color: #fff;
 }
 
@@ -1147,20 +1663,25 @@ body.modal-open {
 }
 
 
-/* =========================================
+/* =========================================================
    FOOTER
-   ========================================= */
+   ========================================================= */
 
 footer {
-    background: #222;
+    background: #202020;
+
     color: white;
+
     margin-top: 20px;
 }
 
 .footer-content {
     padding: 45px 0;
+
     display: grid;
+
     grid-template-columns: 2fr 1fr 1fr;
+
     gap: 40px;
 }
 
@@ -1170,72 +1691,84 @@ footer {
 
 .footer-content h3 {
     margin-bottom: 12px;
+
     font-size: 16px;
 }
 
 .footer-content p {
     color: #bbb;
+
     font-size: 13px;
+
     margin-bottom: 7px;
 }
 
 .copyright {
     border-top: 1px solid #444;
+
     padding: 18px;
+
     text-align: center;
+
     color: #999;
+
     font-size: 12px;
 }
 
 
-/* =========================================
-   ANIMASI MAB-STORE
-   ========================================= */
+/* =========================================================
+   ANIMATION
+   ========================================================= */
 
 @keyframes productAppear {
+
     from {
         opacity: 0;
-        transform: translateY(25px);
+
+        transform:
+            translateY(25px);
     }
 
     to {
         opacity: 1;
-        transform: translateY(0);
+
+        transform:
+            translateY(0);
     }
-}
-
-
-/* =========================================
-   HERO BERGERAK
-   ========================================= */
-
-.hero-icon {
-    animation: floating 3s ease-in-out infinite;
 }
 
 @keyframes floating {
-    0%, 100% {
-        transform: translateY(0) rotate(-5deg);
+
+    0%,
+    100% {
+        transform:
+            translateY(0)
+            rotate(-5deg);
     }
 
     50% {
-        transform: translateY(-12px) rotate(5deg);
+        transform:
+            translateY(-12px)
+            rotate(5deg);
     }
 }
 
 
-/* =========================================
-   RESPONSIVE - TABLET
-   ========================================= */
+/* =========================================================
+   TABLET
+   ========================================================= */
 
 @media (max-width: 900px) {
 
     .category-grid {
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns:
+            repeat(4, 1fr);
     }
 
-    .product-grid {
-        grid-template-columns: repeat(3, 1fr);
+    .product-grid,
+    .flash-products {
+        grid-template-columns:
+            repeat(3, 1fr);
     }
 
     .hero-icon {
@@ -1249,16 +1782,12 @@ footer {
     .logo {
         font-size: 23px;
     }
-
-    .flash-sale .product-image {
-        height: 190px;
-    }
 }
 
 
-/* =========================================
-   RESPONSIVE - MOBILE
-   ========================================= */
+/* =========================================================
+   MOBILE
+   ========================================================= */
 
 @media (max-width: 650px) {
 
@@ -1266,10 +1795,16 @@ footer {
         display: none;
     }
 
+
+    /* NAVBAR */
+
     .navbar-content {
         min-height: 125px;
+
         padding: 12px 0;
+
         flex-wrap: wrap;
+
         gap: 10px;
     }
 
@@ -1283,13 +1818,20 @@ footer {
 
     .search-box {
         order: 3;
+
         flex-basis: 100%;
+
         max-width: none;
     }
 
+
+    /* HERO */
+
     .hero-content {
         min-height: 360px;
+
         text-align: center;
+
         justify-content: center;
     }
 
@@ -1305,13 +1847,19 @@ footer {
         font-size: 15px;
     }
 
+
+    /* CATEGORY */
+
     .category-grid {
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns:
+            repeat(4, 1fr);
+
         gap: 8px;
     }
 
     .category-card {
         min-height: 90px;
+
         font-size: 25px;
     }
 
@@ -1320,127 +1868,102 @@ footer {
     }
 
 
-    /* -------------------------------------
-       FLASH SALE MOBILE
-       ------------------------------------- */
-
-    .flash-sale {
-        padding: 25px 0;
-    }
+    /* FLASH HEADER */
 
     .flash-header {
         align-items: flex-start;
-        gap: 12px;
-        flex-wrap: wrap;
-    }
 
-    .flash-title-area {
-        gap: 9px;
-        width: 100%;
+        gap: 10px;
     }
 
     .flash-title {
-        font-size: 20px;
-    }
-
-    .flash-title::before {
-        font-size: 22px;
+        font-size: 19px;
     }
 
     .flash-timer {
-        font-size: 11px;
-        gap: 4px;
-    }
+        display: block;
 
-    .flash-timer strong {
-        min-width: 29px;
-        padding: 5px 6px;
-        font-size: 12px;
+        margin: 5px 0 0;
     }
 
     .flash-header button {
-        position: absolute;
-        right: 0;
-        bottom: 0;
-        font-size: 11px;
+        font-size: 12px;
     }
 
-    /*
-       Flash Sale menjadi horizontal scroll
-       seperti marketplace mobile
-    */
 
-    .flash-sale .product-grid {
-        display: flex;
-        overflow-x: auto;
-        gap: 10px;
-        padding: 4px 2px 12px;
-        scroll-snap-type: x mandatory;
-        scrollbar-width: thin;
+    /* FLASH PRODUCTS */
+
+    .flash-products {
+        grid-template-columns:
+            repeat(2, 1fr);
+
+        gap: 9px;
     }
 
-    .flash-sale .product-grid::-webkit-scrollbar {
-        height: 5px;
+    .flash-products .product-image {
+        height: 155px;
     }
 
-    .flash-sale .product-grid::-webkit-scrollbar-thumb {
-        background: #ffb7b7;
-        border-radius: 20px;
+    .flash-products .product-photo {
+        padding: 8px;
     }
 
-    .flash-sale .product-card {
-        flex: 0 0 185px;
-        width: 185px;
-        scroll-snap-align: start;
-    }
-
-    .flash-sale .product-image {
-        height: 170px;
-    }
-
-    .flash-sale .product-info {
+    .flash-products .product-info {
         padding: 10px;
     }
 
-    .flash-sale .product-info h3 {
+    .flash-products .product-info h3 {
         font-size: 12px;
-        min-height: 40px;
+
+        min-height: 36px;
     }
 
-    .flash-sale .price {
+    .flash-products .price {
         font-size: 16px;
     }
 
-    .flash-sale .old-price {
+    .flash-products .old-price {
         font-size: 10px;
     }
 
-    .flash-sale .product-bottom {
+    .flash-products .product-bottom {
         font-size: 10px;
     }
 
-    .flash-sale .add-cart {
-        padding: 8px;
-        font-size: 11px;
+    .flash-products .add-cart {
+        font-size: 10px;
+
+        padding: 9px 6px;
     }
 
-    .flash-stock-text {
+    .flash-badge {
+        left: 7px;
+
+        top: 7px;
+
+        padding: 4px 6px;
+
+        font-size: 9px;
+    }
+
+    .flash-discount {
+        padding: 4px 6px;
+
         font-size: 9px;
     }
 
 
-    /* -------------------------------------
-       GENERAL PRODUCTS MOBILE
-       ------------------------------------- */
+    /* NORMAL PRODUCTS */
 
     .product-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns:
+            repeat(2, 1fr);
+
         gap: 10px;
     }
 
     .product-image {
         height: 160px;
-        font-size: 65px;
     }
 
     .product-info {
@@ -1455,14 +1978,20 @@ footer {
         font-size: 17px;
     }
 
+
+    /* SECTION HEADER */
+
     .section-header {
         align-items: flex-start;
+
         flex-direction: column;
+
         gap: 12px;
     }
 
     .sort-buttons {
         width: 100%;
+
         overflow-x: auto;
     }
 
@@ -1470,8 +1999,12 @@ footer {
         white-space: nowrap;
     }
 
+
+    /* VOUCHER */
+
     .voucher-box {
         flex-wrap: wrap;
+
         padding: 18px;
     }
 
@@ -1481,19 +2014,23 @@ footer {
 
     .voucher-box button {
         margin-left: 0;
+
         width: 100%;
     }
 
+
+    /* FOOTER */
+
     .footer-content {
         grid-template-columns: 1fr;
+
         gap: 25px;
+
         padding: 30px 0;
     }
 
 
-    /* -------------------------------------
-       MODAL MOBILE
-       ------------------------------------- */
+    /* MODAL */
 
     .product-modal {
         padding: 10px;
@@ -1501,6 +2038,7 @@ footer {
 
     .product-modal-dialog {
         max-height: 94vh;
+
         border-radius: 12px;
     }
 
@@ -1510,6 +2048,7 @@ footer {
 
     .product-modal-image {
         min-height: 260px;
+
         padding: 20px;
     }
 
@@ -1531,1163 +2070,28 @@ footer {
 }
 
 
-/* =========================================
+/* =========================================================
    VERY SMALL SCREEN
-   ========================================= */
+   ========================================================= */
 
 @media (max-width: 400px) {
 
     .category-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns:
+            repeat(2, 1fr);
     }
 
-    .product-grid {
-        grid-template-columns: 1fr 1fr;
+    .product-grid,
+    .flash-products {
+        grid-template-columns:
+            repeat(2, 1fr);
     }
 
     .hero h1 {
         font-size: 32px;
     }
 
-    .flash-sale .product-card {
-        flex-basis: 170px;
-        width: 170px;
-    }
-
-    .flash-sale .product-image {
-        height: 155px;
-    }
-}
-/* =========================================================
-   MAB-STORE — FLASH SALE PREMIUM
-   Override aman untuk Flash Sale
-   Tidak mengubah script.js
-   ========================================================= */
-
-/* Flash Sale Section */
-.flash-sale {
-    position: relative;
-    padding: 30px 0;
-    background: linear-gradient(
-        180deg,
-        #ffffff 0%,
-        #f8ffff 100%
-    );
-    border-top: 1px solid #e8eeee;
-    border-bottom: 1px solid #e8eeee;
-}
-
-
-/* Flash Sale Header */
-.flash-header {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-    margin-bottom: 22px;
-    padding: 18px 22px;
-
-    background: linear-gradient(
-        135deg,
-        var(--primary),
-        var(--primary-dark)
-    );
-
-    border-radius: 14px;
-    color: white;
-    overflow: hidden;
-}
-
-
-/* Decorative glow */
-.flash-header::after {
-    content: "";
-    position: absolute;
-    width: 180px;
-    height: 180px;
-    right: -70px;
-    top: -90px;
-
-    background: rgba(255,255,255,0.10);
-    border-radius: 50%;
-
-    pointer-events: none;
-}
-
-
-/* Left side */
-.flash-title-area {
-    position: relative;
-    z-index: 1;
-
-    display: flex;
-    align-items: center;
-    gap: 18px;
-}
-
-
-/* Flash Sale title */
-.flash-title {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-
-    color: white;
-    font-size: 25px;
-    font-weight: 900;
-    letter-spacing: -0.5px;
-    white-space: nowrap;
-}
-
-.flash-title::before {
-    content: "⚡";
-    font-size: 25px;
-}
-
-
-/* Countdown */
-.flash-timer {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-
-    margin-left: 0;
-
-    color: rgba(255,255,255,0.9);
-    font-size: 12px;
-    white-space: nowrap;
-}
-
-.flash-timer::before {
-    content: "Berakhir dalam";
-}
-
-
-.flash-timer strong {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-
-    min-width: 88px;
-    padding: 7px 10px;
-
-    background: rgba(0,0,0,0.28);
-    color: white;
-
-    border: 1px solid rgba(255,255,255,0.18);
-    border-radius: 6px;
-
-    font-size: 15px;
-    font-weight: 800;
-    letter-spacing: 1px;
-
-    margin-left: 0;
-}
-
-
-/* Lihat Semua */
-.flash-header > button {
-    position: relative;
-    z-index: 1;
-
-    background: rgba(255,255,255,0.12);
-    color: white;
-
-    border: 1px solid rgba(255,255,255,0.35);
-    border-radius: 7px;
-
-    padding: 9px 15px;
-
-    font-size: 13px;
-    font-weight: 700;
-
-    transition:
-        background 0.2s ease,
-        transform 0.2s ease;
-}
-
-.flash-header > button:hover {
-    background: rgba(255,255,255,0.22);
-    transform: translateY(-1px);
-}
-
-
-/* =========================================================
-   FLASH SALE PRODUCT GRID
-   ========================================================= */
-
-.flash-products {
-    gap: 14px;
-}
-
-
-/* Flash product card */
-.flash-products .product-card {
-    position: relative;
-
-    border: 1px solid #e7eeee;
-    border-radius: 12px;
-
-    background: white;
-
-    overflow: hidden;
-
-    box-shadow:
-        0 2px 8px rgba(0,0,0,0.04);
-
-    transition:
-        transform 0.25s ease,
-        box-shadow 0.25s ease,
-        border-color 0.25s ease;
-}
-
-
-.flash-products .product-card:hover {
-    transform: translateY(-5px);
-
-    border-color: rgba(15,157,154,0.35);
-
-    box-shadow:
-        0 12px 28px rgba(0,0,0,0.11);
-}
-
-
-/* =========================================================
-   PRODUCT IMAGE
-   ========================================================= */
-
-.flash-products .product-image {
-    position: relative;
-
-    height: 215px;
-
-    background:
-        linear-gradient(
-            145deg,
-            #f7ffff,
-            #eefafa
-        );
-
-    border-bottom: 1px solid #edf2f2;
-
-    overflow: hidden;
-}
-
-
-/* Product photo */
-.flash-products .product-photo {
-    width: 100%;
-    height: 100%;
-
-    object-fit: cover;
-
-    transition:
-        transform 0.35s ease;
-}
-
-
-.flash-products .product-card:hover .product-photo {
-    transform: scale(1.05);
-}
-
-
-/* =========================================================
-   DISCOUNT BADGE
-   ========================================================= */
-
-.flash-products .product-image::before {
-    content: "FLASH SALE";
-
-    position: absolute;
-    left: 10px;
-    top: 10px;
-
-    z-index: 3;
-
-    padding: 5px 8px;
-
-    background: var(--primary-dark);
-    color: white;
-
-    border-radius: 5px;
-
-    font-size: 10px;
-    font-weight: 800;
-
-    letter-spacing: 0.4px;
-}
-
-
-/* =========================================================
-   PRODUCT INFORMATION
-   ========================================================= */
-
-.flash-products .product-info {
-    padding: 14px 14px 15px;
-}
-
-
-.flash-products .product-info h3 {
-    font-size: 14px;
-    font-weight: 600;
-
-    line-height: 1.4;
-
-    min-height: 40px;
-
-    margin-bottom: 8px;
-
-    color: #222;
-}
-
-
-/* Price */
-.flash-products .price {
-    color: var(--primary-dark);
-
-    font-size: 20px;
-    font-weight: 800;
-
-    line-height: 1.2;
-
-    margin-bottom: 3px;
-}
-
-
-/* Old price */
-.flash-products .old-price {
-    color: #999;
-
-    font-size: 12px;
-
-    text-decoration: line-through;
-
-    margin-bottom: 8px;
-}
-
-
-/* =========================================================
-   RATING + SOLD
-   ========================================================= */
-
-.flash-products .product-bottom {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    margin-bottom: 9px;
-
-    color: #777;
-
-    font-size: 11px;
-}
-
-
-.flash-products .product-bottom span:first-child {
-    color: #e6a400;
-    font-weight: 700;
-}
-
-
-/* =========================================================
-   FLASH STOCK
-   ========================================================= */
-
-.flash-stock {
-    margin-bottom: 11px;
-}
-
-
-.flash-stock-bar {
-    width: 100%;
-    height: 6px;
-
-    background: #e9eeee;
-
-    border-radius: 20px;
-
-    overflow: hidden;
-}
-
-
-.flash-stock-progress {
-    height: 100%;
-
-    background: linear-gradient(
-        90deg,
-        var(--primary),
-        var(--primary-dark)
-    );
-
-    border-radius: 20px;
-
-    transition: width 0.4s ease;
-}
-
-
-.flash-stock-text {
-    margin-top: 4px;
-
-    color: #888;
-
-    font-size: 10px;
-    font-weight: 600;
-}
-
-
-/* =========================================================
-   ADD CART BUTTON
-   ========================================================= */
-
-.flash-products .add-cart {
-    width: 100%;
-
-    padding: 10px 12px;
-
-    background: var(--primary);
-
-    color: white;
-
-    border: 1px solid var(--primary);
-
-    border-radius: 7px;
-
-    font-size: 12px;
-    font-weight: 800;
-
-    transition:
-        background 0.2s ease,
-        transform 0.2s ease,
-        box-shadow 0.2s ease;
-}
-
-
-.flash-products .add-cart:hover {
-    background: var(--primary-dark);
-
-    color: white;
-
-    transform: translateY(-1px);
-
-    box-shadow:
-        0 5px 12px rgba(15,157,154,0.25);
-}
-
-
-/* =========================================================
-   FLASH SALE ANIMATION
-   ========================================================= */
-
-.flash-products .product-card {
-    animation: flashProductAppear 0.5s ease both;
-}
-
-
-.flash-products .product-card:nth-child(1) {
-    animation-delay: 0.05s;
-}
-
-.flash-products .product-card:nth-child(2) {
-    animation-delay: 0.10s;
-}
-
-.flash-products .product-card:nth-child(3) {
-    animation-delay: 0.15s;
-}
-
-.flash-products .product-card:nth-child(4) {
-    animation-delay: 0.20s;
-}
-
-
-@keyframes flashProductAppear {
-
-    from {
-        opacity: 0;
-        transform: translateY(15px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-
-}
-
-
-/* =========================================================
-   TABLET
-   ========================================================= */
-
-@media (max-width: 900px) {
-
-    .flash-header {
-        padding: 16px;
-    }
-
-    .flash-title-area {
-        gap: 12px;
-    }
-
-    .flash-title {
-        font-size: 21px;
-    }
-
-    .flash-timer {
-        font-size: 11px;
-    }
-
     .flash-products .product-image {
-        height: 190px;
-    }
-
-}
-
-
-/* =========================================================
-   MOBILE
-   ========================================================= */
-
-@media (max-width: 650px) {
-
-    .flash-sale {
-        padding: 22px 0;
-    }
-
-
-    .flash-header {
-        display: block;
-
-        padding: 16px;
-
-        border-radius: 11px;
-    }
-
-
-    .flash-title-area {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-
-        gap: 8px;
-    }
-
-
-    .flash-title {
-        font-size: 19px;
-    }
-
-
-    .flash-title::before {
-        font-size: 20px;
-    }
-
-
-    .flash-timer {
-        flex-direction: column;
-        align-items: flex-end;
-
-        gap: 3px;
-
-        font-size: 9px;
-    }
-
-
-    .flash-timer::before {
-        content: "Berakhir";
-    }
-
-
-    .flash-timer strong {
-        min-width: 82px;
-
-        padding: 6px 7px;
-
-        font-size: 12px;
-    }
-
-
-    .flash-header > button {
-        display: block;
-
-        width: 100%;
-
-        margin-top: 13px;
-
-        padding: 9px;
-    }
-
-
-    /*
-       Dua kolom di mobile,
-       tetap seperti marketplace.
-    */
-    .flash-products {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-
-        gap: 9px;
-    }
-
-
-    .flash-products .product-image {
-        height: 155px;
-    }
-
-
-    .flash-products .product-info {
-        padding: 10px;
-    }
-
-
-    .flash-products .product-info h3 {
-        font-size: 12px;
-
-        min-height: 35px;
-    }
-
-
-    .flash-products .price {
-        font-size: 16px;
-    }
-
-
-    .flash-products .old-price {
-        font-size: 10px;
-    }
-
-
-    .flash-products .product-bottom {
-        font-size: 9px;
-    }
-
-
-    .flash-stock-text {
-        font-size: 9px;
-    }
-
-
-    .flash-products .add-cart {
-        padding: 9px 7px;
-
-        font-size: 10px;
-    }
-
-
-    .flash-products .product-image::before {
-        left: 7px;
-        top: 7px;
-
-        padding: 4px 6px;
-
-        font-size: 8px;
-    }
-
-}
-
-
-/* =========================================================
-   VERY SMALL SCREEN
-   ========================================================= */
-
-@media (max-width: 400px) {
-
-    .flash-products {
-        gap: 7px;
-    }
-
-
-    .flash-products .product-image {
-        height: 140px;
-    }
-
-
-    .flash-products .price {
-        font-size: 15px;
-    }
-
-
-    .flash-products .product-info {
-        padding: 9px;
-    }
-
-}
-/* =========================================
-   FLASH SALE DISCOUNT BADGE
-   ========================================= */
-
-.flash-products .product-image {
-    position: relative;
-}
-
-.flash-discount {
-    position: absolute;
-    right: 10px;
-    top: 10px;
-    z-index: 5;
-
-    padding: 5px 8px;
-
-    background: #ffffff;
-    color: var(--primary-dark);
-
-    border-radius: 5px;
-
-    font-size: 11px;
-    font-weight: 800;
-
-    box-shadow: 0 3px 10px rgba(0,0,0,0.10);
-}
-
-
-/* Lebih premium di desktop */
-
-@media (min-width: 901px) {
-
-    .flash-products .product-card {
-        min-width: 0;
-    }
-
-    .flash-products .product-image {
-        height: 225px;
-    }
-
-}
-
-
-/* Mobile */
-
-@media (max-width: 650px) {
-
-    .flash-discount {
-        right: 7px;
-        top: 7px;
-
-        padding: 4px 6px;
-
-        font-size: 9px;
-    }
-
-}
-/* =========================================
-   FLASH SALE - CLEAN MARKETPLACE FIX
-   ========================================= */
-
-/* Hilangkan badge tambahan dari CSS lama */
-.flash-products .product-image::before {
-    content: none !important;
-    display: none !important;
-}
-
-/* Area foto lebih proporsional */
-.flash-products .product-image {
-    position: relative;
-    height: 210px;
-    background: #f7fafa;
-    overflow: hidden;
-}
-
-/* Foto produk */
-.flash-products .product-photo {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    display: block;
-    padding: 12px;
-    transition: transform 0.3s ease;
-}
-
-/* Efek hover yang halus */
-.flash-products .product-card:hover .product-photo {
-    transform: scale(1.04);
-}
-
-/* Badge diskon */
-.flash-discount {
-    position: absolute;
-    left: 10px;
-    top: 10px;
-    z-index: 10;
-
-    padding: 5px 8px;
-
-    background: #fff;
-    color: #d32f2f;
-
-    border: 1px solid #ffd0d0;
-    border-radius: 5px;
-
-    font-size: 11px;
-    font-weight: 800;
-
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-}
-
-/* Kartu */
-.flash-products .product-card {
-    border-radius: 10px;
-    overflow: hidden;
-    background: #fff;
-
-    border: 1px solid #e5eeee;
-
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-
-    transition:
-        transform 0.25s ease,
-        box-shadow 0.25s ease;
-}
-
-.flash-products .product-card:hover {
-    transform: translateY(-4px);
-
-    box-shadow:
-        0 10px 25px rgba(0,0,0,0.10);
-}
-
-/* Informasi produk */
-.flash-products .product-info {
-    padding: 13px;
-}
-
-/* Nama produk */
-.flash-products .product-info h3 {
-    font-size: 14px;
-    font-weight: 600;
-
-    min-height: 40px;
-    margin-bottom: 7px;
-
-    line-height: 1.4;
-}
-
-/* Harga */
-.flash-products .price {
-    font-size: 19px;
-    font-weight: 800;
-
-    color: var(--primary-dark);
-
-    margin-bottom: 3px;
-}
-
-/* Harga lama */
-.flash-products .old-price {
-    font-size: 11px;
-    color: #999;
-
-    margin-bottom: 8px;
-}
-
-/* Rating dan terjual */
-.flash-products .product-bottom {
-    font-size: 11px;
-
-    display: flex;
-    justify-content: space-between;
-
-    margin-bottom: 10px;
-}
-
-/* Tombol */
-.flash-products .add-cart {
-    width: 100%;
-
-    padding: 10px;
-
-    border-radius: 6px;
-
-    background: var(--primary);
-    color: white;
-
-    font-size: 12px;
-    font-weight: 700;
-
-    border: none;
-}
-
-.flash-products .add-cart:hover {
-    background: var(--primary-dark);
-}
-
-
-/* =========================================
-   FLASH SALE - CLEAN MARKETPLACE FIX
-   ========================================= */
-
-.flash-products .product-image {
-    position: relative;
-    height: 210px;
-    background: #f7fafa;
-    overflow: hidden;
-}
-
-/* Foto Flash Sale */
-.flash-products .product-photo {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    display: block;
-    padding: 12px;
-
-    /* Penting: gambar tidak menangkap klik */
-    pointer-events: none;
-
-    transition: transform 0.3s ease;
-}
-
-/* Hilangkan grafis SALE besar dari sisi kanan */
-.flash-products .flash-product-photo {
-    transform: scale(1.65);
-    transform-origin: left center;
-}
-
-/* Hover */
-.flash-products .product-card:hover .flash-product-photo {
-    transform: scale(1.68);
-}
-
-/* =========================================
-   BADGE FLASH SALE
-   ========================================= */
-
-.flash-badge {
-    position: absolute;
-    left: 10px;
-    top: 10px;
-
-    z-index: 20;
-
-    display: inline-flex;
-    align-items: center;
-
-    padding: 5px 9px;
-
-    background: #e74c3c;
-    color: #fff;
-
-    border-radius: 6px;
-
-    font-size: 11px;
-    font-weight: 800;
-    line-height: 1.2;
-
-    white-space: nowrap;
-
-    /* Badge juga tidak menangkap klik */
-    pointer-events: none;
-}
-
-/* =========================================
-   KARTU FLASH SALE
-   ========================================= */
-
-.flash-products .product-card {
-    position: relative;
-    border-radius: 10px;
-    overflow: hidden;
-
-    background: #fff;
-    border: 1px solid #e5eeee;
-
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-
-    transition:
-        transform 0.25s ease,
-        box-shadow 0.25s ease;
-}
-
-.flash-products .product-card:hover {
-    transform: translateY(-4px);
-
-    box-shadow:
-        0 10px 25px rgba(0,0,0,0.10);
-}
-
-/* =========================================
-   INFORMASI PRODUK
-   ========================================= */
-
-.flash-products .product-info {
-    position: relative;
-    z-index: 30;
-    padding: 13px;
-}
-
-.flash-products .product-info h3 {
-    font-size: 14px;
-    font-weight: 600;
-
-    min-height: 40px;
-    margin-bottom: 7px;
-
-    line-height: 1.4;
-}
-
-.flash-products .price {
-    font-size: 19px;
-    font-weight: 800;
-
-    color: var(--primary-dark);
-
-    margin-bottom: 3px;
-}
-
-.flash-products .old-price {
-    font-size: 11px;
-    color: #999;
-
-    margin-bottom: 8px;
-}
-
-.flash-products .product-bottom {
-    font-size: 11px;
-
-    display: flex;
-    justify-content: space-between;
-
-    margin-bottom: 10px;
-}
-
-/* =========================================
-   TOMBOL KERANJANG
-   ========================================= */
-
-.flash-products .add-cart {
-    position: relative;
-
-    z-index: 50;
-
-    width: 100%;
-    padding: 10px;
-
-    border-radius: 6px;
-
-    background: var(--primary);
-    color: white;
-
-    font-size: 12px;
-    font-weight: 700;
-
-    border: none;
-
-    pointer-events: auto;
-}
-
-.flash-products .add-cart:hover {
-    background: var(--primary-dark);
-}
-
-/* =========================================
-   MOBILE
-   ========================================= */
-
-@media (max-width: 650px) {
-
-    .flash-products {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 9px;
-    }
-
-    .flash-products .product-image {
-        height: 155px;
-    }
-
-    .flash-products .product-photo {
-        padding: 8px;
-    }
-
-    .flash-products .product-info {
-        padding: 10px;
-    }
-
-    .flash-products .product-info h3 {
-        font-size: 12px;
-    }
-
-    .flash-products .price {
-        font-size: 16px;
-    }
-
-    .flash-products .add-cart {
-        font-size: 10px;
-        padding: 9px 6px;
-    }
-
-    .flash-badge {
-        left: 7px;
-        top: 7px;
-
-        padding: 4px 6px;
-
-        font-size: 9px;
-    }
-}
-
-
-/* =========================================================
-   MAB-STORE FINAL FLASH SALE FIX
-   ========================================================= */
-.flash-products .product-image {
-    position: relative;
-    overflow: hidden;
-}
-
-/* Crop the decorative SALE text baked into the Flash Sale image.
-   The image itself never receives pointer events. */
-.flash-products .flash-product-photo {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transform: scale(1.65);
-    transform-origin: left center;
-    pointer-events: none;
-}
-
-.flash-products .product-card:hover .flash-product-photo {
-    transform: scale(1.68);
-}
-
-.flash-products .product-image::before {
-    content: none !important;
-    display: none !important;
-}
-
-.flash-products .flash-badge {
-    position: absolute;
-    left: 10px;
-    top: 10px;
-    z-index: 20;
-    display: inline-flex;
-    align-items: center;
-    padding: 5px 9px;
-    border-radius: 6px;
-    background: #e74c3c;
-    color: #fff;
-    font-size: 11px;
-    font-weight: 800;
-    line-height: 1.2;
-    white-space: nowrap;
-    pointer-events: none;
-}
-
-.flash-products .add-cart {
-    position: relative;
-    z-index: 50;
-    pointer-events: auto;
-}
-
-@media (max-width: 650px) {
-    .flash-products .flash-product-photo {
-        transform: scale(1.58);
-    }
-    .flash-products .product-card:hover .flash-product-photo {
-        transform: scale(1.61);
-    }
-    .flash-products .flash-badge {
-        left: 7px;
-        top: 7px;
-        padding: 4px 6px;
-        font-size: 9px;
+        height: 145px;
     }
 }
