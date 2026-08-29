@@ -887,3 +887,19 @@ footer {
         transform: translateY(-12px) rotate(5deg);
     }
 }
+/* =================================
+   HEADER - HIJAU TUA
+   ================================= */
+
+.logo,
+.logo a {
+    color: #00695C;
+}
+
+.search-button {
+    color: #00695C;
+}
+
+.cart-button {
+    color: #00695C;
+}
