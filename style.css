@@ -1,6 +1,6 @@
 /* =========================================
-   TOKO-MAB MARKETPLACE
-   Modern Red Marketplace Theme
+   MAB-STORE MARKETPLACE
+   Teal + Dark Green Theme
    ========================================= */
 
 * {
@@ -10,15 +10,24 @@
 }
 
 :root {
---primary: #0f9d9a;
---primary-dark: #087f7c;
---primary-light: #e6f8f7;
+    --primary: #0f9d9a;
+    --primary-dark: #00695c;
+    --primary-light: #e6f8f7;
+
+    --dark-green: #00695c;
+    --dark-green-hover: #004d40;
+
     --text: #222222;
     --muted: #777777;
     --background: #f5f5f5;
     --white: #ffffff;
     --border: #eeeeee;
+
     --shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+html {
+    scroll-behavior: smooth;
 }
 
 body {
@@ -49,7 +58,7 @@ button {
    ========================================= */
 
 .top-bar {
-    background: var(--primary-dark);
+    background: var(--dark-green);
     color: rgba(255, 255, 255, 0.95);
     font-size: 13px;
 }
@@ -72,12 +81,12 @@ button {
    ========================================= */
 
 .navbar {
-    background: var(--primary);
-    color: white;
+    background: var(--white);
+    color: var(--dark-green);
     position: sticky;
     top: 0;
     z-index: 100;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.10);
 }
 
 .navbar-content {
@@ -87,16 +96,33 @@ button {
     gap: 28px;
 }
 
+
+/* =========================================
+   LOGO
+   ========================================= */
+
 .logo {
     font-size: 28px;
     font-weight: 800;
     white-space: nowrap;
     letter-spacing: -1px;
+    color: var(--dark-green);
+    transition: transform 0.25s ease;
+}
+
+.logo:hover {
+    transform: scale(1.03);
 }
 
 .logo span {
     font-weight: 400;
+    color: var(--dark-green);
 }
+
+
+/* =========================================
+   SEARCH
+   ========================================= */
 
 .search-box {
     flex: 1;
@@ -104,9 +130,18 @@ button {
     height: 44px;
     display: flex;
     background: white;
-    border-radius: 5px;
+    border: 1px solid #d7e7e5;
+    border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+    transition:
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.search-box:focus-within {
+    border-color: var(--dark-green);
+    box-shadow: 0 0 0 3px rgba(0, 105, 92, 0.10);
 }
 
 .search-box input {
@@ -124,21 +159,35 @@ button {
 
 .search-box button {
     width: 58px;
-    background: var(--primary-dark);
+    background: var(--dark-green);
     color: white;
     font-size: 18px;
+    transition: background 0.2s ease;
 }
 
 .search-box button:hover {
-    background: #a91f1f;
+    background: var(--dark-green-hover);
 }
+
+
+/* =========================================
+   CART BUTTON
+   ========================================= */
 
 .cart-button {
     position: relative;
     background: transparent;
-    color: white;
+    color: var(--dark-green);
     font-size: 25px;
     width: 50px;
+    transition:
+        transform 0.25s ease,
+        color 0.25s ease;
+}
+
+.cart-button:hover {
+    color: var(--dark-green-hover);
+    transform: scale(1.08);
 }
 
 #cartCount {
@@ -151,8 +200,10 @@ button {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: white;
-    color: var(--primary);
+
+    background: var(--dark-green);
+    color: white;
+
     border-radius: 20px;
     font-size: 11px;
     font-weight: bold;
@@ -164,21 +215,43 @@ button {
    ========================================= */
 
 .hero {
-    background: linear-gradient(
-        135deg,
-        var(--primary),
-        var(--primary-dark)
-    );
+    background:
+        radial-gradient(
+            circle at 85% 30%,
+            rgba(255, 255, 255, 0.12),
+            transparent 30%
+        ),
+        linear-gradient(
+            135deg,
+            var(--primary),
+            var(--primary-dark)
+        );
+
     color: white;
     overflow: hidden;
+    position: relative;
+}
+
+.hero::before {
+    content: "";
+    position: absolute;
+    width: 350px;
+    height: 350px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.06);
+    top: -180px;
+    right: -80px;
+    animation: heroGlow 6s ease-in-out infinite;
 }
 
 .hero-content {
-    min-height: 300px;
+    min-height: 330px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 40px;
+    position: relative;
+    z-index: 2;
 }
 
 .small-title {
@@ -203,23 +276,35 @@ button {
 
 .hero-button {
     background: white;
-    color: var(--primary);
+    color: var(--dark-green);
     padding: 13px 24px;
-    border-radius: 5px;
+    border-radius: 7px;
     font-weight: bold;
     font-size: 14px;
-    transition: 0.2s ease;
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
 }
 
 .hero-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+    transform: translateY(-4px);
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18);
 }
+
+.hero-button:active {
+    transform: translateY(-1px);
+}
+
+
+/* =========================================
+   HERO ICON
+   ========================================= */
 
 .hero-icon {
     font-size: 150px;
     opacity: 0.95;
-    transform: rotate(-8deg);
+    animation: floating 3s ease-in-out infinite;
+    transform-origin: center;
 }
 
 
@@ -259,15 +344,21 @@ button {
     min-height: 105px;
     background: white;
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: 10px;
+
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+
     gap: 8px;
     font-size: 32px;
     color: var(--text);
-    transition: 0.2s ease;
+
+    transition:
+        transform 0.25s ease,
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
 }
 
 .category-card span {
@@ -275,8 +366,8 @@ button {
 }
 
 .category-card:hover {
-    transform: translateY(-3px);
-    border-color: #ffc4c4;
+    transform: translateY(-5px);
+    border-color: var(--primary);
     box-shadow: var(--shadow);
 }
 
@@ -301,7 +392,7 @@ button {
 .flash-title {
     font-size: 24px;
     font-weight: 800;
-    color: var(--primary);
+    color: var(--dark-green);
 }
 
 .flash-timer {
@@ -311,14 +402,19 @@ button {
 }
 
 .flash-timer strong {
-    color: var(--primary);
+    color: var(--dark-green);
     margin-left: 5px;
 }
 
 .flash-header button {
     background: transparent;
-    color: var(--primary);
+    color: var(--dark-green);
     font-weight: bold;
+    transition: transform 0.2s ease;
+}
+
+.flash-header button:hover {
+    transform: translateX(4px);
 }
 
 
@@ -334,26 +430,62 @@ button {
 
 .product-card {
     background: white;
-    border-radius: 8px;
+    border-radius: 10px;
     overflow: hidden;
     border: 1px solid #eeeeee;
-    transition: 0.25s ease;
+
+    animation: productAppear 0.6s ease both;
+
+    transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease,
+        border-color 0.3s ease;
 }
 
 .product-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    transform: translateY(-8px);
+    box-shadow: 0 18px 35px rgba(0, 0, 0, 0.12);
+    border-color: #c8e5e1;
 }
+
+
+/* =========================================
+   PRODUCT IMAGE
+   ========================================= */
 
 .product-image {
     height: 210px;
     background: var(--primary-light);
+
     display: flex;
     align-items: center;
     justify-content: center;
+
     font-size: 90px;
-    border-bottom: 1px solid #f3dada;
+    border-bottom: 1px solid #d7efed;
+
+    overflow: hidden;
 }
+
+.product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+
+    transition:
+        transform 0.4s ease,
+        filter 0.4s ease;
+}
+
+.product-card:hover .product-image img {
+    transform: scale(1.06);
+}
+
+
+/* =========================================
+   PRODUCT INFO
+   ========================================= */
 
 .product-info {
     padding: 15px;
@@ -367,7 +499,7 @@ button {
 }
 
 .price {
-    color: var(--primary);
+    color: var(--dark-green);
     font-size: 20px;
     font-weight: 700;
     margin-bottom: 2px;
@@ -384,25 +516,42 @@ button {
     display: flex;
     align-items: center;
     justify-content: space-between;
+
     color: #666;
     font-size: 12px;
     margin-bottom: 13px;
 }
 
+
+/* =========================================
+   ADD TO CART
+   ========================================= */
+
 .add-cart {
     width: 100%;
     padding: 10px;
-    border: 1px solid var(--primary);
+
+    border: 1px solid var(--dark-green);
     background: var(--primary-light);
-    color: var(--primary);
-    border-radius: 5px;
+    color: var(--dark-green);
+
+    border-radius: 6px;
     font-weight: bold;
-    transition: 0.2s ease;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease;
 }
 
 .add-cart:hover {
-    background: var(--primary);
+    background: var(--dark-green);
     color: white;
+    transform: translateY(-2px);
+}
+
+.add-cart:active {
+    transform: translateY(0);
 }
 
 
@@ -413,12 +562,15 @@ button {
 .voucher-box {
     background: linear-gradient(
         90deg,
-        #fff1f1,
+        #e9f8f6,
         #ffffff
     );
-    border: 1px solid #ffd6d6;
+
+    border: 1px solid #c9e9e5;
     border-radius: 10px;
+
     padding: 22px 28px;
+
     display: flex;
     align-items: center;
     gap: 20px;
@@ -441,14 +593,21 @@ button {
 .voucher-box button {
     margin-left: auto;
     padding: 11px 20px;
-    background: var(--primary);
+
+    background: var(--dark-green);
     color: white;
-    border-radius: 5px;
+
+    border-radius: 6px;
     font-weight: bold;
+
+    transition:
+        transform 0.2s ease,
+        background 0.2s ease;
 }
 
 .voucher-box button:hover {
-    background: var(--primary-dark);
+    background: var(--dark-green-hover);
+    transform: translateY(-2px);
 }
 
 
@@ -470,15 +629,21 @@ button {
 .sort-buttons button {
     background: white;
     border: 1px solid #ddd;
+
     padding: 8px 14px;
     border-radius: 5px;
     font-size: 13px;
+
+    transition:
+        color 0.2s ease,
+        border-color 0.2s ease,
+        background 0.2s ease;
 }
 
 .sort-buttons button:hover,
 .sort-buttons button.active {
-    color: var(--primary);
-    border-color: var(--primary);
+    color: var(--dark-green);
+    border-color: var(--dark-green);
     background: var(--primary-light);
 }
 
@@ -489,16 +654,22 @@ button {
 
 .cart-drawer {
     position: fixed;
+
     top: 0;
     right: -420px;
+
     width: 400px;
     max-width: 92%;
     height: 100vh;
+
     background: white;
     z-index: 1000;
+
     box-shadow: -5px 0 20px rgba(0, 0, 0, 0.18);
+
     display: flex;
     flex-direction: column;
+
     transition: right 0.3s ease;
 }
 
@@ -508,8 +679,10 @@ button {
 
 .cart-header {
     padding: 20px;
-    background: var(--primary);
+
+    background: var(--dark-green);
     color: white;
+
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -523,6 +696,15 @@ button {
     background: transparent;
     color: white;
     font-size: 20px;
+
+    transition:
+        transform 0.2s ease,
+        opacity 0.2s ease;
+}
+
+.cart-header button:hover {
+    transform: rotate(90deg);
+    opacity: 0.8;
 }
 
 #cartItems {
@@ -549,21 +731,28 @@ button {
 }
 
 #cartTotal {
-    color: var(--primary);
+    color: var(--dark-green);
     font-size: 18px;
 }
 
 #checkoutButton {
     width: 100%;
     padding: 13px;
-    background: var(--primary);
+
+    background: var(--dark-green);
     color: white;
-    border-radius: 5px;
+
+    border-radius: 6px;
     font-weight: bold;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
 }
 
 #checkoutButton:hover {
-    background: var(--primary-dark);
+    background: var(--dark-green-hover);
+    transform: translateY(-2px);
 }
 
 
@@ -574,11 +763,17 @@ button {
 .overlay {
     position: fixed;
     inset: 0;
+
     background: rgba(0, 0, 0, 0.45);
+
     z-index: 900;
+
     opacity: 0;
     visibility: hidden;
-    transition: 0.3s ease;
+
+    transition:
+        opacity 0.3s ease,
+        visibility 0.3s ease;
 }
 
 .overlay.active {
@@ -588,22 +783,32 @@ button {
 
 
 /* =========================================
-   TOAST NOTIFICATION
+   TOAST
    ========================================= */
 
 .toast {
     position: fixed;
+
     bottom: 30px;
     left: 50%;
+
     transform: translate(-50%, 100px);
+
     background: #222;
     color: white;
+
     padding: 12px 20px;
-    border-radius: 5px;
+    border-radius: 6px;
+
     font-size: 14px;
+
     z-index: 2000;
+
     opacity: 0;
-    transition: 0.3s ease;
+
+    transition:
+        transform 0.3s ease,
+        opacity 0.3s ease;
 }
 
 .toast.show {
@@ -624,6 +829,7 @@ footer {
 
 .footer-content {
     padding: 45px 0;
+
     display: grid;
     grid-template-columns: 2fr 1fr 1fr;
     gap: 40px;
@@ -650,6 +856,47 @@ footer {
     text-align: center;
     color: #999;
     font-size: 12px;
+}
+
+
+/* =========================================
+   ANIMATIONS
+   ========================================= */
+
+@keyframes productAppear {
+    from {
+        opacity: 0;
+        transform: translateY(25px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes floating {
+    0%,
+    100% {
+        transform: translateY(0) rotate(-5deg);
+    }
+
+    50% {
+        transform: translateY(-12px) rotate(5deg);
+    }
+}
+
+@keyframes heroGlow {
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 0.6;
+    }
+
+    50% {
+        transform: scale(1.15);
+        opacity: 1;
+    }
 }
 
 
@@ -694,6 +941,7 @@ footer {
     .navbar-content {
         min-height: 125px;
         padding: 12px 0;
+
         flex-wrap: wrap;
         gap: 10px;
     }
@@ -714,6 +962,7 @@ footer {
 
     .hero-content {
         min-height: 360px;
+
         text-align: center;
         justify-content: center;
     }
@@ -838,68 +1087,29 @@ footer {
     .hero h1 {
         font-size: 32px;
     }
-}
 
-
-/* =================================
-   ANIMASI MAB-STORE
-   ================================= */
-
-.product-card {
-    animation: productAppear 0.6s ease both;
-    transition:
-        transform 0.3s ease,
-        box-shadow 0.3s ease;
-}
-
-.product-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 18px 35px rgba(0, 0, 0, 0.12);
-}
-
-@keyframes productAppear {
-    from {
-        opacity: 0;
-        transform: translateY(25px);
+    .logo {
+        font-size: 21px;
     }
 
-    to {
-        opacity: 1;
-        transform: translateY(0);
+    .cart-button {
+        font-size: 23px;
     }
 }
 
 
-/* =================================
-   HERO BERGERAK
-   ================================= */
+/* =========================================
+   ACCESSIBILITY
+   ========================================= */
 
-.hero-icon {
-    animation: floating 3s ease-in-out infinite;
-}
+@media (prefers-reduced-motion: reduce) {
 
-@keyframes floating {
-    0%, 100% {
-        transform: translateY(0) rotate(-5deg);
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
     }
-
-    50% {
-        transform: translateY(-12px) rotate(5deg);
-    }
-}
-/* =================================
-   HEADER - HIJAU TUA
-   ================================= */
-
-.logo,
-.logo a {
-    color: #00695C;
-}
-
-.search-button {
-    color: #00695C;
-}
-
-.cart-button {
-    color: #00695C;
 }
