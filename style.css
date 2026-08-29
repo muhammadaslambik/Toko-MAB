@@ -2269,3 +2269,189 @@ footer {
     }
 
 }
+/* =========================================
+   FLASH SALE - CLEAN MARKETPLACE FIX
+   ========================================= */
+
+/* Hilangkan badge tambahan dari CSS lama */
+.flash-products .product-image::before {
+    content: none !important;
+    display: none !important;
+}
+
+/* Area foto lebih proporsional */
+.flash-products .product-image {
+    position: relative;
+    height: 210px;
+    background: #f7fafa;
+    overflow: hidden;
+}
+
+/* Foto produk */
+.flash-products .product-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    padding: 12px;
+    transition: transform 0.3s ease;
+}
+
+/* Efek hover yang halus */
+.flash-products .product-card:hover .product-photo {
+    transform: scale(1.04);
+}
+
+/* Badge diskon */
+.flash-discount {
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    z-index: 10;
+
+    padding: 5px 8px;
+
+    background: #fff;
+    color: #d32f2f;
+
+    border: 1px solid #ffd0d0;
+    border-radius: 5px;
+
+    font-size: 11px;
+    font-weight: 800;
+
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+/* Kartu */
+.flash-products .product-card {
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
+
+    border: 1px solid #e5eeee;
+
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.flash-products .product-card:hover {
+    transform: translateY(-4px);
+
+    box-shadow:
+        0 10px 25px rgba(0,0,0,0.10);
+}
+
+/* Informasi produk */
+.flash-products .product-info {
+    padding: 13px;
+}
+
+/* Nama produk */
+.flash-products .product-info h3 {
+    font-size: 14px;
+    font-weight: 600;
+
+    min-height: 40px;
+    margin-bottom: 7px;
+
+    line-height: 1.4;
+}
+
+/* Harga */
+.flash-products .price {
+    font-size: 19px;
+    font-weight: 800;
+
+    color: var(--primary-dark);
+
+    margin-bottom: 3px;
+}
+
+/* Harga lama */
+.flash-products .old-price {
+    font-size: 11px;
+    color: #999;
+
+    margin-bottom: 8px;
+}
+
+/* Rating dan terjual */
+.flash-products .product-bottom {
+    font-size: 11px;
+
+    display: flex;
+    justify-content: space-between;
+
+    margin-bottom: 10px;
+}
+
+/* Tombol */
+.flash-products .add-cart {
+    width: 100%;
+
+    padding: 10px;
+
+    border-radius: 6px;
+
+    background: var(--primary);
+    color: white;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    border: none;
+}
+
+.flash-products .add-cart:hover {
+    background: var(--primary-dark);
+}
+
+
+/* =========================================
+   MOBILE
+   ========================================= */
+
+@media (max-width: 650px) {
+
+    .flash-products {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 9px;
+    }
+
+    .flash-products .product-image {
+        height: 155px;
+    }
+
+    .flash-products .product-photo {
+        padding: 8px;
+    }
+
+    .flash-products .product-info {
+        padding: 10px;
+    }
+
+    .flash-products .product-info h3 {
+        font-size: 12px;
+    }
+
+    .flash-products .price {
+        font-size: 16px;
+    }
+
+    .flash-products .add-cart {
+        font-size: 10px;
+        padding: 9px 6px;
+    }
+
+    .flash-discount {
+        left: 7px;
+        top: 7px;
+
+        padding: 4px 6px;
+        font-size: 9px;
+    }
+}
