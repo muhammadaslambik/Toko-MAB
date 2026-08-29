@@ -442,44 +442,119 @@ function showToast(message) {
    ========================================================= */
 
 function createProductCard(product) {
-    const liked = wishlist.includes(product.id);
-    const discount = product.oldPrice > product.price && product.oldPrice > 0
-        ? Math.round((1 - product.price / product.oldPrice) * 100)
-        : 0;
-    const stockPercent = Math.min(95, Math.max(42, Math.round((product.sold / 230) * 100)));
+
+    const liked =
+        wishlist.includes(product.id);
+
 
     return `
-        <article class="product-card" data-product-id="${product.id}">
+
+        <article
+            class="product-card"
+            data-product-id="${product.id}"
+        >
+
             <div class="product-image">
-                ${product.image
-                    ? `<img class="product-photo" src="${product.image}" alt="${product.name}" loading="lazy">`
-                    : `<div class="product-placeholder">${product.icon}</div>`}
-                <button class="wishlist-button ${liked ? "active" : ""}" data-wishlist-id="${product.id}" type="button" aria-label="Wishlist">
+
+                ${
+                    product.image
+                    ?
+                    `
+                    <img
+                        class="product-photo"
+                        src="${product.image}"
+                        alt="${product.name}"
+                        loading="lazy"
+                    >
+                    `
+                    :
+                    `
+                    <div class="product-placeholder">
+                        ${product.icon}
+                    </div>
+                    `
+                }
+
+
+                <button
+                    class="wishlist-button ${liked ? "active" : ""}"
+                    data-wishlist-id="${product.id}"
+                    type="button"
+                    aria-label="Wishlist"
+                >
                     ${liked ? "♥" : "♡"}
                 </button>
-                ${product.flash ? `<span class="flash-badge">⚡ FLASH SALE</span>` : ""}
-                ${product.flash && discount ? `<span class="flash-discount">-${discount}%</span>` : ""}
+
+
+                ${
+                    product.flash
+                    ?
+                    `
+                    <span class="flash-badge">
+                        ⚡ FLASH SALE
+                    </span>
+                    `
+                    :
+                    ""
+                }
+
             </div>
+
+
             <div class="product-info">
-                <h3>${product.name}</h3>
-                <div class="price">${rupiah(product.price)}</div>
-                ${product.oldPrice > 0 ? `<div class="old-price">${rupiah(product.oldPrice)}</div>` : `<div class="old-price" style="visibility:hidden">Rp0</div>`}
-                <div class="product-bottom">
-                    <span>⭐ ${product.rating}</span>
-                    <span>Terjual ${product.sold}</span>
+
+                <h3>
+                    ${product.name}
+                </h3>
+
+
+                <div class="price">
+                    ${rupiah(product.price)}
                 </div>
-                ${product.flash ? `
-                    <div class="flash-stock">
-                        <div class="flash-stock-bar"><div class="flash-stock-progress" style="width:${stockPercent}%"></div></div>
-                        <div class="flash-stock-text">${stockPercent}% terjual</div>
-                    </div>` : ""}
-                <button class="add-cart" data-cart-id="${product.id}" type="button">
-                    ${product.flash ? "⚡ Beli Sekarang" : "+ Keranjang"}
+
+
+                ${
+                    product.oldPrice > 0
+                    ?
+                    `
+                    <div class="old-price">
+                        ${rupiah(product.oldPrice)}
+                    </div>
+                    `
+                    :
+                    ""
+                }
+
+
+                <div class="product-bottom">
+
+                    <span>
+                        ⭐ ${product.rating}
+                    </span>
+
+                    <span>
+                        Terjual ${product.sold}
+                    </span>
+
+                </div>
+
+
+                <button
+                    class="add-cart"
+                    data-cart-id="${product.id}"
+                    type="button"
+                >
+                    + Keranjang
                 </button>
+
             </div>
+
         </article>
+
     `;
+
 }
+
 
 /* =========================================================
    SEARCH
@@ -2562,29 +2637,6 @@ document.addEventListener(
     }
 );
 
-
-/* =========================================================
-   HEADER / EXTRA UI
-   ========================================================= */
-
-const flashViewAllButton = document.getElementById("flashViewAllButton");
-const downloadAppButton = document.getElementById("downloadAppButton");
-const sellerButton = document.getElementById("sellerButton");
-
-if (flashViewAllButton) {
-    flashViewAllButton.addEventListener("click", () => {
-        const section = document.getElementById("homeProductsSection");
-        if (section) section.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
-}
-
-if (downloadAppButton) {
-    downloadAppButton.addEventListener("click", () => showToast("Fitur Download App segera hadir 📱"));
-}
-
-if (sellerButton) {
-    sellerButton.addEventListener("click", () => showToast("Pendaftaran seller segera hadir 🏪"));
-}
 
 /* =========================================================
    INITIALIZATION
