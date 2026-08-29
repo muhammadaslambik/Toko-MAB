@@ -1,19 +1,35 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>MAB-Store | Marketplace</title>
 
-    <link rel="stylesheet" href="style.css">
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
 </head>
+
 
 <body>
 
-    <!-- TOP BAR -->
+    <!-- =====================================================
+         TOP BAR
+    ====================================================== -->
+
     <div class="top-bar">
+
         <div class="container top-bar-content">
+
             <div>
                 Download App
                 <span>|</span>
@@ -27,34 +43,60 @@
                 <span>|</span>
                 Bahasa Indonesia
             </div>
+
         </div>
+
     </div>
 
 
-    <!-- NAVBAR -->
+    <!-- =====================================================
+         NAVBAR
+    ====================================================== -->
+
     <header class="navbar">
 
         <div class="container navbar-content">
 
-            <div class="logo">
+            <button
+                class="logo"
+                id="homeLogo"
+                type="button"
+            >
                 MAB<span>-Store</span>
-            </div>
+            </button>
+
 
             <div class="search-box">
+
                 <input
                     type="text"
                     id="searchInput"
                     placeholder="Cari produk di MAB-Store..."
+                    autocomplete="off"
                 >
 
-                <button id="searchButton">
+                <button
+                    id="searchButton"
+                    type="button"
+                >
                     🔍
                 </button>
+
             </div>
 
-            <button class="cart-button" id="cartButton">
+
+            <button
+                class="cart-button"
+                id="cartButton"
+                type="button"
+            >
+
                 🛒
-                <span id="cartCount">0</span>
+
+                <span id="cartCount">
+                    0
+                </span>
+
             </button>
 
         </div>
@@ -62,263 +104,443 @@
     </header>
 
 
-    <!-- HERO -->
-    <section class="hero">
+    <!-- =====================================================
+         HOME PAGE
+    ====================================================== -->
 
-        <div class="container hero-content">
-
-            <div class="hero-text">
-
-                <p class="small-title">
-                    SELAMAT DATANG DI MAB-STORE
-                </p>
-
-                <h1>
-                    Belanja Mudah.<br>
-                    Harga Bersahabat.
-                </h1>
-
-                <p>
-                    Temukan berbagai produk pilihan
-                    dengan harga terbaik.
-                </p>
-
-                <button class="hero-button">
-                    Belanja Sekarang
-                </button>
-
-            </div>
-
-            <div class="hero-icon">
-                🛍️
-            </div>
-
-        </div>
-
-    </section>
+    <main id="homePage">
 
 
-    <!-- CATEGORY -->
-    <section class="categories">
+        <!-- HERO -->
 
-        <div class="container">
+        <section class="hero">
 
-            <div class="section-title">
-                <h2>Kategori</h2>
-            </div>
+            <div class="container hero-content">
 
-            <div class="category-grid">
+                <div class="hero-text">
 
-                <button class="category-card">
-                    📱
-                    <span>Elektronik</span>
-                </button>
+                    <p class="small-title">
+                        SELAMAT DATANG DI MAB-STORE
+                    </p>
 
-                <button class="category-card">
-                    👕
-                    <span>Fashion</span>
-                </button>
+                    <h1>
+                        Belanja Mudah.<br>
+                        Harga Bersahabat.
+                    </h1>
 
-                <button class="category-card">
-                    🏠
-                    <span>Rumah</span>
-                </button>
+                    <p>
+                        Temukan berbagai produk pilihan
+                        dengan harga terbaik.
+                    </p>
 
-                <button class="category-card">
-                    💄
-                    <span>Kecantikan</span>
-                </button>
+                    <button
+                        class="hero-button"
+                        id="heroButton"
+                        type="button"
+                    >
+                        Belanja Sekarang
+                    </button>
 
-                <button class="category-card">
-                    🎮
-                    <span>Gaming</span>
-                </button>
-
-                <button class="category-card">
-                    ⚽
-                    <span>Olahraga</span>
-                </button>
-
-                <button class="category-card">
-                    📚
-                    <span>Buku</span>
-                </button>
-
-                <button class="category-card">
-                    👜
-                    <span>Aksesoris</span>
-                </button>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- FLASH SALE -->
-    <section class="flash-sale">
-
-        <div class="container">
-
-            <div class="flash-header">
-
-                <div>
-                    <span class="flash-title">
-                        ⚡ FLASH SALE
-                    </span>
-
-                    <span class="flash-timer">
-                        Berakhir dalam
-                        <strong id="countdown">
-                            02:00:00
-                        </strong>
-                    </span>
                 </div>
 
-                <button>
-                    Lihat Semua →
+
+                <div class="hero-icon">
+                    🛍️
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             CATEGORY
+        ================================================== -->
+
+        <section class="categories">
+
+            <div class="container">
+
+                <div class="section-title">
+
+                    <h2>
+                        Kategori
+                    </h2>
+
+                </div>
+
+
+                <div class="category-grid">
+
+                    <button
+                        class="category-card"
+                        data-category="Elektronik"
+                        type="button"
+                    >
+                        📱
+                        <span>
+                            Elektronik
+                        </span>
+                    </button>
+
+
+                    <button
+                        class="category-card"
+                        data-category="Fashion"
+                        type="button"
+                    >
+                        👕
+                        <span>
+                            Fashion
+                        </span>
+                    </button>
+
+
+                    <button
+                        class="category-card"
+                        data-category="Rumah"
+                        type="button"
+                    >
+                        🏠
+                        <span>
+                            Rumah
+                        </span>
+                    </button>
+
+
+                    <button
+                        class="category-card"
+                        data-category="Kecantikan"
+                        type="button"
+                    >
+                        💄
+                        <span>
+                            Kecantikan
+                        </span>
+                    </button>
+
+
+                    <button
+                        class="category-card"
+                        data-category="Gaming"
+                        type="button"
+                    >
+                        🎮
+                        <span>
+                            Gaming
+                        </span>
+                    </button>
+
+
+                    <button
+                        class="category-card"
+                        data-category="Olahraga"
+                        type="button"
+                    >
+                        ⚽
+                        <span>
+                            Olahraga
+                        </span>
+                    </button>
+
+
+                    <button
+                        class="category-card"
+                        data-category="Buku"
+                        type="button"
+                    >
+                        📚
+                        <span>
+                            Buku
+                        </span>
+                    </button>
+
+
+                    <button
+                        class="category-card"
+                        data-category="Aksesoris"
+                        type="button"
+                    >
+                        👜
+                        <span>
+                            Aksesoris
+                        </span>
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             FLASH SALE
+        ================================================== -->
+
+        <section class="flash-sale">
+
+            <div class="container">
+
+                <div class="flash-header">
+
+                    <div>
+
+                        <span class="flash-title">
+                            ⚡ FLASH SALE
+                        </span>
+
+                        <span class="flash-timer">
+
+                            Berakhir dalam
+
+                            <strong id="countdown">
+                                02:00:00
+                            </strong>
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="product-grid flash-products"
+                    id="flashProducts"
+                >
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             VOUCHER
+        ================================================== -->
+
+        <section class="voucher-section">
+
+            <div class="container voucher-box">
+
+                <div class="voucher-icon">
+                    🎟️
+                </div>
+
+                <div>
+
+                    <h3>
+                        Voucher MAB-Store
+                    </h3>
+
+                    <p>
+                        Hemat lebih banyak pada pembelian berikutnya.
+                    </p>
+
+                </div>
+
+
+                <button
+                    id="voucherButton"
+                    type="button"
+                >
+                    Klaim Voucher
                 </button>
 
             </div>
 
+        </section>
 
-            <div class="product-grid flash-products">
 
-                <article class="product-card">
+        <!-- =================================================
+             PRODUCTS
+        ================================================== -->
 
-                    <div class="product-image">
-                        <img class="product-photo" src="https://images.pexels.com/photos/12882840/pexels-photo-12882840.png?auto=compress&cs=tinysrgb&w=800" alt="Smartphone Pro Max" loading="lazy">
+        <section
+            class="products"
+            id="homeProductsSection"
+        >
+
+            <div class="container">
+
+                <div class="section-header">
+
+                    <h2>
+                        Produk Untukmu
+                    </h2>
+
+
+                    <div class="sort-buttons">
+
+                        <button
+                            class="active"
+                            data-sort="terbaru"
+                            type="button"
+                        >
+                            Terbaru
+                        </button>
+
+
+                        <button
+                            data-sort="terlaris"
+                            type="button"
+                        >
+                            Terlaris
+                        </button>
+
+
+                        <button
+                            data-sort="termurah"
+                            type="button"
+                        >
+                            Harga Terendah
+                        </button>
+
+
+                        <button
+                            data-sort="rating"
+                            type="button"
+                        >
+                            ⭐ Rating Tertinggi
+                        </button>
+
+
+                        <button
+                            data-sort="termahal"
+                            type="button"
+                        >
+                            💎 Termahal
+                        </button>
+
                     </div>
 
-                    <div class="product-info">
-                        <h3>Smartphone Pro Max</h3>
-                        <div class="price">Rp2.999.000</div>
-                        <div class="old-price">Rp3.499.000</div>
-                        <div class="product-bottom">
-                            <span>⭐ 4.9</span>
-                            <span>Terjual 120</span>
-                        </div>
-                        <button class="add-cart" data-product="Smartphone Pro Max" data-price="2999000">+ Keranjang</button>
-                    </div>
+                </div>
 
-                </article>
 
-                <article class="product-card">
-
-                    <div class="product-image">
-                        <img class="product-photo" src="https://images.pexels.com/photos/16303233/pexels-photo-16303233.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Wireless Headphone" loading="lazy">
-                    </div>
-
-                    <div class="product-info">
-                        <h3>Wireless Headphone</h3>
-                        <div class="price">Rp399.000</div>
-                        <div class="old-price">Rp599.000</div>
-                        <div class="product-bottom">
-                            <span>⭐ 4.8</span>
-                            <span>Terjual 85</span>
-                        </div>
-                        <button class="add-cart" data-product="Wireless Headphone" data-price="399000">+ Keranjang</button>
-                    </div>
-
-                </article>
-
-                <article class="product-card">
-
-                    <div class="product-image">
-                        <img class="product-photo" src="https://images.pexels.com/photos/14979022/pexels-photo-14979022.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Smartwatch Series 5" loading="lazy">
-                    </div>
-
-                    <div class="product-info">
-                        <h3>Smartwatch Series 5</h3>
-                        <div class="price">Rp549.000</div>
-                        <div class="old-price">Rp799.000</div>
-                        <div class="product-bottom">
-                            <span>⭐ 4.7</span>
-                            <span>Terjual 64</span>
-                        </div>
-                        <button class="add-cart" data-product="Smartwatch Series 5" data-price="549000">+ Keranjang</button>
-                    </div>
-
-                </article>
-
-                <article class="product-card">
-
-                    <div class="product-image">
-                        <img class="product-photo" src="https://images.pexels.com/photos/13869858/pexels-photo-13869858.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Tas Backpack Premium" loading="lazy">
-                    </div>
-
-                    <div class="product-info">
-                        <h3>Tas Backpack Premium</h3>
-                        <div class="price">Rp249.000</div>
-                        <div class="old-price">Rp399.000</div>
-                        <div class="product-bottom">
-                            <span>⭐ 4.9</span>
-                            <span>Terjual 210</span>
-                        </div>
-                        <button class="add-cart" data-product="Tas Backpack Premium" data-price="249000">+ Keranjang</button>
-                    </div>
-
-                </article>
+                <div
+                    class="product-grid"
+                    id="homeProducts"
+                >
+                </div>
 
             </div>
 
-        </div>
+        </section>
 
-    </section>
-
-
-    <!-- VOUCHER -->
-    <section class="voucher-section">
-
-        <div class="container voucher-box">
-
-            <div class="voucher-icon">
-                🎟️
-            </div>
-
-            <div>
-                <h3>
-                    Voucher MAB-Store
-                </h3>
-
-                <p>
-                    Hemat lebih banyak pada pembelian berikutnya.
-                </p>
-            </div>
-
-            <button>
-                Klaim Voucher
-            </button>
-
-        </div>
-
-    </section>
+    </main>
 
 
-    <!-- ALL PRODUCTS -->
-    <section class="products">
+    <!-- =====================================================
+         CATEGORY PAGE
+    ====================================================== -->
+
+    <main
+        id="categoryPage"
+        class="category-page"
+        hidden
+    >
 
         <div class="container">
 
-            <div class="section-header">
+            <button
+                id="backHomeButton"
+                class="back-home-button"
+                type="button"
+            >
+                ← Kembali ke Beranda
+            </button>
 
-                <h2>
-                    Produk Untukmu
-                </h2>
+
+            <div class="category-page-header">
+
+                <div>
+
+                    <div
+                        id="categoryPageIcon"
+                        class="category-page-icon"
+                    >
+                        📱
+                    </div>
+
+                    <div>
+
+                        <p
+                            class="category-page-label"
+                        >
+                            KATEGORI MAB-STORE
+                        </p>
+
+                        <h1
+                            id="categoryPageTitle"
+                        >
+                            Elektronik
+                        </h1>
+
+                        <p
+                            id="categoryPageDescription"
+                        >
+                            Temukan produk pilihan
+                            dalam kategori ini.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="category-toolbar">
+
+                <div
+                    class="category-result-count"
+                    id="categoryResultCount"
+                >
+                    Produk
+                </div>
+
 
                 <div class="sort-buttons">
 
-                    <button class="active">
+                    <button
+                        class="active"
+                        data-category-sort="terbaru"
+                        type="button"
+                    >
                         Terbaru
                     </button>
 
-                    <button>
+
+                    <button
+                        data-category-sort="terlaris"
+                        type="button"
+                    >
                         Terlaris
                     </button>
 
-                    <button>
+
+                    <button
+                        data-category-sort="termurah"
+                        type="button"
+                    >
                         Harga Terendah
+                    </button>
+
+
+                    <button
+                        data-category-sort="rating"
+                        type="button"
+                    >
+                        ⭐ Rating Tertinggi
+                    </button>
+
+
+                    <button
+                        data-category-sort="termahal"
+                        type="button"
+                    >
+                        💎 Termahal
                     </button>
 
                 </div>
@@ -326,163 +548,25 @@
             </div>
 
 
-            <div class="product-grid">
-
-                <article class="product-card">
-
-                    <div class="product-image">
-                        <img class="product-photo" src="https://images.pexels.com/photos/797637/pexels-photo-797637.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Sneakers Casual" loading="lazy">
-                    </div>
-
-                    <div class="product-info">
-                        <h3>Sneakers Casual</h3>
-                        <div class="price">Rp329.000</div>
-                        <div class="product-bottom">
-                            <span>⭐ 4.8</span>
-                            <span>Terjual 98</span>
-                        </div>
-                        <button class="add-cart" data-product="Sneakers Casual" data-price="329000">+ Keranjang</button>
-                    </div>
-
-                </article>
-
-                <article class="product-card">
-
-                    <div class="product-image">
-                        <img class="product-photo" src="https://images.pexels.com/photos/3584974/pexels-photo-3584974.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Laptop Slim" loading="lazy">
-                    </div>
-
-                    <div class="product-info">
-                        <h3>Laptop Slim</h3>
-                        <div class="price">Rp7.999.000</div>
-                        <div class="product-bottom">
-                            <span>⭐ 4.9</span>
-                            <span>Terjual 41</span>
-                        </div>
-                        <button class="add-cart" data-product="Laptop Slim" data-price="7999000">+ Keranjang</button>
-                    </div>
-
-                </article>
-
-                <article class="product-card">
-
-                    <div class="product-image">
-                        <img class="product-photo" src="https://images.pexels.com/photos/12039633/pexels-photo-12039633.jpeg?auto=compress&cs=tinysrgb&w=800" alt="T-Shirt Premium" loading="lazy">
-                    </div>
-
-                    <div class="product-info">
-                        <h3>T-Shirt Premium</h3>
-                        <div class="price">Rp129.000</div>
-                        <div class="product-bottom">
-                            <span>⭐ 4.7</span>
-                            <span>Terjual 340</span>
-                        </div>
-                        <button class="add-cart" data-product="T-Shirt Premium" data-price="129000">+ Keranjang</button>
-                    </div>
-
-                </article>
-
-                <article class="product-card">
-
-                    <div class="product-image">
-                        <img class="product-photo" src="https://images.pexels.com/photos/21852582/pexels-photo-21852582.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Kursi Minimalis" loading="lazy">
-                    </div>
-
-                    <div class="product-info">
-                        <h3>Kursi Minimalis</h3>
-                        <div class="price">Rp499.000</div>
-                        <div class="product-bottom">
-                            <span>⭐ 4.6</span>
-                            <span>Terjual 56</span>
-                        </div>
-                        <button class="add-cart" data-product="Kursi Minimalis" data-price="499000">+ Keranjang</button>
-                    </div>
-
-                </article>
-
-                <article class="product-card">
-
-                    <div class="product-image">
-                        <img class="product-photo" src="https://images.pexels.com/photos/15945023/pexels-photo-15945023.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Kamera Mirrorless" loading="lazy">
-                    </div>
-
-                    <div class="product-info">
-                        <h3>Kamera Mirrorless</h3>
-                        <div class="price">Rp1.299.000</div>
-                        <div class="product-bottom">
-                            <span>⭐ 4.8</span>
-                            <span>Terjual 72</span>
-                        </div>
-                        <button class="add-cart" data-product="Kamera Mirrorless" data-price="1299000">+ Keranjang</button>
-                    </div>
-
-                </article>
-
-                <article class="product-card">
-
-                    <div class="product-image">
-                        <img class="product-photo" src="https://images.pexels.com/photos/16089870/pexels-photo-16089870.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Parfum Premium" loading="lazy">
-                    </div>
-
-                    <div class="product-info">
-                        <h3>Parfum Premium</h3>
-                        <div class="price">Rp279.000</div>
-                        <div class="product-bottom">
-                            <span>⭐ 4.9</span>
-                            <span>Terjual 188</span>
-                        </div>
-                        <button class="add-cart" data-product="Parfum Premium" data-price="279000">+ Keranjang</button>
-                    </div>
-
-                </article>
-
-                <article class="product-card">
-
-                    <div class="product-image">
-                        <img class="product-photo" src="https://images.pexels.com/photos/4109750/pexels-photo-4109750.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Mug Keramik" loading="lazy">
-                    </div>
-
-                    <div class="product-info">
-                        <h3>Mug Keramik</h3>
-                        <div class="price">Rp89.000</div>
-                        <div class="product-bottom">
-                            <span>⭐ 4.7</span>
-                            <span>Terjual 415</span>
-                        </div>
-                        <button class="add-cart" data-product="Mug Keramik" data-price="89000">+ Keranjang</button>
-                    </div>
-
-                </article>
-
-                <article class="product-card">
-
-                    <div class="product-image">
-                        <img class="product-photo" src="https://images.pexels.com/photos/18114576/pexels-photo-18114576.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Keyboard Mechanical" loading="lazy">
-                    </div>
-
-                    <div class="product-info">
-                        <h3>Keyboard Mechanical</h3>
-                        <div class="price">Rp459.000</div>
-                        <div class="product-bottom">
-                            <span>⭐ 4.8</span>
-                            <span>Terjual 126</span>
-                        </div>
-                        <button class="add-cart" data-product="Keyboard Mechanical" data-price="459000">+ Keranjang</button>
-                    </div>
-
-                </article>
-
+            <div
+                class="product-grid"
+                id="categoryProducts"
+            >
             </div>
 
         </div>
 
-    </section>
+    </main>
 
 
-    <!-- PRODUCT DETAIL MODAL DIBUAT OTOMATIS OLEH script.js -->
+    <!-- =====================================================
+         CART DRAWER
+    ====================================================== -->
 
-    <!-- CART DRAWER -->
-    <aside class="cart-drawer" id="cartDrawer">
+    <aside
+        class="cart-drawer"
+        id="cartDrawer"
+    >
 
         <div class="cart-header">
 
@@ -490,11 +574,15 @@
                 Keranjang Saya
             </h2>
 
-            <button id="closeCart">
+            <button
+                id="closeCart"
+                type="button"
+            >
                 ✕
             </button>
 
         </div>
+
 
         <div id="cartItems">
 
@@ -504,16 +592,24 @@
 
         </div>
 
+
         <div class="cart-footer">
 
             <div>
+
                 Total:
+
                 <strong id="cartTotal">
                     Rp0
                 </strong>
+
             </div>
 
-            <button id="checkoutButton">
+
+            <button
+                id="checkoutButton"
+                type="button"
+            >
                 Checkout
             </button>
 
@@ -522,58 +618,107 @@
     </aside>
 
 
-    <!-- OVERLAY -->
+    <!-- =====================================================
+         OVERLAY
+    ====================================================== -->
+
     <div
         class="overlay"
-        id="overlay">
+        id="overlay"
+    >
     </div>
 
 
-    <!-- TOAST -->
+    <!-- =====================================================
+         TOAST
+    ====================================================== -->
+
     <div
         class="toast"
-        id="toast">
+        id="toast"
+    >
         Produk ditambahkan ke keranjang.
     </div>
 
 
-    <!-- FOOTER -->
+    <!-- =====================================================
+         FOOTER
+    ====================================================== -->
+
     <footer>
 
         <div class="container footer-content">
 
             <div>
-                <h2>MAB-Store</h2>
+
+                <h2>
+                    MAB-Store
+                </h2>
+
                 <p>
                     Marketplace sederhana untuk belajar
                     membangun aplikasi e-commerce.
                 </p>
+
             </div>
 
-            <div>
-                <h3>Layanan</h3>
-                <p>Bantuan</p>
-                <p>Pengiriman</p>
-                <p>Pembayaran</p>
-            </div>
 
             <div>
-                <h3>Tentang</h3>
-                <p>Tentang MAB-Store</p>
-                <p>Karier</p>
-                <p>Kontak</p>
+
+                <h3>
+                    Layanan
+                </h3>
+
+                <p>
+                    Bantuan
+                </p>
+
+                <p>
+                    Pengiriman
+                </p>
+
+                <p>
+                    Pembayaran
+                </p>
+
+            </div>
+
+
+            <div>
+
+                <h3>
+                    Tentang
+                </h3>
+
+                <p>
+                    Tentang MAB-Store
+                </p>
+
+                <p>
+                    Karier
+                </p>
+
+                <p>
+                    Kontak
+                </p>
+
             </div>
 
         </div>
 
+
         <div class="copyright">
-            © 2026 MAB-Store — Learning Project
+
+            © 2026 MAB-Store —
+            Learning Project
+
         </div>
 
     </footer>
 
 
-    
-<script src="script.js"></script>
+    <script src="script.js"></script>
+
 </body>
+
 </html>
