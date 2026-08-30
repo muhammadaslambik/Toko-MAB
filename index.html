@@ -93,6 +93,17 @@
 
 
             <div class="nav-actions">
+                <div class="account-wrapper">
+    <button class="account-nav-button" id="accountButton" type="button" aria-label="Akun saya">
+        <span id="accountIcon">👤</span>
+        <span id="accountLabel">Masuk</span>
+    </button>
+    <div class="account-dropdown" id="accountDropdown" hidden>
+        <p class="account-dropdown-name" id="accountDropdownName"></p>
+        <p class="account-dropdown-role" id="accountDropdownRole"></p>
+        <button id="logoutButton" type="button" class="account-logout-btn">Keluar</button>
+    </div>
+</div>
                 <button class="wishlist-nav-button" id="wishlistButton" type="button" aria-label="Buka wishlist">
                     <span>♡</span>
                     <span id="wishlistCount">0</span>
