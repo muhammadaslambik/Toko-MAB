@@ -2452,3 +2452,29 @@ footer { background: #033f3d; color: rgba(255,255,255,.86); margin-top: 25px; }
 .navbar .search-box input {
     color: #123f39;
 }
+
+.address-edit-form { margin-left: 40px; display: grid; gap: 10px; }
+.address-edit-form input,
+.address-edit-form textarea {
+    border: 1px solid #dce7e5;
+    border-radius: 9px;
+    padding: 11px 12px;
+    font-size: 13px;
+    outline: none;
+    font-family: inherit;
+    resize: vertical;
+}
+.address-edit-form input:focus,
+.address-edit-form textarea:focus {
+    border-color: #49a99f;
+    box-shadow: 0 0 0 3px rgba(73, 169, 159, .1);
+}
+.address-edit-form.error input,
+.address-edit-form.error textarea {
+    border-color: #df3434;
+}
+.address-edit-actions { display: flex; gap: 8px; justify-content: flex-end; }
+.address-cancel-btn { background: #f1f4f4; color: #456; padding: 9px 16px; border-radius: 8px; font-weight: 700; font-size: 12px; }
+.address-save-btn { background: var(--primary); color: #fff; padding: 9px 16px; border-radius: 8px; font-weight: 800; font-size: 12px; }
+.address-save-btn:hover { background: var(--primary-dark); }
+.place-order-button.loading { opacity: .7; cursor: not-allowed; pointer-events: none; }
