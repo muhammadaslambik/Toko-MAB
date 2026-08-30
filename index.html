@@ -1,119 +1,224 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
-
     <meta charset="UTF-8">
-    <meta name="description" content="MAB-Store — Belanja mudah, hidup lebih baik.">
-    <link rel="icon" type="image/png" href="assets/mab-store-logo.png">
 
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
     >
 
+    <meta
+        name="description"
+        content="MAB-Store — Belanja mudah, hidup lebih baik."
+    >
+
     <title>MAB-Store | Marketplace</title>
+
+    <link
+        rel="icon"
+        type="image/png"
+        href="assets/mab-store-logo.png"
+    >
 
     <link
         rel="stylesheet"
         href="style.css"
     >
-
 </head>
-
 
 <body>
 
-    <!-- =====================================================
-         TOP BAR
-    ====================================================== -->
+<!-- =====================================================
+     TOP BAR
+====================================================== -->
 
-    <div class="top-bar">
+<div class="top-bar">
 
-        <div class="container top-bar-content">
+    <div class="container top-bar-content">
 
-            <div>
-                Download App
-                <span>|</span>
-                 <button id="sellerButton" type="button" class="top-link">Jadi Seller</button>
-            </div>
+        <div class="top-left">
+            <span>Download App</span>
 
-            <div>
+            <span class="separator">|</span>
+
+            <button
+                id="sellerButton"
+                type="button"
+                class="top-link"
+            >
+                Jadi Seller
+            </button>
+        </div>
+
+        <div class="top-right">
+
+            <button
+                id="helpButton"
+                type="button"
+                class="top-link"
+            >
                 Bantuan
-                <span>|</span>
+            </button>
+
+            <span class="separator">|</span>
+
+            <button
+                id="topNotificationButton"
+                type="button"
+                class="top-link"
+            >
                 Notifikasi
-                <span>|</span>
-                Bahasa Indonesia
-            </div>
+            </button>
+
+            <span class="separator">|</span>
+
+            <span>Bahasa Indonesia</span>
 
         </div>
 
     </div>
 
+</div>
 
-    <!-- =====================================================
-         NAVBAR
-    ====================================================== -->
 
-    <header class="navbar">
+<!-- =====================================================
+     NAVBAR
+====================================================== -->
 
-        <div class="container navbar-content">
+<header class="navbar">
+
+    <div class="container navbar-content">
+
+        <!-- LOGO -->
+
+        <button
+            class="logo-button"
+            id="homeLogo"
+            type="button"
+            aria-label="MAB-Store - Beranda"
+        >
+
+            <img
+                src="assets/mab-store-logo.png"
+                alt="MAB-Store"
+                class="logo-image"
+            >
+
+        </button>
+
+
+        <!-- SEARCH -->
+
+        <div class="search-box">
+
+            <input
+                type="text"
+                id="searchInput"
+                placeholder="Cari produk di MAB-Store..."
+                autocomplete="off"
+            >
 
             <button
-                class="logo-button"
-                id="homeLogo"
+                id="searchButton"
                 type="button"
-                aria-label="MAB-Store - Beranda"
+                aria-label="Cari"
             >
-                <img
-                    src="assets/mab-store-logo.png"
-                    alt="MAB-Store"
-                    class="logo-image"
-                >
+                🔍
             </button>
 
+        </div>
 
-            <div class="search-box">
 
-                <input
-                    type="text"
-                    id="searchInput"
-                    placeholder="Cari produk di MAB-Store..."
-                    autocomplete="off"
-                >
+        <!-- NAV ACTIONS -->
+
+        <div class="nav-actions">
+
+            <!-- ACCOUNT -->
+
+            <div class="account-wrapper">
 
                 <button
-                    id="searchButton"
+                    class="account-button"
+                    id="accountButton"
                     type="button"
                 >
-                    🔍
+                    👤
+                    <span id="accountLabel">
+                        Masuk
+                    </span>
                 </button>
+
+                <div
+                    class="account-dropdown"
+                    id="accountDropdown"
+                    hidden
+                >
+
+                    <strong id="accountName">
+                        Belum masuk
+                    </strong>
+
+                    <small id="accountRole">
+                        Pengunjung
+                    </small>
+
+                    <button
+                        id="logoutButton"
+                        type="button"
+                    >
+                        Keluar
+                    </button>
+
+                </div>
 
             </div>
 
 
-            <div class="nav-actions">
-                <div class="account-wrapper">
-    <button class="account-nav-button" id="accountButton" type="button" aria-label="Akun saya">
-        <span id="accountIcon">👤</span>
-        <span id="accountLabel">Masuk</span>
-    </button>
-    <div class="account-dropdown" id="accountDropdown" hidden>
-        <p class="account-dropdown-name" id="accountDropdownName"></p>
-        <p class="account-dropdown-role" id="accountDropdownRole"></p>
-        <button id="logoutButton" type="button" class="account-logout-btn">Keluar</button>
-    </div>
-</div>
-                <button class="wishlist-nav-button" id="wishlistButton" type="button" aria-label="Buka wishlist">
-                    <span>♡</span>
-                    <span id="wishlistCount">0</span>
-                </button>
+            <!-- WISHLIST -->
 
-                <button
-                    class="cart-button"
-                    id="cartButton"
-                    type="button"
-                >
+            <button
+                class="nav-icon-button"
+                id="wishlistButton"
+                type="button"
+                aria-label="Wishlist"
+            >
+
+                ♡
+
+                <span id="wishlistCount">
+                    0
+                </span>
+
+            </button>
+
+
+            <!-- NOTIFICATION -->
+
+            <button
+                class="nav-icon-button notification-button"
+                id="notificationButton"
+                type="button"
+                aria-label="Notifikasi"
+            >
+
+                🔔
+
+                <span id="notificationCount">
+                    0
+                </span>
+
+            </button>
+
+
+            <!-- CART -->
+
+            <button
+                class="nav-icon-button cart-button"
+                id="cartButton"
+                type="button"
+                aria-label="Keranjang"
+            >
 
                 🛒
 
@@ -122,547 +227,110 @@
                 </span>
 
             </button>
-            </div>
 
         </div>
 
-    </header>
+    </div>
+
+</header>
 
 
-    <!-- =====================================================
-         HOME PAGE
-    ====================================================== -->
+<!-- =====================================================
+     HOME PAGE
+====================================================== -->
 
-    <main id="homePage">
-
-
-        <!-- HERO -->
-
-        <section class="hero">
-
-            <div class="container hero-content">
-
-                <div class="hero-text">
-
-                    <p class="small-title">
-                        SELAMAT DATANG DI MAB-STORE
-                    </p>
-
-                    <h1>
-                        Belanja Mudah.<br>
-                        Harga Bersahabat.
-                    </h1>
-
-                    <p>
-                        Temukan berbagai produk pilihan
-                        dengan harga terbaik.
-                    </p>
-
-                    <button
-                        class="hero-button"
-                        id="heroButton"
-                        type="button"
-                    >
-                        Belanja Sekarang
-                    </button>
-
-                </div>
+<main id="homePage">
 
 
-                <div class="hero-icon">
-                    🛍️
-                </div>
+<!-- =====================================================
+     HERO
+====================================================== -->
 
+<section class="hero">
+
+    <div class="container hero-content">
+
+        <div class="hero-text">
+
+            <div class="small-title">
+                SELAMAT DATANG DI MAB-STORE
             </div>
 
-        </section>
+            <h1>
+                Belanja Mudah.
+                <br>
+                Harga Bersahabat.
+            </h1>
 
+            <p>
+                Temukan berbagai produk pilihan
+                dengan harga terbaik.
+            </p>
 
-        <!-- =================================================
-             CATEGORY
-        ================================================== -->
-
-        <section class="categories">
-
-            <div class="container">
-
-                <div class="section-title">
-
-                    <h2>
-                        Kategori
-                    </h2>
-
-                </div>
-
-
-                <div class="category-grid">
-
-                    <button
-                        class="category-card"
-                        data-category="Elektronik"
-                        type="button"
-                    >
-                        📱
-                        <span>
-                            Elektronik
-                        </span>
-                    </button>
-
-
-                    <button
-                        class="category-card"
-                        data-category="Fashion"
-                        type="button"
-                    >
-                        👕
-                        <span>
-                            Fashion
-                        </span>
-                    </button>
-
-
-                    <button
-                        class="category-card"
-                        data-category="Rumah"
-                        type="button"
-                    >
-                        🏠
-                        <span>
-                            Rumah
-                        </span>
-                    </button>
-
-
-                    <button
-                        class="category-card"
-                        data-category="Kecantikan"
-                        type="button"
-                    >
-                        💄
-                        <span>
-                            Kecantikan
-                        </span>
-                    </button>
-
-
-                    <button
-                        class="category-card"
-                        data-category="Gaming"
-                        type="button"
-                    >
-                        🎮
-                        <span>
-                            Gaming
-                        </span>
-                    </button>
-
-
-                    <button
-                        class="category-card"
-                        data-category="Olahraga"
-                        type="button"
-                    >
-                        ⚽
-                        <span>
-                            Olahraga
-                        </span>
-                    </button>
-
-
-                    <button
-                        class="category-card"
-                        data-category="Buku"
-                        type="button"
-                    >
-                        📚
-                        <span>
-                            Buku
-                        </span>
-                    </button>
-
-
-                    <button
-                        class="category-card"
-                        data-category="Aksesoris"
-                        type="button"
-                    >
-                        👜
-                        <span>
-                            Aksesoris
-                        </span>
-                    </button>
-
-                </div>
-
-            </div>
-
-        </section>
-
-<!-- =================================================
-     FLASH SALE
-================================================== -->
-
-<section class="flash-sale">
-
-    <div class="container">
-
-        <!-- FLASH SALE HEADER -->
-        <div class="flash-header">
-
-            <div class="flash-title-area">
-
-                <div class="flash-title">
-                    FLASH SALE
-                </div>
-
-                <div class="flash-timer">
-                    <strong id="countdown">
-                        02:00:00
-                    </strong>
-                </div>
-
-            </div>
-
-            <button id="flashViewAllButton" type="button">
-                Lihat Semua →
+            <button
+                class="hero-button"
+                id="heroButton"
+                type="button"
+            >
+                Belanja Sekarang →
             </button>
 
+            <div class="hero-benefits">
+
+                <div>
+                    <b>✓</b>
+                    <span>
+                        <strong>Produk Pilihan</strong>
+                        <small>Untuk kebutuhanmu</small>
+                    </span>
+                </div>
+
+                <div>
+                    <b>⚡</b>
+                    <span>
+                        <strong>Promo Menarik</strong>
+                        <small>Hemat setiap hari</small>
+                    </span>
+                </div>
+
+                <div>
+                    <b>🔒</b>
+                    <span>
+                        <strong>Belanja Aman</strong>
+                        <small>Simulasi marketplace</small>
+                    </span>
+                </div>
+
+            </div>
+
         </div>
 
 
-        <!-- FLASH SALE PRODUCTS -->
-        <div
-            class="product-grid flash-products"
-            id="flashProducts"
-        >
+        <div class="hero-art">
 
+            <div class="hero-circle circle-one"></div>
 
-            <!-- =========================
-                 PRODUCT 1
-            ========================== -->
+            <div class="hero-circle circle-two"></div>
 
-            <article class="product-card">
+            <div class="hero-bag">
+                🛍️
+            </div>
 
-                <div class="product-image">
+            <div class="hero-tag">
+                %
+            </div>
 
-                    <img
-                        class="product-photo"
-                        src="https://images.pexels.com/photos/12882840/pexels-photo-12882840.jpeg?auto=compress&cs=tinysrgb&w=800"
-                        alt="Smartphone Pro Max"
-                    >
+            <div class="hero-box">
+                📦
+            </div>
 
-                    <span class="flash-discount">
-                        -14%
-                    </span>
+            <div class="hero-spark spark-one">
+                ✦
+            </div>
 
-                </div>
-
-
-                <div class="product-info">
-
-                    <h3>
-                        Smartphone Pro Max
-                    </h3>
-
-                    <div class="price">
-                        Rp2.999.000
-                    </div>
-
-                    <div class="old-price">
-                        Rp3.499.000
-                    </div>
-
-
-                    <div class="product-bottom">
-
-                        <span>
-                            ⭐ 4.9
-                        </span>
-
-                        <span>
-                            Terjual 120
-                        </span>
-
-                    </div>
-
-
-                    <div class="flash-stock">
-
-                        <div class="flash-stock-bar">
-
-                            <div
-                                class="flash-stock-progress"
-                                style="width:82%;"
-                            ></div>
-
-                        </div>
-
-                        <div class="flash-stock-text">
-                            82% terjual
-                        </div>
-
-                    </div>
-
-
-                    <button
-                        class="add-cart"
-                        type="button"
-                        data-product="Smartphone Pro Max"
-                        data-price="2999000"
-                    >
-                        ⚡ Beli Sekarang
-                    </button>
-
-                </div>
-
-            </article>
-
-
-
-            <!-- =========================
-                 PRODUCT 2
-            ========================== -->
-
-            <article class="product-card">
-
-                <div class="product-image">
-
-                    <img
-                        class="product-photo"
-                        src="https://images.pexels.com/photos/16303233/pexels-photo-16303233.jpeg?auto=compress&cs=tinysrgb&w=800"
-                        alt="Wireless Headphone"
-                    >
-
-                    <span class="flash-discount">
-                        -33%
-                    </span>
-
-                </div>
-
-
-                <div class="product-info">
-
-                    <h3>
-                        Wireless Headphone
-                    </h3>
-
-                    <div class="price">
-                        Rp399.000
-                    </div>
-
-                    <div class="old-price">
-                        Rp599.000
-                    </div>
-
-
-                    <div class="product-bottom">
-
-                        <span>
-                            ⭐ 4.8
-                        </span>
-
-                        <span>
-                            Terjual 85
-                        </span>
-
-                    </div>
-
-
-                    <div class="flash-stock">
-
-                        <div class="flash-stock-bar">
-
-                            <div
-                                class="flash-stock-progress"
-                                style="width:68%;"
-                            ></div>
-
-                        </div>
-
-                        <div class="flash-stock-text">
-                            68% terjual
-                        </div>
-
-                    </div>
-
-
-                    <button
-                        class="add-cart"
-                        type="button"
-                        data-product="Wireless Headphone"
-                        data-price="399000"
-                    >
-                        ⚡ Beli Sekarang
-                    </button>
-
-                </div>
-
-            </article>
-
-
-
-            <!-- =========================
-                 PRODUCT 3
-            ========================== -->
-
-            <article class="product-card">
-
-                <div class="product-image">
-
-                    <img
-                        class="product-photo"
-                        src="https://images.pexels.com/photos/14691505/pexels-photo-14691505.jpeg?auto=compress&cs=tinysrgb&w=800"
-                        alt="Smartwatch Series 5"
-                    >
-
-                    <span class="flash-discount">
-                        -31%
-                    </span>
-
-                </div>
-
-
-                <div class="product-info">
-
-                    <h3>
-                        Smartwatch Series 5
-                    </h3>
-
-                    <div class="price">
-                        Rp549.000
-                    </div>
-
-                    <div class="old-price">
-                        Rp799.000
-                    </div>
-
-
-                    <div class="product-bottom">
-
-                        <span>
-                            ⭐ 4.7
-                        </span>
-
-                        <span>
-                            Terjual 64
-                        </span>
-
-                    </div>
-
-
-                    <div class="flash-stock">
-
-                        <div class="flash-stock-bar">
-
-                            <div
-                                class="flash-stock-progress"
-                                style="width:74%;"
-                            ></div>
-
-                        </div>
-
-                        <div class="flash-stock-text">
-                            74% terjual
-                        </div>
-
-                    </div>
-
-
-                    <button
-                        class="add-cart"
-                        type="button"
-                        data-product="Smartwatch Series 5"
-                        data-price="549000"
-                    >
-                        ⚡ Beli Sekarang
-                    </button>
-
-                </div>
-
-            </article>
-
-
-
-            <!-- =========================
-                 PRODUCT 4
-            ========================== -->
-
-            <article class="product-card">
-
-                <div class="product-image">
-
-                    <img
-                        class="product-photo"
-                        src="https://images.pexels.com/photos/11726029/pexels-photo-11726029.jpeg?auto=compress&cs=tinysrgb&w=800"
-                        alt="Tas Backpack Premium"
-                    >
-
-                    <span class="flash-discount">
-                        -38%
-                    </span>
-
-                </div>
-
-
-                <div class="product-info">
-
-                    <h3>
-                        Tas Backpack Premium
-                    </h3>
-
-                    <div class="price">
-                        Rp249.000
-                    </div>
-
-                    <div class="old-price">
-                        Rp399.000
-                    </div>
-
-
-                    <div class="product-bottom">
-
-                        <span>
-                            ⭐ 4.9
-                        </span>
-
-                        <span>
-                            Terjual 210
-                        </span>
-
-                    </div>
-
-
-                    <div class="flash-stock">
-
-                        <div class="flash-stock-bar">
-
-                            <div
-                                class="flash-stock-progress"
-                                style="width:91%;"
-                            ></div>
-
-                        </div>
-
-                        <div class="flash-stock-text">
-                            91% terjual
-                        </div>
-
-                    </div>
-
-
-                    <button
-                        class="add-cart"
-                        type="button"
-                        data-product="Tas Backpack Premium"
-                        data-price="249000"
-                    >
-                        ⚡ Beli Sekarang
-                    </button>
-
-                </div>
-
-            </article>
-
+            <div class="hero-spark spark-two">
+                ✦
+            </div>
 
         </div>
 
@@ -671,665 +339,1235 @@
 </section>
 
 
-        <!-- =================================================
-             VOUCHER
-        ================================================== -->
+<!-- =====================================================
+     CATEGORY
+====================================================== -->
 
-        <section class="voucher-section">
+<section class="categories">
 
-            <div class="container voucher-box">
+    <div class="container">
 
-                <div class="voucher-icon">
-                    🎟️
+        <div class="section-heading">
+
+            <div>
+                <span class="eyebrow">
+                    EXPLORE
+                </span>
+
+                <h2>
+                    Kategori
+                </h2>
+            </div>
+
+        </div>
+
+
+        <div class="category-grid">
+
+            <button
+                class="category-card"
+                data-category="Elektronik"
+                type="button"
+            >
+                <span class="category-icon">
+                    📱
+                </span>
+
+                <span>
+                    Elektronik
+                </span>
+            </button>
+
+
+            <button
+                class="category-card"
+                data-category="Fashion"
+                type="button"
+            >
+                <span class="category-icon">
+                    👕
+                </span>
+
+                <span>
+                    Fashion
+                </span>
+            </button>
+
+
+            <button
+                class="category-card"
+                data-category="Rumah"
+                type="button"
+            >
+                <span class="category-icon">
+                    🏠
+                </span>
+
+                <span>
+                    Rumah
+                </span>
+            </button>
+
+
+            <button
+                class="category-card"
+                data-category="Kecantikan"
+                type="button"
+            >
+                <span class="category-icon">
+                    💄
+                </span>
+
+                <span>
+                    Kecantikan
+                </span>
+            </button>
+
+
+            <button
+                class="category-card"
+                data-category="Gaming"
+                type="button"
+            >
+                <span class="category-icon">
+                    🎮
+                </span>
+
+                <span>
+                    Gaming
+                </span>
+            </button>
+
+
+            <button
+                class="category-card"
+                data-category="Olahraga"
+                type="button"
+            >
+                <span class="category-icon">
+                    ⚽
+                </span>
+
+                <span>
+                    Olahraga
+                </span>
+            </button>
+
+
+            <button
+                class="category-card"
+                data-category="Buku"
+                type="button"
+            >
+                <span class="category-icon">
+                    📚
+                </span>
+
+                <span>
+                    Buku
+                </span>
+            </button>
+
+
+            <button
+                class="category-card"
+                data-category="Aksesoris"
+                type="button"
+            >
+                <span class="category-icon">
+                    👜
+                </span>
+
+                <span>
+                    Aksesoris
+                </span>
+            </button>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     FLASH SALE
+====================================================== -->
+
+<section class="flash-sale">
+
+    <div class="container">
+
+        <div class="flash-header">
+
+            <div class="flash-title-area">
+
+                <div class="flash-title">
+                    <span>⚡</span>
+                    FLASH SALE
                 </div>
 
-                <div>
+                <div class="flash-timer">
+
+                    Berakhir dalam
+
+                    <strong id="countdown">
+                        02:00:00
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <button
+                id="flashSeeAll"
+                type="button"
+            >
+                Lihat Semua →
+            </button>
+
+        </div>
+
+
+        <div
+            class="product-grid flash-products"
+            id="flashProducts"
+        >
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     VOUCHER & PROMO
+====================================================== -->
+
+<section class="voucher-section">
+
+    <div class="container">
+
+        <div class="section-heading">
+
+            <div>
+
+                <span class="eyebrow">
+                    PROMO
+                </span>
+
+                <h2>
+                    Voucher & Promo
+                </h2>
+
+            </div>
+
+            <button
+                id="viewAllVoucherButton"
+                class="text-button"
+                type="button"
+            >
+                Lihat Semua →
+            </button>
+
+        </div>
+
+
+        <div
+            class="voucher-grid"
+            id="voucherGrid"
+        >
+
+            <!-- Voucher 1 -->
+
+            <article class="voucher-card">
+
+                <div class="voucher-card-icon">
+                    🏷️
+                </div>
+
+                <div class="voucher-card-content">
+
+                    <span class="voucher-label">
+                        BELANJA
+                    </span>
 
                     <h3>
-                        Voucher MAB-Store
+                        Diskon 20%
                     </h3>
 
                     <p>
-                        Hemat lebih banyak pada pembelian berikutnya.
+                        Min. belanja Rp100.000
                     </p>
+
+                    <strong>
+                        MAB20
+                    </strong>
 
                 </div>
 
-
                 <button
-                    id="voucherButton"
+                    class="claim-voucher"
+                    data-voucher="MAB20"
                     type="button"
                 >
-                    Klaim Voucher
+                    Klaim
+                </button>
+
+            </article>
+
+
+            <!-- Voucher 2 -->
+
+            <article class="voucher-card">
+
+                <div class="voucher-card-icon">
+                    🚚
+                </div>
+
+                <div class="voucher-card-content">
+
+                    <span class="voucher-label">
+                        GRATIS ONGKIR
+                    </span>
+
+                    <h3>
+                        Gratis Ongkir
+                    </h3>
+
+                    <p>
+                        Min. belanja Rp150.000
+                    </p>
+
+                    <strong>
+                        ONGKIR
+                    </strong>
+
+                </div>
+
+                <button
+                    class="claim-voucher"
+                    data-voucher="ONGKIR"
+                    type="button"
+                >
+                    Klaim
+                </button>
+
+            </article>
+
+
+            <!-- Voucher 3 -->
+
+            <article class="voucher-card">
+
+                <div class="voucher-card-icon">
+                    💎
+                </div>
+
+                <div class="voucher-card-content">
+
+                    <span class="voucher-label">
+                        MEMBER
+                    </span>
+
+                    <h3>
+                        Potongan Rp50.000
+                    </h3>
+
+                    <p>
+                        Min. belanja Rp300.000
+                    </p>
+
+                    <strong>
+                        MEMBER50
+                    </strong>
+
+                </div>
+
+                <button
+                    class="claim-voucher"
+                    data-voucher="MEMBER50"
+                    type="button"
+                >
+                    Klaim
+                </button>
+
+            </article>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     PRODUCTS
+====================================================== -->
+
+<section
+    class="products"
+    id="homeProductsSection"
+>
+
+    <div class="container">
+
+        <div class="section-header">
+
+            <div>
+
+                <span class="eyebrow">
+                    PRODUK
+                </span>
+
+                <h2>
+                    Produk Untukmu
+                </h2>
+
+            </div>
+
+
+            <div class="sort-buttons">
+
+                <button
+                    class="active"
+                    data-sort="terbaru"
+                    type="button"
+                >
+                    Terbaru
+                </button>
+
+                <button
+                    data-sort="terlaris"
+                    type="button"
+                >
+                    Terlaris
+                </button>
+
+                <button
+                    data-sort="termurah"
+                    type="button"
+                >
+                    Harga Terendah
+                </button>
+
+                <button
+                    data-sort="rating"
+                    type="button"
+                >
+                    ⭐ Rating Tertinggi
+                </button>
+
+                <button
+                    data-sort="termahal"
+                    type="button"
+                >
+                    💎 Termahal
                 </button>
 
             </div>
 
-        </section>
+        </div>
 
 
-        <!-- =================================================
-             PRODUCTS
-        ================================================== -->
-
-        <section
-            class="products"
-            id="homeProductsSection"
+        <div
+            class="product-grid"
+            id="homeProducts"
         >
+        </div>
 
-            <div class="container">
+    </div>
 
-                <div class="section-header">
+</section>
 
-                    <h2>
-                        Produk Untukmu
-                    </h2>
-
-
-                    <div class="sort-buttons">
-
-                        <button
-                            class="active"
-                            data-sort="terbaru"
-                            type="button"
-                        >
-                            Terbaru
-                        </button>
+</main>
 
 
-                        <button
-                            data-sort="terlaris"
-                            type="button"
-                        >
-                            Terlaris
-                        </button>
+<!-- =====================================================
+     CATEGORY PAGE
+====================================================== -->
+
+<main
+    id="categoryPage"
+    class="category-page"
+    hidden
+>
+
+    <div class="container">
+
+        <button
+            id="backHomeButton"
+            class="back-home-button"
+            type="button"
+        >
+            ← Kembali ke Beranda
+        </button>
 
 
-                        <button
-                            data-sort="termurah"
-                            type="button"
-                        >
-                            Harga Terendah
-                        </button>
-
-
-                        <button
-                            data-sort="rating"
-                            type="button"
-                        >
-                            ⭐ Rating Tertinggi
-                        </button>
-
-
-                        <button
-                            data-sort="termahal"
-                            type="button"
-                        >
-                            💎 Termahal
-                        </button>
-
-                    </div>
-
-                </div>
-
-
-                <div
-                    class="product-grid"
-                    id="homeProducts"
-                >
-                </div>
-
-            </div>
-
-        </section>
-
-    </main>
-
-
-    <!-- =====================================================
-         CATEGORY PAGE
-    ====================================================== -->
-
-    <main
-        id="categoryPage"
-        class="category-page"
-        hidden
-    >
-
-        <div class="container">
-
-            <button
-                id="backHomeButton"
-                class="back-home-button"
-                type="button"
-            >
-                ← Kembali ke Beranda
-            </button>
-
-
-            <div class="category-page-header">
-
-                <div>
-
-                    <div
-                        id="categoryPageIcon"
-                        class="category-page-icon"
-                    >
-                        📱
-                    </div>
-
-                    <div>
-
-                        <p
-                            class="category-page-label"
-                        >
-                            KATEGORI MAB-STORE
-                        </p>
-
-                        <h1
-                            id="categoryPageTitle"
-                        >
-                            Elektronik
-                        </h1>
-
-                        <p
-                            id="categoryPageDescription"
-                        >
-                            Temukan produk pilihan
-                            dalam kategori ini.
-                        </p>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <div class="category-toolbar">
-
-                <div
-                    class="category-result-count"
-                    id="categoryResultCount"
-                >
-                    Produk
-                </div>
-
-
-                <div class="sort-buttons">
-
-                    <button
-                        class="active"
-                        data-category-sort="terbaru"
-                        type="button"
-                    >
-                        Terbaru
-                    </button>
-
-
-                    <button
-                        data-category-sort="terlaris"
-                        type="button"
-                    >
-                        Terlaris
-                    </button>
-
-
-                    <button
-                        data-category-sort="termurah"
-                        type="button"
-                    >
-                        Harga Terendah
-                    </button>
-
-
-                    <button
-                        data-category-sort="rating"
-                        type="button"
-                    >
-                        ⭐ Rating Tertinggi
-                    </button>
-
-
-                    <button
-                        data-category-sort="termahal"
-                        type="button"
-                    >
-                        💎 Termahal
-                    </button>
-
-                </div>
-
-            </div>
-
+        <div class="category-page-header">
 
             <div
-                class="product-grid"
-                id="categoryProducts"
+                id="categoryPageIcon"
+                class="category-page-icon"
             >
+                📱
+            </div>
+
+            <div>
+
+                <span class="eyebrow">
+                    KATEGORI MAB-STORE
+                </span>
+
+                <h1 id="categoryPageTitle">
+                    Elektronik
+                </h1>
+
+                <p id="categoryPageDescription">
+                    Temukan produk pilihan
+                    dalam kategori ini.
+                </p>
+
             </div>
 
         </div>
 
-    </main>
+
+        <div class="category-toolbar">
+
+            <span
+                id="categoryResultCount"
+                class="category-result-count"
+            >
+                Produk
+            </span>
 
 
-    <!-- =====================================================
-         PRODUCT DETAIL PAGE
-    ====================================================== -->
+            <div class="sort-buttons">
 
-    <main id="productPage" class="product-page" hidden>
+                <button
+                    class="active"
+                    data-category-sort="terbaru"
+                    type="button"
+                >
+                    Terbaru
+                </button>
 
-        <div class="container">
+                <button
+                    data-category-sort="terlaris"
+                    type="button"
+                >
+                    Terlaris
+                </button>
 
-            <button id="backFromProductButton" class="back-home-button" type="button">← Kembali</button>
+                <button
+                    data-category-sort="termurah"
+                    type="button"
+                >
+                    Harga Terendah
+                </button>
 
-            <nav class="pd-breadcrumb" id="pdBreadcrumb" aria-label="Navigasi produk">
-                <button type="button" data-pd-home>Beranda</button>
-                <span>/</span>
-                <button type="button" id="pdBreadcrumbCategory"></button>
-                <span>/</span>
-                <span id="pdBreadcrumbName"></span>
-            </nav>
+                <button
+                    data-category-sort="rating"
+                    type="button"
+                >
+                    ⭐ Rating
+                </button>
 
-            <div class="pd-layout">
+                <button
+                    data-category-sort="termahal"
+                    type="button"
+                >
+                    💎 Termahal
+                </button>
 
-                <div class="pd-gallery">
-                    <div class="pd-main-image">
-                        <span class="pd-discount-badge" id="pdDiscountBadge" hidden></span>
-                        <button class="pd-wishlist-float" id="detailWishlistFloat" type="button" aria-label="Simpan ke wishlist">♡</button>
-                        <img id="detailProductImage" src="" alt="">
-                    </div>
-
-                    <div class="pd-trust">
-                        <div><span>🚚</span><div><b>Pengiriman Cepat</b><small>Dari gudang MAB-Store</small></div></div>
-                        <div><span>🔒</span><div><b>Pembayaran Aman</b><small>Berbagai metode</small></div></div>
-                        <div><span>↩️</span><div><b>Garansi 7 Hari</b><small>Barang tidak sesuai</small></div></div>
-                    </div>
-                </div>
-
-                <div class="pd-info">
-
-                    <span class="detail-badge">MAB-STORE OFFICIAL</span>
-                    <h1 id="detailProductName"></h1>
-
-                    <div class="pd-meta-row">
-                        <span class="detail-rating">⭐ <span id="detailRating"></span></span>
-                        <span id="detailCategory"></span>
-                        <span>✓ Produk Pilihan</span>
-                    </div>
-
-                    <div class="pd-price-box">
-                        <span class="detail-price" id="detailProductPrice"></span>
-                        <span class="detail-old-price" id="detailOldPrice"></span>
-                        <span class="detail-discount" id="detailDiscount"></span>
-                    </div>
-
-                    <p class="detail-stock">✓ Stok tersedia &nbsp;•&nbsp; Siap dikirim</p>
-
-                    <div class="pd-variants" id="pdVariants" hidden></div>
-
-                    <div class="detail-quantity">
-                        <span>Jumlah</span>
-                        <div>
-                            <button id="detailMinus" type="button">−</button>
-                            <strong id="detailQuantity">1</strong>
-                            <button id="detailPlus" type="button">+</button>
-                        </div>
-                    </div>
-
-                    <div class="detail-actions">
-                        <button id="detailAddCart" type="button">🛒 Tambah ke Keranjang</button>
-                        <button id="detailBuyNow" type="button">⚡ Beli Sekarang</button>
-                    </div>
-
-                    <button id="detailWishlistButton" class="detail-wishlist-button" type="button">♡ Simpan ke Wishlist</button>
-
-                    <div class="pd-seller-card">
-                        <div class="pd-seller-avatar">🏬</div>
-                        <div class="pd-seller-info">
-                            <b>MAB-Official Store</b>
-                            <span>⭐ 4.9 &nbsp;•&nbsp; 98% Ulasan Positif &nbsp;•&nbsp; Jakarta Selatan</span>
-                        </div>
-                        <button type="button" id="pdChatSellerButton">💬 Chat</button>
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <div class="pd-tabs-section">
-
-                <div class="pd-tabs" id="pdTabs">
-                    <button class="pd-tab active" data-pd-tab="deskripsi" type="button">Deskripsi</button>
-                    <button class="pd-tab" data-pd-tab="spesifikasi" type="button">Spesifikasi</button>
-                    <button class="pd-tab" data-pd-tab="ulasan" type="button">Ulasan</button>
-                </div>
-
-                <div class="pd-tab-panel" data-pd-panel="deskripsi">
-                    <p id="detailProductDescription"></p>
-                    <div class="detail-highlights">
-                        <div class="detail-highlight"><b>⭐ Rating</b><span id="detailRatingBox"></span></div>
-                        <div class="detail-highlight"><b>🛍 Terjual</b><span id="detailSoldBox"></span></div>
-                        <div class="detail-highlight"><b>🔒 Aman</b><span>Transaksi</span></div>
-                    </div>
-                </div>
-
-                <div class="pd-tab-panel" data-pd-panel="spesifikasi" hidden>
-                    <table class="pd-specs-table" id="pdSpecsTable"></table>
-                </div>
-
-                <div class="pd-tab-panel" data-pd-panel="ulasan" hidden>
-
-                    <div class="product-reviews-section pd-reviews-section">
-
-                        <div class="reviews-header">
-                            <h3>Rating &amp; Ulasan Pembeli</h3>
-                            <div class="reviews-summary">
-                                <span class="reviews-avg" id="reviewsAvg">—</span>
-                                <span class="reviews-stars" id="reviewsStars">☆☆☆☆☆</span>
-                                <span class="reviews-count" id="reviewsCount">(0 ulasan)</span>
-                            </div>
-                        </div>
-
-                        <div class="review-form">
-                            <p>Bagikan pendapatmu tentang produk ini</p>
-                            <div class="review-form-row" id="reviewNameRow">
-                                <input type="text" id="reviewName" placeholder="Nama kamu">
-                            </div>
-                            <div class="review-star-input" id="reviewStarInput">
-                                <button type="button" data-star="1">★</button>
-                                <button type="button" data-star="2">★</button>
-                                <button type="button" data-star="3">★</button>
-                                <button type="button" data-star="4">★</button>
-                                <button type="button" data-star="5">★</button>
-                            </div>
-                            <textarea id="reviewComment" placeholder="Tulis ulasan kamu di sini..." rows="3"></textarea>
-                            <div class="review-media-input">
-                                <label class="review-media-label" for="reviewMediaFile">
-                                    📷 Tambah Foto / Video
-                                    <input type="file" id="reviewMediaFile" accept="image/*,video/*" multiple hidden>
-                                </label>
-                                <div class="review-media-preview" id="reviewMediaPreview"></div>
-                            </div>
-                            <button id="submitReviewButton" type="button">Kirim Ulasan</button>
-                        </div>
-
-                        <div class="review-list" id="reviewList"></div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <div class="pd-related-section">
-                <div class="section-title"><h2>Produk Serupa</h2></div>
-                <div class="product-grid" id="pdRelatedProducts"></div>
             </div>
 
         </div>
 
-    </main>
 
+        <div
+            class="product-grid"
+            id="categoryProducts"
+        >
+        </div>
 
-    <!-- =====================================================
-         CHECKOUT PAGE — OVERLAY PANEL
-    ====================================================== -->
-    <div id="checkoutPage" class="checkout-overlay" hidden>
-        <div class="checkout-overlay-backdrop" data-close-checkout></div>
-        <div class="checkout-panel">
-        <div class="container">
-            <div class="checkout-topbar">
-                <button id="backToCartButton" class="back-home-button" type="button">← Kembali ke Keranjang</button>
-                <div class="checkout-progress"><span class="done">1 Keranjang</span><i></i><span class="active">2 Checkout</span><i></i><span>3 Selesai</span></div>
-            </div>
-            <div class="checkout-title"><p class="eyebrow">MAB-STORE</p><h1>Checkout</h1><p>Periksa kembali alamat, pengiriman, dan pembayaran sebelum membuat pesanan.</p></div>
-            <div class="checkout-layout">
-                <section class="checkout-main">
-                    <div class="checkout-card address-card">
-    <div class="checkout-card-head"><div><span class="checkout-number">1</span><div><h2>Alamat Pengiriman</h2><p>Pesanan akan dikirim ke alamat berikut.</p></div></div><button id="changeAddressButton" type="button">Ubah</button></div>
-
-    <div class="address-content" id="addressDisplay">
-        <strong id="checkoutRecipient">Muhammad Aslambik</strong>
-        <span id="checkoutPhone">+62 812-3456-7890</span>
-        <p id="checkoutAddress">Jl. Contoh No. 123, Kecamatan Sukamaju, Kota Jakarta, Indonesia 12345</p>
     </div>
 
-    <div class="address-edit-form" id="addressEditForm" hidden>
-        <input type="text" id="editRecipient" placeholder="Nama Penerima">
-        <input type="text" id="editPhone" placeholder="Nomor HP">
-        <textarea id="editAddress" placeholder="Alamat lengkap (jalan, kecamatan, kota, kode pos)" rows="3"></textarea>
-        <div class="address-edit-actions">
-            <button id="cancelAddressButton" type="button" class="address-cancel-btn">Batal</button>
-            <button id="saveAddressButton" type="button" class="address-save-btn">Simpan Alamat</button>
-        </div>
-    </div>
-</div>
-                    <div class="checkout-card"><div class="checkout-card-head"><div><span class="checkout-number">2</span><div><h2>Produk yang Dibeli</h2><p id="checkoutProductCount">0 produk</p></div></div></div><div id="checkoutItems" class="checkout-items"></div></div>
-                    <div class="checkout-card"><div class="checkout-card-head"><div><span class="checkout-number">3</span><div><h2>Pengiriman</h2><p>Pilih layanan pengiriman yang kamu inginkan.</p></div></div></div>
-                        <div class="shipping-options">
-                            <label class="shipping-option selected"><input type="radio" name="shipping" value="15000" data-label="Reguler" checked><span><b>Reguler</b><small>2–4 hari kerja</small></span><strong>Rp15.000</strong></label>
-                            <label class="shipping-option"><input type="radio" name="shipping" value="25000" data-label="Express"><span><b>Express</b><small>1–2 hari kerja</small></span><strong>Rp25.000</strong></label>
-                            <label class="shipping-option"><input type="radio" name="shipping" value="35000" data-label="Same Day"><span><b>Same Day</b><small>Tiba hari ini</small></span><strong>Rp35.000</strong></label>
-                        </div>
-                    </div>
-                    <div class="checkout-card"><div class="checkout-card-head"><div><span class="checkout-number">4</span><div><h2>Voucher</h2><p>Gunakan voucher untuk mendapatkan potongan harga.</p></div></div></div>
-                        <div class="voucher-input-row"><input id="checkoutVoucher" type="text" placeholder="Masukkan kode voucher, contoh: MABHEMAT"><button id="applyVoucherButton" type="button">Pakai</button></div><div id="voucherMessage" class="voucher-message"></div>
-                    </div>
-                    <div class="checkout-card"><div class="checkout-card-head"><div><span class="checkout-number">5</span><div><h2>Metode Pembayaran</h2><p>Pilih metode pembayaran yang tersedia.</p></div></div></div>
-                        <div class="payment-options">
-                            <label class="payment-option selected"><input type="radio" name="payment" value="QRIS" checked><span class="payment-icon">▦</span><span><b>QRIS</b><small>Scan dari aplikasi pembayaran</small></span><em>✓</em></label>
-                            <label class="payment-option"><input type="radio" name="payment" value="E-Wallet"><span class="payment-icon">◉</span><span><b>E-Wallet</b><small>GoPay, OVO, DANA, ShopeePay</small></span><em>✓</em></label>
-                            <label class="payment-option"><input type="radio" name="payment" value="Transfer Bank"><span class="payment-icon">▤</span><span><b>Transfer Bank</b><small>Virtual Account bank pilihan</small></span><em>✓</em></label>
-                            <label class="payment-option"><input type="radio" name="payment" value="COD"><span class="payment-icon">💵</span><span><b>COD</b><small>Bayar saat barang diterima</small></span><em>✓</em></label>
-                        </div>
-                    </div>
-                </section>
-                <aside class="checkout-summary"><div class="summary-card"><h2>Ringkasan Belanja</h2><div class="summary-line"><span>Total Produk</span><strong id="summarySubtotal">Rp0</strong></div><div class="summary-line"><span>Pengiriman</span><strong id="summaryShipping">Rp15.000</strong></div><div class="summary-line discount"><span>Diskon Voucher</span><strong id="summaryDiscount">-Rp0</strong></div><div class="summary-divider"></div><div class="summary-total"><span>Total Pembayaran</span><strong id="summaryTotal">Rp0</strong></div><button id="placeOrderButton" class="place-order-button" type="button">Buat Pesanan <span>→</span></button><p class="secure-checkout">🔒 Transaksi aman &amp; data pembayaran terlindungi.</p></div></aside>
-            </div>
-        </div>
-        </div>
-    </div>
+</main>
 
-    <!-- WISHLIST DRAWER -->
-    <aside class="wishlist-drawer" id="wishlistDrawer" aria-label="Wishlist saya">
-        <div class="wishlist-header">
-            <div><p class="eyebrow">MAB-STORE</p><h2>Wishlist Saya</h2></div>
-            <button id="closeWishlist" type="button" aria-label="Tutup wishlist">✕</button>
-        </div>
-        <div id="wishlistItems" class="wishlist-items"><p class="empty-wishlist">Belum ada produk di wishlist.</p></div>
-        <div class="wishlist-footer"><button id="wishlistShopButton" type="button">Lanjut Belanja →</button></div>
-    </aside>
 
-    <!-- =====================================================
-         CART DRAWER
-    ====================================================== -->
+<!-- =====================================================
+     CART DRAWER
+====================================================== -->
 
-    <aside
-        class="cart-drawer"
-        id="cartDrawer"
-    >
+<aside
+    class="cart-drawer"
+    id="cartDrawer"
+>
 
-        <div class="cart-header">
+    <div class="drawer-header">
+
+        <div>
+
+            <span class="eyebrow">
+                SHOPPING
+            </span>
 
             <h2>
                 Keranjang Saya
             </h2>
 
+        </div>
+
+        <button
+            id="closeCart"
+            type="button"
+        >
+            ✕
+        </button>
+
+    </div>
+
+
+    <div id="cartItems">
+
+        <p class="empty-cart">
+            Keranjang masih kosong.
+        </p>
+
+    </div>
+
+
+    <div class="cart-footer">
+
+        <div class="cart-total-row">
+
+            <span>
+                Total
+            </span>
+
+            <strong id="cartTotal">
+                Rp0
+            </strong>
+
+        </div>
+
+
+        <button
+            id="checkoutButton"
+            type="button"
+        >
+            Checkout
+        </button>
+
+    </div>
+
+</aside>
+
+
+<!-- =====================================================
+     WISHLIST DRAWER
+====================================================== -->
+
+<aside
+    class="wishlist-drawer"
+    id="wishlistDrawer"
+>
+
+    <div class="drawer-header">
+
+        <div>
+
+            <span class="eyebrow">
+                FAVORIT
+            </span>
+
+            <h2>
+                Wishlist
+            </h2>
+
+        </div>
+
+        <button
+            id="closeWishlist"
+            type="button"
+        >
+            ✕
+        </button>
+
+    </div>
+
+
+    <div
+        class="wishlist-items"
+        id="wishlistItems"
+    >
+    </div>
+
+</aside>
+
+
+<!-- =====================================================
+     NOTIFICATION DRAWER
+====================================================== -->
+
+<aside
+    class="notification-drawer"
+    id="notificationDrawer"
+>
+
+    <div class="drawer-header">
+
+        <div>
+
+            <span class="eyebrow">
+                UPDATE
+            </span>
+
+            <h2>
+                Notifikasi
+            </h2>
+
+        </div>
+
+        <button
+            id="closeNotification"
+            type="button"
+        >
+            ✕
+        </button>
+
+    </div>
+
+
+    <div
+        class="notification-items"
+        id="notificationItems"
+    >
+    </div>
+
+
+    <div class="notification-footer">
+
+        <button
+            id="clearNotifications"
+            type="button"
+        >
+            Tandai semua sudah dibaca
+        </button>
+
+    </div>
+
+</aside>
+
+
+<!-- =====================================================
+     OVERLAY
+====================================================== -->
+
+<div
+    class="overlay"
+    id="overlay"
+>
+</div>
+
+
+<!-- =====================================================
+     PRODUCT MODAL
+====================================================== -->
+
+<div
+    class="product-modal"
+    id="productModal"
+>
+
+    <div
+        class="product-modal-backdrop"
+        data-close-product
+    ></div>
+
+    <div class="product-modal-dialog">
+
+        <button
+            class="product-modal-close"
+            data-close-product
+            type="button"
+        >
+            ✕
+        </button>
+
+
+        <div class="product-modal-grid">
+
+            <div class="product-modal-image">
+
+                <img
+                    id="detailProductImage"
+                    src=""
+                    alt=""
+                >
+
+            </div>
+
+
+            <div class="product-modal-info">
+
+                <span class="detail-badge">
+                    MAB-Store
+                </span>
+
+                <h2 id="detailProductName">
+                </h2>
+
+                <div
+                    class="detail-rating"
+                    id="detailRating"
+                >
+                </div>
+
+                <div
+                    class="detail-price"
+                    id="detailProductPrice"
+                >
+                </div>
+
+                <div
+                    id="detailOldPrice"
+                    class="detail-old-price"
+                >
+                </div>
+
+                <p class="detail-stock">
+                    ✓ Stok tersedia
+                </p>
+
+                <p
+                    id="detailProductDescription"
+                    class="detail-description"
+                >
+                </p>
+
+
+                <div class="detail-quantity">
+
+                    <strong>
+                        Jumlah
+                    </strong>
+
+                    <div>
+
+                        <button
+                            id="detailMinus"
+                            type="button"
+                        >
+                            −
+                        </button>
+
+                        <strong id="detailQuantity">
+                            1
+                        </strong>
+
+                        <button
+                            id="detailPlus"
+                            type="button"
+                        >
+                            +
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <div class="detail-actions">
+
+                    <button
+                        id="detailAddCart"
+                        type="button"
+                    >
+                        🛒 Tambah ke Keranjang
+                    </button>
+
+                    <button
+                        id="detailBuyNow"
+                        type="button"
+                    >
+                        ⚡ Beli Sekarang
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     VOUCHER MODAL
+====================================================== -->
+
+<div
+    class="feature-modal"
+    id="voucherModal"
+    hidden
+>
+
+    <div
+        class="feature-modal-backdrop"
+        data-close-voucher
+    ></div>
+
+    <div class="feature-modal-card">
+
+        <button
+            class="feature-modal-close"
+            data-close-voucher
+            type="button"
+        >
+            ✕
+        </button>
+
+        <span class="eyebrow">
+            PROMO MAB-STORE
+        </span>
+
+        <h2>
+            Voucher & Promo
+        </h2>
+
+        <p class="modal-subtitle">
+            Gunakan voucher berikut untuk mendapatkan
+            penawaran menarik.
+        </p>
+
+
+        <div class="voucher-modal-list">
+
+            <div class="voucher-modal-item">
+
+                <div>
+                    <strong>
+                        MAB20
+                    </strong>
+
+                    <span>
+                        Diskon 20% • Min. Rp100.000
+                    </span>
+                </div>
+
+                <button
+                    class="claim-voucher"
+                    data-voucher="MAB20"
+                    type="button"
+                >
+                    Klaim
+                </button>
+
+            </div>
+
+
+            <div class="voucher-modal-item">
+
+                <div>
+                    <strong>
+                        ONGKIR
+                    </strong>
+
+                    <span>
+                        Gratis Ongkir • Min. Rp150.000
+                    </span>
+                </div>
+
+                <button
+                    class="claim-voucher"
+                    data-voucher="ONGKIR"
+                    type="button"
+                >
+                    Klaim
+                </button>
+
+            </div>
+
+
+            <div class="voucher-modal-item">
+
+                <div>
+                    <strong>
+                        MEMBER50
+                    </strong>
+
+                    <span>
+                        Potongan Rp50.000 • Min. Rp300.000
+                    </span>
+                </div>
+
+                <button
+                    class="claim-voucher"
+                    data-voucher="MEMBER50"
+                    type="button"
+                >
+                    Klaim
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     TRACKING MODAL
+====================================================== -->
+
+<div
+    class="feature-modal"
+    id="trackingModal"
+    hidden
+>
+
+    <div
+        class="feature-modal-backdrop"
+        data-close-tracking
+    ></div>
+
+    <div class="feature-modal-card tracking-card">
+
+        <button
+            class="feature-modal-close"
+            data-close-tracking
+            type="button"
+        >
+            ✕
+        </button>
+
+        <span class="eyebrow">
+            PESANAN SAYA
+        </span>
+
+        <h2>
+            Status & Pelacakan Pesanan
+        </h2>
+
+        <p class="modal-subtitle">
+            Masukkan nomor pesanan untuk melihat
+            status pengiriman simulasi.
+        </p>
+
+
+        <div class="tracking-search">
+
+            <input
+                type="text"
+                id="trackingInput"
+                placeholder="Contoh: MAB-2026-001"
+            >
+
             <button
-                id="closeCart"
+                id="trackingSearchButton"
                 type="button"
             >
-                ✕
+                Lacak
             </button>
 
         </div>
 
 
-        <div id="cartItems">
+        <div
+            id="trackingResult"
+            class="tracking-result"
+        >
+        </div>
 
-            <p class="empty-cart">
-                Keranjang masih kosong.
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     ORDER SUCCESS
+====================================================== -->
+
+<div
+    class="feature-modal"
+    id="orderSuccessModal"
+    hidden
+>
+
+    <div class="feature-modal-backdrop"></div>
+
+    <div class="feature-modal-card success-card">
+
+        <div class="success-icon">
+            ✓
+        </div>
+
+        <span class="eyebrow">
+            PESANAN BERHASIL
+        </span>
+
+        <h2>
+            Terima kasih!
+        </h2>
+
+        <p>
+            Pesanan kamu berhasil dibuat
+            dalam simulasi MAB-Store.
+        </p>
+
+        <div
+            class="order-code"
+            id="successOrderCode"
+        >
+        </div>
+
+        <button
+            id="trackSuccessOrder"
+            type="button"
+        >
+            Lihat Status Pesanan
+        </button>
+
+        <button
+            id="closeSuccessModal"
+            class="secondary-button"
+            type="button"
+        >
+            Kembali Belanja
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     TOAST
+====================================================== -->
+
+<div
+    class="toast"
+    id="toast"
+>
+</div>
+
+
+<!-- =====================================================
+     FOOTER
+====================================================== -->
+
+<footer>
+
+    <div class="container footer-content">
+
+        <div class="footer-brand">
+
+            <img
+                src="assets/mab-store-logo.png"
+                alt="MAB-Store"
+            >
+
+            <p>
+                Marketplace sederhana untuk belajar
+                membangun aplikasi e-commerce.
             </p>
 
         </div>
 
 
-        <div class="cart-footer">
+        <div>
 
-            <div>
-
-                Total:
-
-                <strong id="cartTotal">
-                    Rp0
-                </strong>
-
-            </div>
-
+            <h3>
+                Layanan
+            </h3>
 
             <button
-                id="checkoutButton"
+                id="footerTrackingButton"
                 type="button"
             >
-                Checkout
+                Lacak Pesanan
+            </button>
+
+            <button
+                id="footerVoucherButton"
+                type="button"
+            >
+                Voucher & Promo
+            </button>
+
+            <button
+                id="footerNotificationButton"
+                type="button"
+            >
+                Notifikasi
             </button>
 
         </div>
 
-    </aside>
 
+        <div>
 
-    <!-- =====================================================
-         OVERLAY
-    ====================================================== -->
+            <h3>
+                Tentang
+            </h3>
 
-    <div
-        class="overlay"
-        id="overlay"
-    >
-    </div>
+            <p>
+                Tentang MAB-Store
+            </p>
 
+            <p>
+                Karier
+            </p>
 
-    <!-- =====================================================
-         TOAST
-    ====================================================== -->
-
-    <div
-        class="toast"
-        id="toast"
-    >
-        Produk ditambahkan ke keranjang.
-    </div>
-
-
-    <!-- =====================================================
-         FOOTER
-    ====================================================== -->
-
-    <footer>
-
-        <div class="container footer-content">
-
-            <div>
-
-                <img class="footer-logo" src="assets/mab-store-logo.png" alt="MAB-Store">
-
-                <p>
-                    Marketplace sederhana untuk belajar
-                    membangun aplikasi e-commerce.
-                </p>
-
-            </div>
-
-
-            <div>
-
-                <h3>
-                    Layanan
-                </h3>
-
-                <p>
-                    Bantuan
-                </p>
-
-                <p>
-                    Pengiriman
-                </p>
-
-                <p>
-                    Pembayaran
-                </p>
-
-            </div>
-
-
-            <div>
-
-                <h3>
-                    Tentang
-                </h3>
-
-                <p>
-                    Tentang MAB-Store
-                </p>
-
-                <p>
-                    Karier
-                </p>
-
-                <p>
-                    Kontak
-                </p>
-
-            </div>
+            <p>
+                Kontak
+            </p>
 
         </div>
 
 
-        <div class="copyright">
+        <div>
 
-            © 2026 MAB-Store —
-            Learning Project
+            <h3>
+                Pembayaran
+            </h3>
+
+            <p>
+                💳 Transfer Bank
+            </p>
+
+            <p>
+                📱 E-Wallet
+            </p>
+
+            <p>
+                💵 COD
+            </p>
 
         </div>
 
-    </footer>
-
-<div class="auth-modal" id="authModal" hidden>
-  <div class="auth-modal-card">
-    <button class="auth-modal-close" id="closeAuthModal" type="button">✕</button>
-    <div class="auth-tabs">
-      <button class="auth-tab active" data-auth-tab="login" type="button">Masuk</button>
-      <button class="auth-tab" data-auth-tab="register" type="button">Daftar</button>
     </div>
 
-    <form id="loginForm" class="auth-form">
-      <input type="email" id="loginEmail" placeholder="Email" required>
-      <input type="password" id="loginPassword" placeholder="Kata Sandi" required>
-      <button type="submit" class="auth-submit-btn">Masuk</button>
-      <p class="auth-error" id="loginError"></p>
-    </form>
 
-    <form id="registerForm" class="auth-form" hidden>
-      <input type="text" id="registerName" placeholder="Nama Lengkap" required>
-      <input type="email" id="registerEmail" placeholder="Email" required>
-      <input type="password" id="registerPassword" placeholder="Kata Sandi" required>
-      <div class="auth-role-select">
-          <label><input type="radio" name="registerRole" value="buyer" checked> Pembeli</label>
-          <label><input type="radio" name="registerRole" value="seller"> Penjual</label>
-      </div>
-      <button type="submit" class="auth-submit-btn">Daftar</button>
-      <p class="auth-error" id="registerError"></p>
-    </form>
-  </div>
-</div>
-    
-    <script src="script.js"></script>
+    <div class="copyright">
+
+        © 2026 MAB-Store —
+        Learning Project
+
+    </div>
+
+</footer>
+
+
+<script src="script.js"></script>
 
 </body>
-
 </html>
