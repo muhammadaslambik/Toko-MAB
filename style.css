@@ -2494,6 +2494,7 @@ footer { background: #033f3d; color: rgba(255,255,255,.86); margin-top: 25px; }
 .auth-tab { flex: 1; padding: 10px; border-radius: 9px; background: #f1f4f4; color: #667; font-weight: 800; font-size: 13px; }
 .auth-tab.active { background: var(--primary); color: #fff; }
 .auth-form { display: grid; gap: 12px; }
+.auth-form[hidden] { display: none; }
 .auth-form input { border: 1px solid #dce7e5; border-radius: 9px; padding: 12px 14px; font-size: 14px; outline: none; font-family: inherit; }
 .auth-form input:focus { border-color: #49a99f; box-shadow: 0 0 0 3px rgba(73,169,159,.1); }
 .auth-role-select { display: flex; gap: 16px; font-size: 13px; color: #455; padding: 4px 0; }
