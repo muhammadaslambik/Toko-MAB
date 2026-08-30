@@ -89,6 +89,14 @@
                     🔍
                 </button>
 
+                <button
+                    id="advancedSearchButton"
+                    type="button"
+                    title="Pencarian &amp; Filter Lanjutan"
+                >
+                    ⚙️
+                </button>
+
             </div>
 
 
@@ -104,6 +112,25 @@
         <button id="logoutButton" type="button" class="account-logout-btn">Keluar</button>
     </div>
 </div>
+
+                <div class="notif-wrapper">
+                    <button class="notif-nav-button" id="notifButton" type="button" aria-label="Notifikasi">
+                        <span>🔔</span>
+                        <span id="notifCount" hidden>0</span>
+                    </button>
+                    <div class="notif-dropdown" id="notifDropdown" hidden>
+                        <div class="notif-dropdown-header">
+                            <b>Notifikasi</b>
+                            <button type="button" id="clearNotifButton">Hapus semua</button>
+                        </div>
+                        <div class="notif-list" id="notifList"></div>
+                    </div>
+                </div>
+
+                <button class="orders-nav-button" id="ordersNavButton" type="button" aria-label="Pesanan saya">
+                    📦
+                </button>
+
                 <button class="wishlist-nav-button" id="wishlistButton" type="button" aria-label="Buka wishlist">
                     <span>♡</span>
                     <span id="wishlistCount">0</span>
@@ -941,6 +968,8 @@
                         <img id="detailProductImage" src="" alt="">
                     </div>
 
+                    <div class="pd-thumbs" id="pdThumbs"></div>
+
                     <div class="pd-trust">
                         <div><span>🚚</span><div><b>Pengiriman Cepat</b><small>Dari gudang MAB-Store</small></div></div>
                         <div><span>🔒</span><div><b>Pembayaran Aman</b><small>Berbagai metode</small></div></div>
@@ -967,7 +996,15 @@
 
                     <p class="detail-stock">✓ Stok tersedia &nbsp;•&nbsp; Siap dikirim</p>
 
-                    <div class="pd-variants" id="pdVariants" hidden></div>
+                    <div class="pd-promo-section">
+                        <h3 class="pd-section-heading">🎟️ Voucher &amp; Promo</h3>
+                        <div class="pd-promo-list" id="pdPromoList"></div>
+                    </div>
+
+                    <div class="pd-variant-section" id="pdVariantSection" hidden>
+                        <h3 class="pd-section-heading">Pilih Varian</h3>
+                        <div class="pd-variants" id="pdVariants"></div>
+                    </div>
 
                     <div class="detail-quantity">
                         <span>Jumlah</span>
@@ -991,6 +1028,7 @@
                             <b>MAB-Official Store</b>
                             <span>⭐ 4.9 &nbsp;•&nbsp; 98% Ulasan Positif &nbsp;•&nbsp; Jakarta Selatan</span>
                         </div>
+                        <button type="button" id="pdVisitStoreButton">🏬 Kunjungi Toko</button>
                         <button type="button" id="pdChatSellerButton">💬 Chat</button>
                     </div>
 
@@ -1072,6 +1110,139 @@
 
         </div>
 
+    </main>
+
+
+    <!-- =====================================================
+         PESANAN SAYA (ORDER HISTORY + TRACKING SIMULASI)
+    ====================================================== -->
+
+    <main id="ordersPage" class="orders-page" hidden>
+        <div class="container">
+
+            <button id="backFromOrdersButton" class="back-home-button" type="button">← Kembali</button>
+
+            <div class="orders-page-header">
+                <h1>Pesanan Saya</h1>
+                <div class="orders-status-tabs" id="ordersStatusTabs">
+                    <button type="button" class="orders-tab active" data-order-filter="semua">Semua</button>
+                    <button type="button" class="orders-tab" data-order-filter="diproses">Diproses</button>
+                    <button type="button" class="orders-tab" data-order-filter="dikirim">Dikirim</button>
+                    <button type="button" class="orders-tab" data-order-filter="selesai">Selesai</button>
+                </div>
+            </div>
+
+            <div id="ordersList" class="orders-list"></div>
+
+            <div id="ordersEmpty" class="orders-empty" hidden>
+                <p>🧾 Kamu belum memiliki pesanan.</p>
+                <button type="button" id="ordersEmptyShopButton">Mulai Belanja</button>
+            </div>
+
+        </div>
+    </main>
+
+
+    <!-- =====================================================
+         TOKO / PENJUAL (SIMULASI)
+    ====================================================== -->
+
+    <main id="storePage" class="store-page" hidden>
+        <div class="container">
+
+            <button id="backFromStoreButton" class="back-home-button" type="button">← Kembali</button>
+
+            <div class="store-header">
+                <div class="store-header-avatar">🏬</div>
+                <div class="store-header-info">
+                    <h1>MAB-Official Store</h1>
+                    <p>⭐ <b id="storeRating">4.9</b> &nbsp;•&nbsp; <span id="storeFollowers">2.450</span> Pengikut &nbsp;•&nbsp; Jakarta Selatan</p>
+                    <p class="store-header-sub">Bergabung sejak 2021 &nbsp;•&nbsp; Respon cepat &nbsp;•&nbsp; 98% Ulasan Positif</p>
+                </div>
+                <button type="button" id="storeFollowButton">+ Ikuti Toko</button>
+            </div>
+
+            <div class="store-stats">
+                <div><b id="storeStatProducts">0</b><span>Produk</span></div>
+                <div><b>4.9</b><span>Rating Toko</span></div>
+                <div><b>98%</b><span>Respon Chat</span></div>
+                <div><b>&lt;1 jam</b><span>Waktu Balas</span></div>
+            </div>
+
+            <div class="section-title"><h2>Semua Produk Toko</h2></div>
+            <div class="product-grid" id="storeProducts"></div>
+
+        </div>
+    </main>
+
+
+    <!-- =====================================================
+         PENCARIAN &amp; FILTER LANJUTAN (STANDALONE)
+    ====================================================== -->
+
+    <main id="searchPage" class="search-page" hidden>
+        <div class="container">
+
+            <button id="backFromSearchButton" class="back-home-button" type="button">← Kembali</button>
+
+            <h1>Pencarian &amp; Filter Lanjutan</h1>
+
+            <div class="search-page-layout">
+
+                <aside class="search-filters">
+
+                    <div class="search-filter-group">
+                        <label for="advSearchKeyword">Kata Kunci</label>
+                        <input type="text" id="advSearchKeyword" placeholder="Cari produk...">
+                    </div>
+
+                    <div class="search-filter-group">
+                        <span class="search-filter-title">Kategori</span>
+                        <div id="advSearchCategories" class="search-filter-checkboxes"></div>
+                    </div>
+
+                    <div class="search-filter-group">
+                        <span class="search-filter-title">Rentang Harga</span>
+                        <div class="search-price-row">
+                            <input type="number" id="advSearchMinPrice" placeholder="Min">
+                            <span>—</span>
+                            <input type="number" id="advSearchMaxPrice" placeholder="Maks">
+                        </div>
+                    </div>
+
+                    <div class="search-filter-group">
+                        <span class="search-filter-title">Rating Minimum</span>
+                        <div id="advSearchRating" class="search-filter-checkboxes">
+                            <label><input type="radio" name="advRating" value="0" checked> Semua Rating</label>
+                            <label><input type="radio" name="advRating" value="4.5"> 4.5 ke atas</label>
+                            <label><input type="radio" name="advRating" value="4"> 4.0 ke atas</label>
+                            <label><input type="radio" name="advRating" value="3"> 3.0 ke atas</label>
+                        </div>
+                    </div>
+
+                    <div class="search-filter-group">
+                        <span class="search-filter-title">Urutkan</span>
+                        <select id="advSearchSort">
+                            <option value="relevansi">Relevansi</option>
+                            <option value="harga-rendah">Harga Terendah</option>
+                            <option value="harga-tinggi">Harga Tertinggi</option>
+                            <option value="rating">Rating Tertinggi</option>
+                            <option value="terlaris">Terlaris</option>
+                        </select>
+                    </div>
+
+                    <button type="button" id="advSearchReset" class="search-reset-button">Reset Filter</button>
+
+                </aside>
+
+                <section class="search-results">
+                    <p id="advSearchCount" class="search-results-count"></p>
+                    <div class="product-grid" id="advSearchResults"></div>
+                </section>
+
+            </div>
+
+        </div>
     </main>
 
 
