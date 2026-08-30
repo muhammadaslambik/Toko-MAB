@@ -2567,13 +2567,14 @@ if (accountButton) {
 
 if (closeAuthModal) closeAuthModal.addEventListener("click", closeAuth);
 
+if (registerForm) registerForm.style.display = "none";
 authTabs.forEach(tab => {
     tab.addEventListener("click", () => {
         authTabs.forEach(t => t.classList.remove("active"));
         tab.classList.add("active");
         const target = tab.dataset.authTab;
-        loginForm.hidden = target !== "login";
-        registerForm.hidden = target !== "register";
+        loginForm.style.display = target === "login" ? "grid" : "none";
+        registerForm.style.display = target === "register" ? "grid" : "none";
     });
 });
 
