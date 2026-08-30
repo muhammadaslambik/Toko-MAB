@@ -22,7 +22,8 @@ const products = [
         sold: 120,
         image: "https://images.pexels.com/photos/12882840/pexels-photo-12882840.jpeg?auto=compress&cs=tinysrgb&w=800",
         flash: true,
-        keywords: "smartphone hp ponsel android elektronik"
+        keywords: "smartphone hp ponsel android elektronik",
+        variants: { Warna: ["Hitam", "Putih", "Biru"], Tipe: ["128GB", "256GB"] }
     },
 
     {
@@ -36,7 +37,8 @@ const products = [
         sold: 85,
         image: "https://images.pexels.com/photos/7772547/pexels-photo-7772547.jpeg?auto=compress&cs=tinysrgb&w=800",
         flash: true,
-        keywords: "headphone headset audio musik wireless elektronik"
+        keywords: "headphone headset audio musik wireless elektronik",
+        variants: { Warna: ["Hitam", "Putih"] }
     },
 
     {
@@ -50,7 +52,8 @@ const products = [
         sold: 64,
         image: "https://images.pexels.com/photos/14691505/pexels-photo-14691505.jpeg?auto=compress&cs=tinysrgb&w=800",
         flash: true,
-        keywords: "smartwatch jam tangan elektronik"
+        keywords: "smartwatch jam tangan elektronik",
+        variants: { Warna: ["Hitam", "Silver"], Ukuran: ["40mm", "44mm"] }
     },
 
     {
@@ -64,7 +67,8 @@ const products = [
         sold: 210,
         image: "https://images.pexels.com/photos/11726029/pexels-photo-11726029.jpeg?auto=compress&cs=tinysrgb&w=800",
         flash: true,
-        keywords: "tas backpack fashion aksesoris sekolah"
+        keywords: "tas backpack fashion aksesoris sekolah",
+        variants: { Warna: ["Hitam", "Navy", "Abu-abu"] }
     },
 
     {
@@ -78,7 +82,8 @@ const products = [
         sold: 98,
         image: "https://images.pexels.com/photos/797637/pexels-photo-797637.jpeg?auto=compress&cs=tinysrgb&w=800",
         flash: false,
-        keywords: "sneakers sepatu olahraga fashion"
+        keywords: "sneakers sepatu olahraga fashion",
+        variants: { Warna: ["Hitam", "Putih"], Ukuran: ["39", "40", "41", "42", "43"] }
     },
 
     {
@@ -92,7 +97,8 @@ const products = [
         sold: 41,
         image: "https://images.pexels.com/photos/3584974/pexels-photo-3584974.jpeg?auto=compress&cs=tinysrgb&w=800",
         flash: false,
-        keywords: "laptop komputer notebook elektronik"
+        keywords: "laptop komputer notebook elektronik",
+        variants: { Warna: ["Silver", "Space Gray"], Tipe: ["8GB/256GB", "16GB/512GB"] }
     },
 
     {
@@ -106,7 +112,8 @@ const products = [
         sold: 340,
         image: "https://images.pexels.com/photos/12039633/pexels-photo-12039633.jpeg?auto=compress&cs=tinysrgb&w=800",
         flash: false,
-        keywords: "kaos tshirt pakaian fashion"
+        keywords: "kaos tshirt pakaian fashion",
+        variants: { Warna: ["Hitam", "Putih", "Merah"], Ukuran: ["S", "M", "L", "XL"] }
     },
 
     {
@@ -120,7 +127,8 @@ const products = [
         sold: 56,
         image: "https://images.pexels.com/photos/21852582/pexels-photo-21852582.jpeg?auto=compress&cs=tinysrgb&w=800",
         flash: false,
-        keywords: "kursi furniture rumah minimalis"
+        keywords: "kursi furniture rumah minimalis",
+        variants: { Warna: ["Natural", "Hitam"] }
     },
 
     {
@@ -134,7 +142,8 @@ const products = [
         sold: 72,
         image: "https://images.pexels.com/photos/15945023/pexels-photo-15945023.jpeg?auto=compress&cs=tinysrgb&w=800",
         flash: false,
-        keywords: "kamera fotografi mirrorless elektronik"
+        keywords: "kamera fotografi mirrorless elektronik",
+        variants: { Warna: ["Hitam"], Tipe: ["Body Only", "Kit Lens"] }
     },
 
     {
@@ -148,7 +157,8 @@ const products = [
         sold: 188,
         image: "https://images.pexels.com/photos/16089870/pexels-photo-16089870.jpeg?auto=compress&cs=tinysrgb&w=800",
         flash: false,
-        keywords: "parfum fragrance kecantikan"
+        keywords: "parfum fragrance kecantikan",
+        variants: { Tipe: ["30ml", "50ml", "100ml"] }
     },
 
     {
@@ -162,7 +172,8 @@ const products = [
         sold: 415,
         image: "https://images.pexels.com/photos/4109750/pexels-photo-4109750.jpeg?auto=compress&cs=tinysrgb&w=800",
         flash: false,
-        keywords: "mug gelas keramik rumah dapur"
+        keywords: "mug gelas keramik rumah dapur",
+        variants: { Warna: ["Putih", "Hitam", "Biru Tua"] }
     },
 
     {
@@ -176,7 +187,8 @@ const products = [
         sold: 126,
         image: "https://images.pexels.com/photos/18114576/pexels-photo-18114576.jpeg?auto=compress&cs=tinysrgb&w=800",
         flash: false,
-        keywords: "keyboard mechanical komputer gaming"
+        keywords: "keyboard mechanical komputer gaming",
+        variants: { Warna: ["Hitam", "Putih"], Tipe: ["Blue Switch", "Red Switch", "Brown Switch"] }
     }
 
 ];
@@ -253,6 +265,7 @@ let wishlist = [];
 
 let selectedProduct = null;
 let detailQuantity = 1;
+let selectedVariants = {};
 
 
 /* =========================================================
@@ -828,6 +841,16 @@ function showCategory(
     }
 
 
+    if (productPage) {
+
+        productPage.hidden = true;
+
+        productPage.style.display =
+            "none";
+
+    }
+
+
     if (categoryPage) {
 
         categoryPage.hidden = false;
@@ -851,6 +874,10 @@ function showCategory(
                 window.location.href
             );
 
+
+        url.searchParams.delete(
+            "product"
+        );
 
         url.searchParams.set(
             "category",
@@ -1029,6 +1056,16 @@ function showHome(
     }
 
 
+    if (productPage) {
+
+        productPage.hidden = true;
+
+        productPage.style.display =
+            "none";
+
+    }
+
+
     if (homePage) {
 
         homePage.hidden = false;
@@ -1052,6 +1089,10 @@ function showHome(
 
         url.searchParams.delete(
             "category"
+        );
+
+        url.searchParams.delete(
+            "product"
         );
 
 
@@ -1254,16 +1295,36 @@ if (heroButton) {
    ADD TO CART
    ========================================================= */
 
+function defaultVariant(product) {
+    if (!product.variants) return null;
+    const keys = Object.keys(product.variants);
+    if (!keys.length) return null;
+    const variant = {};
+    keys.forEach(key => { variant[key] = product.variants[key][0]; });
+    return variant;
+}
+
 function addToCart(
     product,
-    quantity = 1
+    quantity = 1,
+    variant = null
 ) {
+
+    const variantKey =
+        variant
+            ? Object.keys(variant).sort().map(key => `${key}:${variant[key]}`).join("|")
+            : "";
+
+    const variantLabel =
+        variant
+            ? Object.values(variant).join(" / ")
+            : "";
 
     const existing =
         cart.find(
             item =>
-                item.id ===
-                product.id
+                item.id === product.id &&
+                (item.variantKey || "") === variantKey
         );
 
 
@@ -1291,7 +1352,16 @@ function addToCart(
                 product.image,
 
             quantity:
-                quantity
+                quantity,
+
+            variant:
+                variant,
+
+            variantKey:
+                variantKey,
+
+            variantLabel:
+                variantLabel
 
         });
 
@@ -1349,7 +1419,8 @@ document.addEventListener(
 
                 addToCart(
                     product,
-                    1
+                    1,
+                    defaultVariant(product)
                 );
 
             }
@@ -1425,7 +1496,7 @@ document.addEventListener(
 
             if (product) {
 
-                openProductModal(
+                showProductDetail(
                     product
                 );
 
@@ -1528,6 +1599,7 @@ function updateCart() {
                         ${item.name}
                     </strong>
 
+                    ${item.variantLabel ? `<span class="cart-item-variant">${item.variantLabel}</span>` : ""}
 
                     <div>
                         ${rupiah(item.price)}
@@ -1914,7 +1986,7 @@ if (wishlistItems) {
 
         if (cartBtn) {
             const product = products.find(item => item.id === Number(cartBtn.dataset.wishlistCart));
-            if (product) { addToCart(product); }
+            if (product) { addToCart(product, 1, defaultVariant(product)); }
             return;
         }
 
@@ -1932,93 +2004,191 @@ if (wishlistItems) {
 
         if (productBtn) {
             const product = products.find(item => item.id === Number(productBtn.dataset.wishlistProduct));
-            if (product) openProductModal(product);
+            if (product) { closeWishlistDrawer(); showProductDetail(product); }
         }
     });
 }
 
 /* =========================================================
-   PRODUCT DETAIL MODAL
+   PRODUCT DETAIL PAGE (halaman penuh, bukan modal)
    ========================================================= */
 
-function createProductModal() {
-    if (document.getElementById("productModal")) return;
-    const modal = document.createElement("div");
-    modal.id = "productModal"; modal.className = "product-modal";
-    modal.innerHTML = `
-      <div class="product-modal-backdrop" data-close-product></div>
-      <div class="product-modal-dialog">
-        <button class="product-modal-close" data-close-product type="button">✕</button>
-        <div class="product-modal-grid">
-          <div class="product-modal-image"><img id="detailProductImage" src="" alt=""></div>
-          <div class="product-modal-info">
-            <span class="detail-badge">MAB-STORE OFFICIAL</span>
-            <h2 id="detailProductName"></h2>
-            <div class="detail-rating">⭐ <span id="detailRating"></span></div>
-            <div class="detail-meta"><span id="detailCategory"></span><span>✓ Produk Pilihan</span><span>🚚 Pengiriman Cepat</span></div>
-            <div><span class="detail-price" id="detailProductPrice"></span><span class="detail-old-price" id="detailOldPrice"></span><span class="detail-discount" id="detailDiscount"></span></div>
-            <p class="detail-stock">✓ Stok tersedia &nbsp; • &nbsp; Siap dikirim</p>
-            <p id="detailProductDescription"></p>
-            <div class="detail-highlights"><div class="detail-highlight"><b>⭐ Rating</b><span id="detailRatingBox"></span></div><div class="detail-highlight"><b>🛍 Terjual</b><span id="detailSoldBox"></span></div><div class="detail-highlight"><b>🔒 Aman</b><span>Transaksi</span></div></div>
-            <div class="detail-quantity"><span>Jumlah</span><div><button id="detailMinus" type="button">−</button><strong id="detailQuantity">1</strong><button id="detailPlus" type="button">+</button></div></div>
-            <div class="detail-actions"><button id="detailAddCart" type="button">🛒 Tambah ke Keranjang</button><button id="detailBuyNow" type="button">⚡ Beli Sekarang</button></div>
-            <button id="detailWishlistButton" class="detail-wishlist-button" type="button">♡ Simpan ke Wishlist</button>
-          </div>
-        </div>
-        <div class="product-reviews-section">
-          <div class="reviews-header">
-            <h3>Rating &amp; Ulasan Pembeli</h3>
-            <div class="reviews-summary">
-              <span class="reviews-avg" id="reviewsAvg">—</span>
-              <span class="reviews-stars" id="reviewsStars">☆☆☆☆☆</span>
-              <span class="reviews-count" id="reviewsCount">(0 ulasan)</span>
-            </div>
-          </div>
-          <div class="review-form">
-            <p>Bagikan pendapatmu tentang produk ini</p>
-            <div class="review-form-row" id="reviewNameRow">
-              <input type="text" id="reviewName" placeholder="Nama kamu">
-            </div>
-            <div class="review-star-input" id="reviewStarInput">
-              <button type="button" data-star="1">★</button>
-              <button type="button" data-star="2">★</button>
-              <button type="button" data-star="3">★</button>
-              <button type="button" data-star="4">★</button>
-              <button type="button" data-star="5">★</button>
-            </div>
-            <textarea id="reviewComment" placeholder="Tulis ulasan kamu di sini..." rows="3"></textarea>
-            <div class="review-media-input">
-              <label class="review-media-label" for="reviewMediaFile">
-                📷 Tambah Foto / Video
-                <input type="file" id="reviewMediaFile" accept="image/*,video/*" multiple hidden>
-              </label>
-              <div class="review-media-preview" id="reviewMediaPreview"></div>
-            </div>
-            <button id="submitReviewButton" type="button">Kirim Ulasan</button>
-          </div>
-          <div class="review-list" id="reviewList"></div>
-        </div>
-      </div>`;
-    document.body.appendChild(modal);
-    modal.addEventListener("click", e => { if (e.target.closest("[data-close-product]")) closeProductModal(); });
-    setupReviewStarInput();
-    setupReviewMediaInput();
+const productPage = document.getElementById("productPage");
+const pdSpecsTable = document.getElementById("pdSpecsTable");
+const pdRelatedProducts = document.getElementById("pdRelatedProducts");
+const pdBreadcrumbCategory = document.getElementById("pdBreadcrumbCategory");
+const pdBreadcrumbName = document.getElementById("pdBreadcrumbName");
+const pdDiscountBadge = document.getElementById("pdDiscountBadge");
+const backFromProductButton = document.getElementById("backFromProductButton");
+
+const categoryWeights = {
+    Elektronik: "350 gr",
+    Fashion: "200 gr",
+    Rumah: "800 gr",
+    Kecantikan: "150 gr",
+    Gaming: "400 gr",
+    Olahraga: "450 gr",
+    Buku: "300 gr",
+    Aksesoris: "250 gr"
+};
+
+function buildProductSpecs(product) {
+    return [
+        { label: "Kategori", value: product.category },
+        { label: "Kondisi", value: "Baru" },
+        { label: "Berat Satuan", value: categoryWeights[product.category] || "300 gr" },
+        { label: "Min. Pemesanan", value: "1 Buah" },
+        { label: "Etalase", value: `${product.category} Pilihan` },
+        { label: "Garansi", value: ["Elektronik", "Gaming"].includes(product.category) ? "Garansi Resmi 1 Tahun" : "Garansi Kepuasan 7 Hari" },
+        { label: "SKU", value: `MAB-${String(product.id).padStart(4, "0")}` },
+        { label: "Dikirim Dari", value: "Jakarta Selatan" }
+    ];
 }
+
+function renderProductSpecs(product) {
+    if (!pdSpecsTable) return;
+    pdSpecsTable.innerHTML = buildProductSpecs(product)
+        .map(row => `<tr><th>${row.label}</th><td>${row.value}</td></tr>`)
+        .join("");
+}
+
+function renderRelatedProducts(product) {
+    if (!pdRelatedProducts) return;
+    const related = products
+        .filter(item => item.category === product.category && item.id !== product.id)
+        .slice(0, 4);
+
+    pdRelatedProducts.innerHTML = related.length
+        ? related.map(createProductCard).join("")
+        : `<p class="no-reviews">Belum ada produk serupa lainnya.</p>`;
+}
+
+function renderProductVariants(product) {
+    const box = document.getElementById("pdVariants");
+    if (!box) return;
+
+    const variants = product.variants || {};
+    const keys = Object.keys(variants);
+
+    selectedVariants = {};
+
+    if (!keys.length) {
+        box.hidden = true;
+        box.innerHTML = "";
+        return;
+    }
+
+    keys.forEach(key => { selectedVariants[key] = variants[key][0]; });
+
+    box.hidden = false;
+    box.innerHTML = keys.map(key => `
+        <div class="pd-variant-group">
+            <span class="pd-variant-label">${key}: <b data-variant-selected="${key}">${variants[key][0]}</b></span>
+            <div class="pd-variant-options">
+                ${variants[key].map(opt => `
+                    <button
+                        type="button"
+                        class="pd-variant-option${opt === variants[key][0] ? " active" : ""}"
+                        data-variant-key="${key}"
+                        data-variant-value="${opt}"
+                    >${opt}</button>
+                `).join("")}
+            </div>
+        </div>
+    `).join("");
+}
+
+document.addEventListener("click", event => {
+    const option = event.target.closest("[data-variant-key]");
+    if (!option) return;
+
+    const key = option.dataset.variantKey;
+    const value = option.dataset.variantValue;
+
+    selectedVariants[key] = value;
+
+    option.closest(".pd-variant-group")
+        .querySelectorAll("[data-variant-key]")
+        .forEach(btn => btn.classList.toggle("active", btn.dataset.variantValue === value));
+
+    const label = document.querySelector(`[data-variant-selected="${key}"]`);
+    if (label) label.textContent = value;
+});
+
+function hasSelectedVariants() {
+    return Object.keys(selectedVariants).length > 0;
+}
+
+function setupProductTabs() {
+    const tabs = document.querySelectorAll("[data-pd-tab]");
+    tabs.forEach(tab => {
+        tab.addEventListener("click", () => {
+            tabs.forEach(t => t.classList.remove("active"));
+            tab.classList.add("active");
+            document.querySelectorAll("[data-pd-panel]").forEach(panel => {
+                panel.hidden = panel.dataset.pdPanel !== tab.dataset.pdTab;
+            });
+        });
+    });
+}
+
+function resetProductTabs() {
+    document.querySelectorAll("[data-pd-tab]").forEach(t => t.classList.toggle("active", t.dataset.pdTab === "deskripsi"));
+    document.querySelectorAll("[data-pd-panel]").forEach(panel => { panel.hidden = panel.dataset.pdPanel !== "deskripsi"; });
+}
+
+setupProductTabs();
 
 
 /* =========================================================
-   OPEN PRODUCT MODAL
+   SHOW PRODUCT DETAIL PAGE
    ========================================================= */
 
-function openProductModal(product) {
-    createProductModal(); selectedProduct = product; detailQuantity = 1;
-    const set = (id,val) => { const el=document.getElementById(id); if(el) el.textContent=val; };
-    const image=document.getElementById("detailProductImage"); if(image){image.src=product.image||"";image.alt=product.name;}
-    set("detailProductName",product.name); set("detailRating",`${product.rating} • ${product.sold} terjual`); set("detailCategory",product.category); set("detailProductPrice",rupiah(product.price));
-    set("detailOldPrice",product.oldPrice>product.price?rupiah(product.oldPrice):""); set("detailDiscount",product.oldPrice>product.price?`-${Math.round((1-product.price/product.oldPrice)*100)}%`:"");
-    set("detailProductDescription",`${product.name} merupakan produk pilihan kategori ${product.category}. Nikmati harga bersahabat, kualitas terbaik, dan pengalaman belanja yang mudah di MAB-Store.`); set("detailRatingBox",`${product.rating}/5`); set("detailSoldBox",`${product.sold}+`); set("detailQuantity","1");
-    const wish=document.getElementById("detailWishlistButton"); if(wish){const liked=wishlist.includes(product.id);wish.textContent=liked?"♥ Tersimpan di Wishlist":"♡ Simpan ke Wishlist";wish.classList.toggle("active",liked);}
-    document.getElementById("productModal")?.classList.add("show"); document.body.classList.add("modal-open");
+function showProductDetail(product, updateUrl = true) {
+    selectedProduct = product;
+    detailQuantity = 1;
+
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+
+    const image = document.getElementById("detailProductImage");
+    if (image) { image.src = product.image || ""; image.alt = product.name; }
+
+    set("detailProductName", product.name);
+    set("detailRating", `${product.rating} • ${product.sold} terjual`);
+    set("detailCategory", product.category);
+    set("detailProductPrice", rupiah(product.price));
+    set("detailOldPrice", product.oldPrice > product.price ? rupiah(product.oldPrice) : "");
+
+    const discount = product.oldPrice > product.price ? Math.round((1 - product.price / product.oldPrice) * 100) : 0;
+    set("detailDiscount", discount ? `-${discount}%` : "");
+    if (pdDiscountBadge) {
+        pdDiscountBadge.hidden = !discount;
+        pdDiscountBadge.textContent = discount ? `-${discount}%` : "";
+    }
+
+    set("detailProductDescription", `${product.name} merupakan produk pilihan kategori ${product.category}. Nikmati harga bersahabat, kualitas terbaik, dan pengalaman belanja yang mudah di MAB-Store.`);
+    set("detailRatingBox", `${product.rating}/5`);
+    set("detailSoldBox", `${product.sold}+`);
+    set("detailQuantity", "1");
+
+    const updateWishlistButtons = () => {
+        const liked = wishlist.includes(product.id);
+        [document.getElementById("detailWishlistButton"), document.getElementById("detailWishlistFloat")].forEach(btn => {
+            if (!btn) return;
+            btn.classList.toggle("active", liked);
+            if (btn.id === "detailWishlistButton") btn.textContent = liked ? "♥ Tersimpan di Wishlist" : "♡ Simpan ke Wishlist";
+            else btn.textContent = liked ? "♥" : "♡";
+        });
+    };
+    updateWishlistButtons();
+
+    if (pdBreadcrumbCategory) pdBreadcrumbCategory.textContent = product.category;
+    if (pdBreadcrumbName) pdBreadcrumbName.textContent = product.name;
+
+    renderProductSpecs(product);
+    renderRelatedProducts(product);
+    renderProductVariants(product);
+    resetProductTabs();
 
     selectedReviewStar = 0;
     document.querySelectorAll("#reviewStarInput button").forEach(b => b.classList.remove("active"));
@@ -2039,7 +2209,49 @@ function openProductModal(product) {
     }
 
     renderReviews(product.id);
+
+    if (homePage) { homePage.hidden = true; homePage.style.display = "none"; }
+    if (categoryPage) { categoryPage.hidden = true; categoryPage.style.display = "none"; }
+    if (productPage) { productPage.hidden = false; productPage.style.display = "block"; }
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    if (updateUrl) {
+        const url = new URL(window.location.href);
+        url.searchParams.delete("category");
+        url.searchParams.set("product", product.id);
+        history.pushState({ product: product.id }, "", url);
+    }
 }
+
+if (backFromProductButton) {
+    backFromProductButton.addEventListener("click", () => {
+        if (selectedProduct && categoryInfo[selectedProduct.category]) showCategory(selectedProduct.category);
+        else showHome();
+    });
+}
+
+document.addEventListener("click", event => {
+    if (event.target.closest("[data-pd-home]")) { showHome(); return; }
+
+    if (event.target.id === "pdBreadcrumbCategory" && selectedProduct) {
+        showCategory(selectedProduct.category);
+        return;
+    }
+
+    if (event.target.id === "detailWishlistFloat" && selectedProduct) {
+        toggleWishlist(selectedProduct);
+        const liked = wishlist.includes(selectedProduct.id);
+        event.target.textContent = liked ? "♥" : "♡";
+        event.target.classList.toggle("active", liked);
+        const mainBtn = document.getElementById("detailWishlistButton");
+        if (mainBtn) { mainBtn.textContent = liked ? "♥ Tersimpan di Wishlist" : "♡ Simpan ke Wishlist"; mainBtn.classList.toggle("active", liked); }
+    }
+
+    if (event.target.id === "pdChatSellerButton") {
+        showToast("Fitur chat penjual belum tersedia di demo ini.");
+    }
+});
 
 
 /* =========================================================
@@ -2294,35 +2506,7 @@ function submitReview() {
 
 
 /* =========================================================
-   CLOSE PRODUCT MODAL
-   ========================================================= */
-
-function closeProductModal() {
-
-    const modal =
-        document.getElementById(
-            "productModal"
-        );
-
-
-    if (modal) {
-
-        modal.classList.remove(
-            "show"
-        );
-
-    }
-
-
-    document.body.classList.remove(
-        "modal-open"
-    );
-
-}
-
-
-/* =========================================================
-   MODAL BUTTONS
+   PRODUCT DETAIL BUTTONS (jumlah, keranjang, wishlist, ulasan)
    ========================================================= */
 
 document.addEventListener(
@@ -2390,11 +2574,10 @@ document.addEventListener(
 
             addToCart(
                 selectedProduct,
-                detailQuantity
+                detailQuantity,
+                hasSelectedVariants() ? { ...selectedVariants } : null
             );
 
-
-            closeProductModal();
 
             openCart();
 
@@ -2409,11 +2592,10 @@ document.addEventListener(
 
             addToCart(
                 selectedProduct,
-                detailQuantity
+                detailQuantity,
+                hasSelectedVariants() ? { ...selectedVariants } : null
             );
 
-
-            closeProductModal();
 
             openCart();
 
@@ -2529,7 +2711,7 @@ function renderCheckout(){
     if(!checkoutItems)return;
     const subtotal=getCartSubtotal(), qty=cart.reduce((sum,item)=>sum+item.quantity,0);
     if(checkoutProductCount)checkoutProductCount.textContent=`${qty} produk`;
-    checkoutItems.innerHTML=cart.map(item=>`<div class="checkout-item"><div class="checkout-item-image"><img src="${item.image}" alt="${item.name}"></div><div><h3>${item.name}</h3><p>${rupiah(item.price)} × ${item.quantity}</p></div><strong>${rupiah(item.price*item.quantity)}</strong></div>`).join("");
+    checkoutItems.innerHTML=cart.map(item=>`<div class="checkout-item"><div class="checkout-item-image"><img src="${item.image}" alt="${item.name}"></div><div><h3>${item.name}</h3>${item.variantLabel ? `<span class="checkout-item-variant">${item.variantLabel}</span>` : ""}<p>${rupiah(item.price)} × ${item.quantity}</p></div><strong>${rupiah(item.price*item.quantity)}</strong></div>`).join("");
     if(summarySubtotal)summarySubtotal.textContent=rupiah(subtotal); if(summaryShipping)summaryShipping.textContent=rupiah(checkoutShipping); if(summaryDiscount)summaryDiscount.textContent=`-${rupiah(checkoutDiscount)}`; if(summaryTotal)summaryTotal.textContent=rupiah(Math.max(0,subtotal+checkoutShipping-checkoutDiscount));
 }
 function openCheckout(){
@@ -2727,8 +2909,30 @@ function loadCategoryFromURL() {
             "category"
         );
 
+    const productId =
+        Number(
+            params.get(
+                "product"
+            )
+        );
 
-    if (
+
+    const product =
+        productId
+            ? products.find(item => item.id === productId)
+            : null;
+
+
+    if (product) {
+
+        showProductDetail(
+            product,
+            false
+        );
+
+    }
+
+    else if (
         category &&
         categoryInfo[category]
     ) {
@@ -2770,8 +2974,29 @@ window.addEventListener(
                 "category"
             );
 
+        const productId =
+            Number(
+                params.get(
+                    "product"
+                )
+            );
 
-        if (
+        const product =
+            productId
+                ? products.find(item => item.id === productId)
+                : null;
+
+
+        if (product) {
+
+            showProductDetail(
+                product,
+                false
+            );
+
+        }
+
+        else if (
             category &&
             categoryInfo[category]
         ) {
@@ -2806,8 +3031,6 @@ document.addEventListener(
         if (
             event.key === "Escape"
         ) {
-
-            closeProductModal();
 
             closeCartDrawer();
             closeWishlistDrawer();
