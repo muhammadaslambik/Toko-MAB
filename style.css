@@ -2442,3 +2442,13 @@ footer { background: #033f3d; color: rgba(255,255,255,.86); margin-top: 25px; }
 .navbar .search-box button { background: #034f4d; color: #fff; }
 .navbar .search-box button:hover { background: #056360; }
 .footer-logo { width: 170px; max-width: 100%; height: auto; display: block; margin-bottom: 10px; }
+
+.navbar .search-box {
+    background: #fff;
+    border: 1px solid #d5e5e3;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.navbar .search-box input {
+    color: #123f39;
+}
