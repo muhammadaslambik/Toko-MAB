@@ -2124,6 +2124,7 @@ document.addEventListener(
    CHECKOUT — FULL SHOPPING FLOW
    ========================================================= */
 const checkoutPage=document.getElementById("checkoutPage");
+const changeAddressButton = document.getElementById("changeAddressButton");
 const backToCartButton=document.getElementById("backToCartButton");
 const checkoutItems=document.getElementById("checkoutItems");
 const checkoutProductCount=document.getElementById("checkoutProductCount");
@@ -2136,6 +2137,69 @@ const applyVoucherButton=document.getElementById("applyVoucherButton");
 const voucherMessage=document.getElementById("voucherMessage");
 const placeOrderButton=document.getElementById("placeOrderButton");
 let checkoutShipping=15000, checkoutDiscount=0, appliedVoucher="";
+let checkoutAddress = JSON.parse(localStorage.getItem("mabstore_address") || "null") || {
+    name: "Muhammad Aslambik",
+    phone: "+62 812-3456-7890",
+    address: "Jl. Contoh No. 123, Kecamatan Sukamaju, Kota Jakarta, Indonesia 12345"
+};
+
+const addressDisplay = document.getElementById("addressDisplay");
+const addressEditForm = document.getElementById("addressEditForm");
+const editRecipient = document.getElementById("editRecipient");
+const editPhone = document.getElementById("editPhone");
+const editAddress = document.getElementById("editAddress");
+const saveAddressButton = document.getElementById("saveAddressButton");
+const cancelAddressButton = document.getElementById("cancelAddressButton");
+
+function renderAddress() {
+    const recipientEl = document.getElementById("checkoutRecipient");
+    const phoneEl = document.getElementById("checkoutPhone");
+    const addressEl = document.getElementById("checkoutAddress");
+    if (recipientEl) recipientEl.textContent = checkoutAddress.name;
+    if (phoneEl) phoneEl.textContent = checkoutAddress.phone;
+    if (addressEl) addressEl.textContent = checkoutAddress.address;
+}
+
+function openAddressForm() {
+    if (!addressEditForm) return;
+    editRecipient.value = checkoutAddress.name;
+    editPhone.value = checkoutAddress.phone;
+    editAddress.value = checkoutAddress.address;
+    addressEditForm.hidden = false;
+    addressDisplay.hidden = true;
+    addressEditForm.classList.remove("error");
+}
+
+function closeAddressForm() {
+    if (!addressEditForm) return;
+    addressEditForm.hidden = true;
+    addressDisplay.hidden = false;
+}
+
+if (changeAddressButton) changeAddressButton.addEventListener("click", openAddressForm);
+if (cancelAddressButton) cancelAddressButton.addEventListener("click", closeAddressForm);
+
+if (saveAddressButton) {
+    saveAddressButton.addEventListener("click", () => {
+        const name = editRecipient.value.trim();
+        const phone = editPhone.value.trim();
+        const address = editAddress.value.trim();
+
+        if (!name || !phone || !address) {
+            addressEditForm.classList.add("error");
+            showToast("Lengkapi semua data alamat terlebih dahulu.");
+            return;
+        }
+
+        checkoutAddress = { name, phone, address };
+        localStorage.setItem("mabstore_address", JSON.stringify(checkoutAddress));
+        renderAddress();
+        closeAddressForm();
+        showToast("Alamat pengiriman berhasil diperbarui ✓");
+    });
+}
+
+renderAddress();
 function getCartSubtotal(){return cart.reduce((sum,item)=>sum+item.price*item.quantity,0);}
 function renderCheckout(){
     if(!checkoutItems)return;
@@ -2151,7 +2215,51 @@ if(backToCartButton)backToCartButton.addEventListener("click",()=>{closeCheckout
 document.querySelectorAll('input[name="shipping"]').forEach(input=>input.addEventListener("change",()=>{checkoutShipping=Number(input.value);document.querySelectorAll(".shipping-option").forEach(el=>el.classList.remove("selected"));input.closest(".shipping-option")?.classList.add("selected");renderCheckout();}));
 document.querySelectorAll('input[name="payment"]').forEach(input=>input.addEventListener("change",()=>{document.querySelectorAll(".payment-option").forEach(el=>el.classList.remove("selected"));input.closest(".payment-option")?.classList.add("selected");}));
 if(applyVoucherButton)applyVoucherButton.addEventListener("click",()=>{const code=(checkoutVoucher?.value||"").trim().toUpperCase(),subtotal=getCartSubtotal();voucherMessage.style.color="";if(code==="MABHEMAT"){checkoutDiscount=Math.min(100000,Math.round(subtotal*.10));appliedVoucher=code;voucherMessage.textContent=`✓ Voucher ${code} berhasil digunakan. Hemat ${rupiah(checkoutDiscount)}.`;}else if(!code){checkoutDiscount=0;appliedVoucher="";voucherMessage.textContent="Masukkan kode voucher terlebih dahulu.";}else{checkoutDiscount=0;appliedVoucher="";voucherMessage.textContent="Kode voucher tidak ditemukan.";voucherMessage.style.color="#d34b4b";}renderCheckout();});
-if(placeOrderButton)placeOrderButton.addEventListener("click",()=>{if(!cart.length){showToast("Keranjang masih kosong.");return;}const payment=document.querySelector('input[name="payment"]:checked')?.value||"QRIS",total=Math.max(0,getCartSubtotal()+checkoutShipping-checkoutDiscount),orderCode=`MAB-${Date.now().toString().slice(-8)}`;const success=document.createElement("div");success.className="order-success";success.innerHTML=`<div class="order-success-card"><div class="success-icon">✓</div><h2>Pesanan Berhasil Dibuat!</h2><p>Terima kasih. Pesanan kamu sudah tercatat di MAB-Store.</p><div class="order-code">${orderCode}</div><p>Total <b>${rupiah(total)}</b> • Pembayaran: <b>${payment}</b></p><button type="button" id="continueShoppingAfterOrder">Kembali Belanja</button></div>`;document.body.appendChild(success);cart=[];saveCart();updateCart();closeCheckout();checkoutDiscount=0;appliedVoucher="";success.querySelector("#continueShoppingAfterOrder").addEventListener("click",()=>{success.remove();showHome(true);});});
+if (placeOrderButton) {
+    placeOrderButton.addEventListener("click", () => {
+        if (!cart.length) {
+            showToast("Keranjang masih kosong.");
+            return;
+        }
+
+        if (!checkoutAddress.name || !checkoutAddress.phone || !checkoutAddress.address) {
+            showToast("Lengkapi alamat pengiriman terlebih dahulu.");
+            openAddressForm();
+            return;
+        }
+
+        placeOrderButton.disabled = true;
+        placeOrderButton.classList.add("loading");
+        placeOrderButton.innerHTML = "Memproses Pesanan...";
+
+        setTimeout(() => {
+            const payment = document.querySelector('input[name="payment"]:checked')?.value || "QRIS";
+            const total = Math.max(0, getCartSubtotal() + checkoutShipping - checkoutDiscount);
+            const orderCode = `MAB-${Date.now().toString().slice(-8)}`;
+
+            const success = document.createElement("div");
+            success.className = "order-success";
+            success.innerHTML = `<div class="order-success-card"><div class="success-icon">✓</div><h2>Pesanan Berhasil Dibuat!</h2><p>Terima kasih. Pesanan kamu sudah tercatat di MAB-Store.</p><div class="order-code">${orderCode}</div><p>Total <b>${rupiah(total)}</b> • Pembayaran: <b>${payment}</b></p><button type="button" id="continueShoppingAfterOrder">Kembali Belanja</button></div>`;
+            document.body.appendChild(success);
+
+            cart = [];
+            saveCart();
+            updateCart();
+            closeCheckout();
+            checkoutDiscount = 0;
+            appliedVoucher = "";
+
+            placeOrderButton.disabled = false;
+            placeOrderButton.classList.remove("loading");
+            placeOrderButton.innerHTML = 'Buat Pesanan <span>→</span>';
+
+            success.querySelector("#continueShoppingAfterOrder").addEventListener("click", () => {
+                success.remove();
+                showHome(true);
+            });
+        }, 1200);
+    });
+}
 const _updateCart=updateCart;updateCart=function(){_updateCart();if(checkoutPage&&!checkoutPage.hidden)renderCheckout();};
 
 
