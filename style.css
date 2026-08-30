@@ -2478,3 +2478,25 @@ footer { background: #033f3d; color: rgba(255,255,255,.86); margin-top: 25px; }
 .address-save-btn { background: var(--primary); color: #fff; padding: 9px 16px; border-radius: 8px; font-weight: 800; font-size: 12px; }
 .address-save-btn:hover { background: var(--primary-dark); }
 .place-order-button.loading { opacity: .7; cursor: not-allowed; pointer-events: none; }
+
+.account-wrapper { position: relative; }
+.account-nav-button { display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,.04); color: #123f39; padding: 8px 12px; border-radius: 10px; font-size: 13px; font-weight: 700; }
+.account-nav-button:hover { background: rgba(0,0,0,.08); }
+.account-dropdown { position: absolute; top: 55px; right: 0; width: 210px; background: #fff; border: 1px solid #e5eeee; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,.15); padding: 16px; z-index: 200; }
+.account-dropdown-name { font-weight: 800; font-size: 14px; color: #173d39; }
+.account-dropdown-role { font-size: 11px; color: #7a8482; margin: 2px 0 12px; text-transform: capitalize; }
+.account-logout-btn { width: 100%; padding: 9px; border-radius: 8px; background: #fff1f1; color: #c33; border: 1px solid #ffd5d5; font-weight: 700; font-size: 12px; }
+
+.auth-modal { position: fixed; inset: 0; z-index: 1500; background: rgba(4,39,37,.6); display: flex; align-items: center; justify-content: center; padding: 18px; }
+.auth-modal-card { position: relative; width: min(400px, 100%); background: #fff; border-radius: 20px; padding: 32px 28px; box-shadow: 0 30px 80px rgba(0,0,0,.25); }
+.auth-modal-close { position: absolute; top: 14px; right: 14px; width: 32px; height: 32px; border-radius: 50%; background: #f1f4f4; color: #456; }
+.auth-tabs { display: flex; gap: 8px; margin-bottom: 22px; }
+.auth-tab { flex: 1; padding: 10px; border-radius: 9px; background: #f1f4f4; color: #667; font-weight: 800; font-size: 13px; }
+.auth-tab.active { background: var(--primary); color: #fff; }
+.auth-form { display: grid; gap: 12px; }
+.auth-form input { border: 1px solid #dce7e5; border-radius: 9px; padding: 12px 14px; font-size: 14px; outline: none; font-family: inherit; }
+.auth-form input:focus { border-color: #49a99f; box-shadow: 0 0 0 3px rgba(73,169,159,.1); }
+.auth-role-select { display: flex; gap: 16px; font-size: 13px; color: #455; padding: 4px 0; }
+.auth-submit-btn { padding: 12px; border-radius: 9px; background: var(--primary); color: #fff; font-weight: 800; }
+.auth-submit-btn:hover { background: var(--primary-dark); }
+.auth-error { color: #df3434; font-size: 12px; min-height: 16px; }
