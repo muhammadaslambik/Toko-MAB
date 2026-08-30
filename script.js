@@ -1776,7 +1776,10 @@ if (overlay) {
 
     overlay.addEventListener(
         "click",
-        closeCartDrawer
+        () => {
+            closeCartDrawer();
+            closeWishlistDrawer();
+        }
     );
 
 }
