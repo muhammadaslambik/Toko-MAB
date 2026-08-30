@@ -119,11 +119,25 @@ img {
    ========================================================= */
 
 .logo {
-    font-size: 28px;
-    font-weight: 800;
-    white-space: nowrap;
-    letter-spacing: -1px;
-    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 190px;
+    height: 70px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    flex: 0 0 190px;
+}
+
+.navbar-logo-image {
+    display: block;
+    width: 180px;
+    height: auto;
+    max-height: 64px;
+    object-fit: contain;
+    object-position: left center;
 }
 
 .logo span {
