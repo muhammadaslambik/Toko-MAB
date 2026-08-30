@@ -2499,7 +2499,19 @@ if (downloadAppButton) {
 }
 
 if (sellerButton) {
-    sellerButton.addEventListener("click", () => showToast("Pendaftaran seller segera hadir 🏪"));
+   sellerButton.addEventListener("click", () => {
+        openAuthModal();
+
+        authTabs.forEach(t => t.classList.remove("active"));
+        const registerTab = document.querySelector('[data-auth-tab="register"]');
+        if (registerTab) registerTab.classList.add("active");
+
+        loginForm.style.display = "none";
+        registerForm.style.display = "grid";
+
+        const sellerRadio = document.querySelector('input[name="registerRole"][value="seller"]');
+        if (sellerRadio) sellerRadio.checked = true;
+    });
 }
 
 
