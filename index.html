@@ -1137,7 +1137,35 @@
 
     </footer>
 
+<div class="auth-modal" id="authModal" hidden>
+  <div class="auth-modal-card">
+    <button class="auth-modal-close" id="closeAuthModal" type="button">✕</button>
+    <div class="auth-tabs">
+      <button class="auth-tab active" data-auth-tab="login" type="button">Masuk</button>
+      <button class="auth-tab" data-auth-tab="register" type="button">Daftar</button>
+    </div>
 
+    <form id="loginForm" class="auth-form">
+      <input type="email" id="loginEmail" placeholder="Email" required>
+      <input type="password" id="loginPassword" placeholder="Kata Sandi" required>
+      <button type="submit" class="auth-submit-btn">Masuk</button>
+      <p class="auth-error" id="loginError"></p>
+    </form>
+
+    <form id="registerForm" class="auth-form" hidden>
+      <input type="text" id="registerName" placeholder="Nama Lengkap" required>
+      <input type="email" id="registerEmail" placeholder="Email" required>
+      <input type="password" id="registerPassword" placeholder="Kata Sandi" required>
+      <div class="auth-role-select">
+          <label><input type="radio" name="registerRole" value="buyer" checked> Pembeli</label>
+          <label><input type="radio" name="registerRole" value="seller"> Penjual</label>
+      </div>
+      <button type="submit" class="auth-submit-btn">Daftar</button>
+      <p class="auth-error" id="registerError"></p>
+    </form>
+  </div>
+</div>
+    
     <script src="script.js"></script>
 
 </body>
