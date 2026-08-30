@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 520">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#eefaf8"/><stop offset="1" stop-color="#d7efec"/>
+    </linearGradient>
+    <linearGradient id="body" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2d3439"/><stop offset=".55" stop-color="#0b1114"/><stop offset="1" stop-color="#3d4a50"/>
+    </linearGradient>
+    <linearGradient id="screen" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#263e4a"/><stop offset=".5" stop-color="#101a21"/><stop offset="1" stop-color="#0a0d10"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%"><feDropShadow dx="0" dy="22" stdDeviation="18" flood-opacity=".28"/></filter>
+  </defs>
+  <rect width="700" height="520" rx="44" fill="url(#bg)"/>
+  <ellipse cx="355" cy="444" rx="185" ry="28" fill="#0a6f6c" opacity=".18"/>
+  <g transform="translate(210 32) rotate(-8 150 220)" filter="url(#shadow)">
+    <rect x="0" y="0" width="300" height="455" rx="46" fill="url(#body)"/>
+    <rect x="10" y="10" width="280" height="435" rx="39" fill="#080d10" stroke="#536168" stroke-width="2"/>
+    <rect x="28" y="31" width="244" height="394" rx="31" fill="url(#screen)"/>
+    <circle cx="150" cy="17" r="5" fill="#020405"/>
+    <path d="M40 320 Q130 230 255 150 L255 405 Q130 405 40 320Z" fill="#087f7c" opacity=".24"/>
+    <path d="M52 110 Q145 62 246 92" fill="none" stroke="#e5b83f" stroke-width="8" opacity=".7" stroke-linecap="round"/>
+    <circle cx="150" cy="448" r="4" fill="#777"/>
+    <rect x="-8" y="52" width="62" height="115" rx="20" fill="#10171b" stroke="#556269" stroke-width="2"/>
+    <circle cx="23" cy="82" r="17" fill="#273238" stroke="#7f8b90" stroke-width="3"/><circle cx="23" cy="82" r="9" fill="#071014"/>
+    <circle cx="23" cy="121" r="17" fill="#273238" stroke="#7f8b90" stroke-width="3"/><circle cx="23" cy="121" r="9" fill="#071014"/>
+    <circle cx="23" cy="160" r="17" fill="#273238" stroke="#7f8b90" stroke-width="3"/><circle cx="23" cy="160" r="9" fill="#071014"/>
+  </g>
+  <g transform="translate(500 70)"><circle cx="48" cy="48" r="48" fill="#fff"/><text x="48" y="58" text-anchor="middle" font-family="Arial" font-weight="800" font-size="34" fill="#087f7c">M</text></g>
+  <text x="350" y="485" text-anchor="middle" font-family="Arial" font-size="20" font-weight="700" fill="#087f7c">SMARTPHONE PRO MAX</text>
+</svg>
