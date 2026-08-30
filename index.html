@@ -914,6 +914,165 @@
     </main>
 
 
+    <!-- =====================================================
+         PRODUCT DETAIL PAGE
+    ====================================================== -->
+
+    <main id="productPage" class="product-page" hidden>
+
+        <div class="container">
+
+            <button id="backFromProductButton" class="back-home-button" type="button">← Kembali</button>
+
+            <nav class="pd-breadcrumb" id="pdBreadcrumb" aria-label="Navigasi produk">
+                <button type="button" data-pd-home>Beranda</button>
+                <span>/</span>
+                <button type="button" id="pdBreadcrumbCategory"></button>
+                <span>/</span>
+                <span id="pdBreadcrumbName"></span>
+            </nav>
+
+            <div class="pd-layout">
+
+                <div class="pd-gallery">
+                    <div class="pd-main-image">
+                        <span class="pd-discount-badge" id="pdDiscountBadge" hidden></span>
+                        <button class="pd-wishlist-float" id="detailWishlistFloat" type="button" aria-label="Simpan ke wishlist">♡</button>
+                        <img id="detailProductImage" src="" alt="">
+                    </div>
+
+                    <div class="pd-trust">
+                        <div><span>🚚</span><div><b>Pengiriman Cepat</b><small>Dari gudang MAB-Store</small></div></div>
+                        <div><span>🔒</span><div><b>Pembayaran Aman</b><small>Berbagai metode</small></div></div>
+                        <div><span>↩️</span><div><b>Garansi 7 Hari</b><small>Barang tidak sesuai</small></div></div>
+                    </div>
+                </div>
+
+                <div class="pd-info">
+
+                    <span class="detail-badge">MAB-STORE OFFICIAL</span>
+                    <h1 id="detailProductName"></h1>
+
+                    <div class="pd-meta-row">
+                        <span class="detail-rating">⭐ <span id="detailRating"></span></span>
+                        <span id="detailCategory"></span>
+                        <span>✓ Produk Pilihan</span>
+                    </div>
+
+                    <div class="pd-price-box">
+                        <span class="detail-price" id="detailProductPrice"></span>
+                        <span class="detail-old-price" id="detailOldPrice"></span>
+                        <span class="detail-discount" id="detailDiscount"></span>
+                    </div>
+
+                    <p class="detail-stock">✓ Stok tersedia &nbsp;•&nbsp; Siap dikirim</p>
+
+                    <div class="pd-variants" id="pdVariants" hidden></div>
+
+                    <div class="detail-quantity">
+                        <span>Jumlah</span>
+                        <div>
+                            <button id="detailMinus" type="button">−</button>
+                            <strong id="detailQuantity">1</strong>
+                            <button id="detailPlus" type="button">+</button>
+                        </div>
+                    </div>
+
+                    <div class="detail-actions">
+                        <button id="detailAddCart" type="button">🛒 Tambah ke Keranjang</button>
+                        <button id="detailBuyNow" type="button">⚡ Beli Sekarang</button>
+                    </div>
+
+                    <button id="detailWishlistButton" class="detail-wishlist-button" type="button">♡ Simpan ke Wishlist</button>
+
+                    <div class="pd-seller-card">
+                        <div class="pd-seller-avatar">🏬</div>
+                        <div class="pd-seller-info">
+                            <b>MAB-Official Store</b>
+                            <span>⭐ 4.9 &nbsp;•&nbsp; 98% Ulasan Positif &nbsp;•&nbsp; Jakarta Selatan</span>
+                        </div>
+                        <button type="button" id="pdChatSellerButton">💬 Chat</button>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="pd-tabs-section">
+
+                <div class="pd-tabs" id="pdTabs">
+                    <button class="pd-tab active" data-pd-tab="deskripsi" type="button">Deskripsi</button>
+                    <button class="pd-tab" data-pd-tab="spesifikasi" type="button">Spesifikasi</button>
+                    <button class="pd-tab" data-pd-tab="ulasan" type="button">Ulasan</button>
+                </div>
+
+                <div class="pd-tab-panel" data-pd-panel="deskripsi">
+                    <p id="detailProductDescription"></p>
+                    <div class="detail-highlights">
+                        <div class="detail-highlight"><b>⭐ Rating</b><span id="detailRatingBox"></span></div>
+                        <div class="detail-highlight"><b>🛍 Terjual</b><span id="detailSoldBox"></span></div>
+                        <div class="detail-highlight"><b>🔒 Aman</b><span>Transaksi</span></div>
+                    </div>
+                </div>
+
+                <div class="pd-tab-panel" data-pd-panel="spesifikasi" hidden>
+                    <table class="pd-specs-table" id="pdSpecsTable"></table>
+                </div>
+
+                <div class="pd-tab-panel" data-pd-panel="ulasan" hidden>
+
+                    <div class="product-reviews-section pd-reviews-section">
+
+                        <div class="reviews-header">
+                            <h3>Rating &amp; Ulasan Pembeli</h3>
+                            <div class="reviews-summary">
+                                <span class="reviews-avg" id="reviewsAvg">—</span>
+                                <span class="reviews-stars" id="reviewsStars">☆☆☆☆☆</span>
+                                <span class="reviews-count" id="reviewsCount">(0 ulasan)</span>
+                            </div>
+                        </div>
+
+                        <div class="review-form">
+                            <p>Bagikan pendapatmu tentang produk ini</p>
+                            <div class="review-form-row" id="reviewNameRow">
+                                <input type="text" id="reviewName" placeholder="Nama kamu">
+                            </div>
+                            <div class="review-star-input" id="reviewStarInput">
+                                <button type="button" data-star="1">★</button>
+                                <button type="button" data-star="2">★</button>
+                                <button type="button" data-star="3">★</button>
+                                <button type="button" data-star="4">★</button>
+                                <button type="button" data-star="5">★</button>
+                            </div>
+                            <textarea id="reviewComment" placeholder="Tulis ulasan kamu di sini..." rows="3"></textarea>
+                            <div class="review-media-input">
+                                <label class="review-media-label" for="reviewMediaFile">
+                                    📷 Tambah Foto / Video
+                                    <input type="file" id="reviewMediaFile" accept="image/*,video/*" multiple hidden>
+                                </label>
+                                <div class="review-media-preview" id="reviewMediaPreview"></div>
+                            </div>
+                            <button id="submitReviewButton" type="button">Kirim Ulasan</button>
+                        </div>
+
+                        <div class="review-list" id="reviewList"></div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="pd-related-section">
+                <div class="section-title"><h2>Produk Serupa</h2></div>
+                <div class="product-grid" id="pdRelatedProducts"></div>
+            </div>
+
+        </div>
+
+    </main>
 
 
     <!-- =====================================================
