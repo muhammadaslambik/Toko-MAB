@@ -2544,11 +2544,11 @@ function updateAccountUI() {
 }
 
 function openAuthModal() {
-    if (authModal) authModal.hidden = false;
+      if (authModal) authModal.style.display = "flex";
 }
 
 function closeAuth() {
-    if (authModal) authModal.hidden = true;
+     if (authModal) authModal.style.display = "none";
     loginError.textContent = "";
     registerError.textContent = "";
     loginForm.reset();
@@ -2646,6 +2646,7 @@ document.addEventListener("click", (event) => {
     }
 });
 
+if (authModal) authModal.style.display = "none";
 updateAccountUI();
 
 
