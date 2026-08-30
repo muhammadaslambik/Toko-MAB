@@ -2654,3 +2654,159 @@ img.review-media-item { cursor: pointer; }
 .pd-variant-option.active { background: var(--primary-light, #e8f7f6); border-color: var(--primary-dark); color: var(--primary-dark); }
 
 .cart-item-variant, .checkout-item-variant { display: block; font-size: 12px; color: var(--muted); margin: 2px 0 4px; }
+
+/* =========================================================
+   PROMO SECTION & VARIANT SECTION WRAPPER (product detail)
+   ========================================================= */
+
+.pd-section-heading { font-size: 14px; font-weight: 800; margin-bottom: 10px; }
+.pd-promo-section { margin: 18px 0; padding-top: 16px; border-top: 1px solid var(--border); }
+.pd-promo-list { display: grid; gap: 10px; }
+.pd-promo-item { display: flex; align-items: center; gap: 12px; background: #fff8ec; border: 1px dashed #eecf8f; border-radius: 12px; padding: 10px 12px; }
+.pd-promo-icon { font-size: 20px; flex: 0 0 auto; }
+.pd-promo-text { flex: 1; min-width: 0; display: grid; }
+.pd-promo-text b { font-size: 13px; }
+.pd-promo-text span { font-size: 11.5px; color: var(--muted); }
+.pd-promo-copy { flex: 0 0 auto; padding: 8px 12px; border-radius: 8px; background: #fff; border: 1.5px dashed var(--primary-dark); color: var(--primary-dark); font-weight: 800; font-size: 12px; letter-spacing: .3px; }
+.pd-promo-copy:hover { background: var(--primary-light, #e8f7f6); }
+
+.pd-variant-section { margin: 18px 0; padding-top: 16px; border-top: 1px solid var(--border); }
+.pd-variants { display: grid; gap: 16px; }
+
+/* Gallery thumbnails */
+.pd-thumbs { display: flex; gap: 10px; margin-top: 12px; }
+.pd-thumb { width: 66px; height: 66px; border-radius: 10px; overflow: hidden; border: 2px solid var(--border); padding: 0; flex: 0 0 auto; opacity: .75; transition: .15s; }
+.pd-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pd-thumb:hover { opacity: 1; }
+.pd-thumb.active { border-color: var(--primary-dark); opacity: 1; }
+
+/* =========================================================
+   HEADER: NOTIFIKASI, PESANAN, IKON TAMBAHAN
+   ========================================================= */
+
+#advancedSearchButton { background: transparent; font-size: 16px; padding: 0 10px; color: var(--muted); }
+#advancedSearchButton:hover { color: var(--primary-dark); }
+
+.notif-wrapper { position: relative; }
+.notif-nav-button, .orders-nav-button { position: relative; background: transparent; font-size: 19px; padding: 6px 10px; color: var(--text); }
+.notif-nav-button span:first-child { }
+.notif-nav-button #notifCount { position: absolute; top: -2px; right: 0; background: var(--danger); color: #fff; font-size: 10px; font-weight: 900; min-width: 16px; height: 16px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; padding: 0 4px; }
+
+.notif-dropdown { position: absolute; top: calc(100% + 10px); right: 0; width: 320px; max-height: 420px; overflow-y: auto; background: #fff; border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow-lg, 0 12px 30px rgba(0,0,0,.15)); z-index: 40; }
+.notif-dropdown-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid var(--border); }
+.notif-dropdown-header button { background: transparent; color: var(--primary-dark); font-size: 12px; font-weight: 700; }
+.notif-list { display: grid; }
+.notif-item { padding: 12px 16px; border-bottom: 1px solid #f1f3f2; display: grid; gap: 3px; }
+.notif-item:last-child { border-bottom: 0; }
+.notif-item.unread { background: #f3fbfa; }
+.notif-item b { font-size: 13px; }
+.notif-item p { font-size: 12px; color: #556; margin: 0; }
+.notif-item span { font-size: 11px; color: var(--muted); }
+.notif-empty { padding: 30px 16px; text-align: center; color: var(--muted); font-size: 13px; }
+
+.order-success-card button#viewOrdersAfterOrder { background: transparent; border: 1.5px solid var(--primary-dark); color: var(--primary-dark); margin-top: 8px; }
+
+
+/* =========================================================
+   PESANAN SAYA
+   ========================================================= */
+
+.orders-page { min-height: 70vh; padding: 25px 0 60px; }
+.orders-page-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; margin: 10px 0 22px; }
+.orders-page-header h1 { font-size: 24px; }
+.orders-status-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+.orders-tab { padding: 8px 16px; border-radius: 20px; background: #f1f5f4; color: var(--text); font-size: 13px; font-weight: 700; }
+.orders-tab.active { background: var(--primary-dark); color: #fff; }
+
+.orders-list { display: grid; gap: 18px; }
+.order-card { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 20px 22px; box-shadow: var(--shadow); }
+.order-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.order-card-header div { display: grid; }
+.order-card-header b { font-size: 15px; }
+.order-card-header span { font-size: 12px; color: var(--muted); }
+
+.order-status-badge { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; white-space: nowrap; }
+.order-status-badge.status-diproses { background: #fff3d6; color: #a6720a; }
+.order-status-badge.status-dikirim { background: #dcecff; color: #1a5fb4; }
+.order-status-badge.status-selesai { background: #dcf5e6; color: #1c8a4c; }
+
+.order-card-items { display: flex; gap: 8px; margin-bottom: 10px; }
+.order-card-items img { width: 52px; height: 52px; border-radius: 10px; object-fit: cover; border: 1px solid var(--border); }
+.order-more-items { width: 52px; height: 52px; border-radius: 10px; background: #f1f5f4; display: grid; place-items: center; font-size: 12px; font-weight: 800; color: var(--muted); }
+
+.order-card-summary { font-size: 13px; color: #445; margin-bottom: 14px; }
+
+.order-tracking { display: flex; justify-content: space-between; margin-bottom: 16px; position: relative; }
+.order-tracking::before { content: ""; position: absolute; top: 10px; left: 5%; right: 5%; height: 2px; background: var(--border); z-index: 0; }
+.order-track-step { position: relative; z-index: 1; display: grid; justify-items: center; gap: 6px; flex: 1; }
+.order-track-dot { width: 22px; height: 22px; border-radius: 50%; background: #fff; border: 2px solid var(--border); display: grid; place-items: center; font-size: 11px; font-weight: 900; color: var(--muted); }
+.order-track-step.done .order-track-dot { background: var(--primary-dark); border-color: var(--primary-dark); color: #fff; }
+.order-track-label { font-size: 10.5px; color: var(--muted); text-align: center; }
+.order-track-step.done .order-track-label { color: var(--primary-dark); font-weight: 700; }
+
+.order-card-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.order-card-actions button { padding: 9px 14px; border-radius: 9px; font-size: 12.5px; font-weight: 700; }
+.order-toggle-detail { background: #f1f5f4; color: var(--text); }
+.order-simulate-button { background: #fff3d6; color: #a6720a; }
+.order-buy-again { background: var(--primary-dark); color: #fff; }
+.order-card-actions button:hover { filter: brightness(.97); }
+
+.order-detail-panel { margin-top: 16px; padding-top: 16px; border-top: 1px dashed var(--border); display: grid; gap: 10px; }
+.order-detail-item { display: flex; gap: 10px; align-items: center; }
+.order-detail-item img { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; border: 1px solid var(--border); }
+.order-detail-item div { display: grid; font-size: 12.5px; }
+.order-detail-item span { color: var(--muted); font-size: 11.5px; }
+.order-detail-address, .order-detail-payment { font-size: 12.5px; color: #445; }
+
+.orders-empty { text-align: center; padding: 60px 20px; color: var(--muted); }
+.orders-empty button { margin-top: 14px; padding: 10px 20px; border-radius: 9px; background: var(--primary-dark); color: #fff; font-weight: 800; }
+
+
+/* =========================================================
+   TOKO / PENJUAL
+   ========================================================= */
+
+.store-page { min-height: 70vh; padding: 25px 0 60px; }
+.store-header { display: flex; align-items: center; gap: 18px; background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 22px; box-shadow: var(--shadow); margin: 10px 0 20px; flex-wrap: wrap; }
+.store-header-avatar { width: 66px; height: 66px; border-radius: 16px; background: var(--primary-light, #e8f7f6); display: grid; place-items: center; font-size: 30px; flex: 0 0 auto; }
+.store-header-info { flex: 1; min-width: 200px; }
+.store-header-info h1 { font-size: 20px; margin-bottom: 4px; }
+.store-header-info p { font-size: 12.5px; color: var(--muted); margin: 2px 0; }
+#storeFollowButton { padding: 10px 20px; border-radius: 9px; background: var(--primary-dark); color: #fff; font-weight: 800; font-size: 13px; }
+#storeFollowButton.following { background: #edf5f4; color: var(--primary-dark); }
+
+.store-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 18px; margin-bottom: 26px; text-align: center; }
+.store-stats b { display: block; font-size: 16px; }
+.store-stats span { font-size: 11.5px; color: var(--muted); }
+
+@media (max-width: 640px) {
+    .store-stats { grid-template-columns: repeat(2, 1fr); }
+}
+
+
+/* =========================================================
+   PENCARIAN & FILTER LANJUTAN
+   ========================================================= */
+
+.search-page { min-height: 70vh; padding: 25px 0 60px; }
+.search-page h1 { font-size: 22px; margin: 8px 0 20px; }
+.search-page-layout { display: grid; grid-template-columns: 240px 1fr; gap: 24px; align-items: start; }
+
+.search-filters { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 18px; display: grid; gap: 18px; position: sticky; top: 100px; }
+.search-filter-group { display: grid; gap: 8px; }
+.search-filter-group label { font-size: 12.5px; font-weight: 700; color: var(--text); }
+.search-filter-title { font-size: 12.5px; font-weight: 800; color: var(--text); }
+.search-filter-checkboxes { display: grid; gap: 6px; font-size: 12.5px; color: #445; font-weight: 400; }
+.search-filter-checkboxes label { display: flex; align-items: center; gap: 8px; font-weight: 400; cursor: pointer; }
+.search-filter-group input[type="text"], .search-filter-group input[type="number"], .search-filter-group select { width: 100%; padding: 9px 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; }
+.search-price-row { display: flex; align-items: center; gap: 8px; }
+.search-price-row input { min-width: 0; }
+.search-reset-button { padding: 10px; border-radius: 9px; background: #f1f5f4; color: var(--text); font-weight: 800; font-size: 13px; }
+.search-reset-button:hover { background: #e5ebe9; }
+
+.search-results-count { font-size: 13px; color: var(--muted); margin-bottom: 14px; }
+
+@media (max-width: 860px) {
+    .search-page-layout { grid-template-columns: 1fr; }
+    .search-filters { position: static; }
+}
