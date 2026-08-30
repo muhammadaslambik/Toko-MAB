@@ -851,6 +851,9 @@ function showCategory(
     }
 
 
+    hideExtraPages();
+
+
     if (categoryPage) {
 
         categoryPage.hidden = false;
@@ -1030,6 +1033,13 @@ function updateCategoryButtons() {
    RETURN HOME
    ========================================================= */
 
+function hideExtraPages() {
+    ["ordersPage", "storePage", "searchPage"].forEach(id => {
+        const page = document.getElementById(id);
+        if (page) { page.hidden = true; page.style.display = "none"; }
+    });
+}
+
 function showHome(
     updateUrl = true
 ) {
@@ -1064,6 +1074,9 @@ function showHome(
             "none";
 
     }
+
+
+    hideExtraPages();
 
 
     if (homePage) {
@@ -2013,6 +2026,42 @@ if (wishlistItems) {
    PRODUCT DETAIL PAGE (halaman penuh, bukan modal)
    ========================================================= */
 
+function getProductGallery(product) {
+    const base = product.image.split("?")[0];
+    return [
+        `${base}?auto=compress&cs=tinysrgb&w=800`,
+        `${base}?auto=compress&cs=tinysrgb&w=800&h=900&fit=crop`,
+        `${base}?auto=compress&cs=tinysrgb&w=900&h=700&fit=crop`
+    ];
+}
+
+function renderProductGallery(product) {
+    const thumbs = document.getElementById("pdThumbs");
+    const mainImage = document.getElementById("detailProductImage");
+    if (!thumbs || !mainImage) return;
+
+    const gallery = getProductGallery(product);
+    mainImage.src = gallery[0];
+    mainImage.alt = product.name;
+
+    thumbs.innerHTML = gallery.map((src, index) => `
+        <button type="button" class="pd-thumb${index === 0 ? " active" : ""}" data-thumb-src="${src}">
+            <img src="${src}" alt="${product.name} ${index + 1}">
+        </button>
+    `).join("");
+}
+
+document.addEventListener("click", event => {
+    const thumb = event.target.closest("[data-thumb-src]");
+    if (!thumb) return;
+
+    const mainImage = document.getElementById("detailProductImage");
+    if (mainImage) mainImage.src = thumb.dataset.thumbSrc;
+
+    thumb.parentElement.querySelectorAll(".pd-thumb").forEach(t => t.classList.remove("active"));
+    thumb.classList.add("active");
+});
+
 const productPage = document.getElementById("productPage");
 const pdSpecsTable = document.getElementById("pdSpecsTable");
 const pdRelatedProducts = document.getElementById("pdRelatedProducts");
@@ -2032,9 +2081,22 @@ const categoryWeights = {
     Aksesoris: "250 gr"
 };
 
+const categoryMaterials = {
+    Elektronik: "Plastik & Logam",
+    Fashion: "Katun Combed",
+    Rumah: "Kayu & Keramik",
+    Kecantikan: "Kaca & Cairan Parfum",
+    Gaming: "Plastik ABS & Logam",
+    Olahraga: "Kanvas & Karet",
+    Buku: "Kertas",
+    Aksesoris: "Kanvas & Kulit Sintetis"
+};
+
 function buildProductSpecs(product) {
     return [
+        { label: "Merek", value: "MAB-Store" },
         { label: "Kategori", value: product.category },
+        { label: "Bahan", value: categoryMaterials[product.category] || "Campuran Berkualitas" },
         { label: "Kondisi", value: "Baru" },
         { label: "Berat Satuan", value: categoryWeights[product.category] || "300 gr" },
         { label: "Min. Pemesanan", value: "1 Buah" },
@@ -2064,8 +2126,9 @@ function renderRelatedProducts(product) {
 }
 
 function renderProductVariants(product) {
+    const section = document.getElementById("pdVariantSection");
     const box = document.getElementById("pdVariants");
-    if (!box) return;
+    if (!box || !section) return;
 
     const variants = product.variants || {};
     const keys = Object.keys(variants);
@@ -2073,14 +2136,14 @@ function renderProductVariants(product) {
     selectedVariants = {};
 
     if (!keys.length) {
-        box.hidden = true;
+        section.hidden = true;
         box.innerHTML = "";
         return;
     }
 
     keys.forEach(key => { selectedVariants[key] = variants[key][0]; });
 
-    box.hidden = false;
+    section.hidden = false;
     box.innerHTML = keys.map(key => `
         <div class="pd-variant-group">
             <span class="pd-variant-label">${key}: <b data-variant-selected="${key}">${variants[key][0]}</b></span>
@@ -2097,6 +2160,74 @@ function renderProductVariants(product) {
         </div>
     `).join("");
 }
+
+
+/* =========================================================
+   VOUCHER & PROMO (di halaman detail produk)
+   ========================================================= */
+
+const productPromos = [
+    {
+        code: "MABHEMAT",
+        title: "Diskon 10% Belanja",
+        description: "Potongan 10%, maksimal Rp100.000. Berlaku untuk semua produk."
+    },
+    {
+        code: "ONGKIRGRATIS",
+        title: "Gratis Ongkos Kirim",
+        description: "Bebas biaya pengiriman untuk semua metode pengiriman."
+    },
+    {
+        code: "MEMBERBARU",
+        title: "Diskon Rp20.000",
+        description: "Potongan langsung Rp20.000 untuk minimal belanja Rp150.000."
+    }
+];
+
+function renderPromoList() {
+    const list = document.getElementById("pdPromoList");
+    if (!list) return;
+
+    list.innerHTML = productPromos.map(promo => `
+        <div class="pd-promo-item">
+            <div class="pd-promo-icon">🎟️</div>
+            <div class="pd-promo-text">
+                <b>${promo.title}</b>
+                <span>${promo.description}</span>
+            </div>
+            <button type="button" class="pd-promo-copy" data-copy-voucher="${promo.code}">
+                ${promo.code}
+            </button>
+        </div>
+    `).join("");
+}
+
+function copyVoucherCode(code) {
+    const finish = () => addNotification("Kode Voucher Disalin 🎟️", `Kode ${code} siap dipakai saat checkout.`);
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(code).then(finish).catch(() => fallbackCopy(code, finish));
+    } else {
+        fallbackCopy(code, finish);
+    }
+}
+
+function fallbackCopy(text, onDone) {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.select();
+    try { document.execCommand("copy"); } catch (error) { /* ignore */ }
+    document.body.removeChild(textarea);
+    onDone();
+}
+
+document.addEventListener("click", event => {
+    const copyBtn = event.target.closest("[data-copy-voucher]");
+    if (copyBtn) copyVoucherCode(copyBtn.dataset.copyVoucher);
+});
 
 document.addEventListener("click", event => {
     const option = event.target.closest("[data-variant-key]");
@@ -2150,8 +2281,7 @@ function showProductDetail(product, updateUrl = true) {
 
     const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
 
-    const image = document.getElementById("detailProductImage");
-    if (image) { image.src = product.image || ""; image.alt = product.name; }
+    renderProductGallery(product);
 
     set("detailProductName", product.name);
     set("detailRating", `${product.rating} • ${product.sold} terjual`);
@@ -2188,6 +2318,7 @@ function showProductDetail(product, updateUrl = true) {
     renderProductSpecs(product);
     renderRelatedProducts(product);
     renderProductVariants(product);
+    renderPromoList();
     resetProductTabs();
 
     selectedReviewStar = 0;
@@ -2212,6 +2343,7 @@ function showProductDetail(product, updateUrl = true) {
 
     if (homePage) { homePage.hidden = true; homePage.style.display = "none"; }
     if (categoryPage) { categoryPage.hidden = true; categoryPage.style.display = "none"; }
+    hideExtraPages();
     if (productPage) { productPage.hidden = false; productPage.style.display = "block"; }
 
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -2642,7 +2774,7 @@ const checkoutVoucher=document.getElementById("checkoutVoucher");
 const applyVoucherButton=document.getElementById("applyVoucherButton");
 const voucherMessage=document.getElementById("voucherMessage");
 const placeOrderButton=document.getElementById("placeOrderButton");
-let checkoutShipping=15000, checkoutDiscount=0, appliedVoucher="";
+let checkoutShipping=15000, checkoutDiscount=0, appliedVoucher="", checkoutFreeShipping=false;
 let checkoutAddress = JSON.parse(localStorage.getItem("mabstore_address") || "null") || {
     name: "Muhammad Aslambik",
     phone: "+62 812-3456-7890",
@@ -2707,12 +2839,13 @@ if (saveAddressButton) {
 
 renderAddress();
 function getCartSubtotal(){return cart.reduce((sum,item)=>sum+item.price*item.quantity,0);}
+function getShippingCost(){return checkoutFreeShipping ? 0 : checkoutShipping;}
 function renderCheckout(){
     if(!checkoutItems)return;
-    const subtotal=getCartSubtotal(), qty=cart.reduce((sum,item)=>sum+item.quantity,0);
+    const subtotal=getCartSubtotal(), qty=cart.reduce((sum,item)=>sum+item.quantity,0), shippingCost=getShippingCost();
     if(checkoutProductCount)checkoutProductCount.textContent=`${qty} produk`;
     checkoutItems.innerHTML=cart.map(item=>`<div class="checkout-item"><div class="checkout-item-image"><img src="${item.image}" alt="${item.name}"></div><div><h3>${item.name}</h3>${item.variantLabel ? `<span class="checkout-item-variant">${item.variantLabel}</span>` : ""}<p>${rupiah(item.price)} × ${item.quantity}</p></div><strong>${rupiah(item.price*item.quantity)}</strong></div>`).join("");
-    if(summarySubtotal)summarySubtotal.textContent=rupiah(subtotal); if(summaryShipping)summaryShipping.textContent=rupiah(checkoutShipping); if(summaryDiscount)summaryDiscount.textContent=`-${rupiah(checkoutDiscount)}`; if(summaryTotal)summaryTotal.textContent=rupiah(Math.max(0,subtotal+checkoutShipping-checkoutDiscount));
+    if(summarySubtotal)summarySubtotal.textContent=rupiah(subtotal); if(summaryShipping)summaryShipping.textContent=checkoutFreeShipping ? "Rp0 (Gratis Ongkir)" : rupiah(shippingCost); if(summaryDiscount)summaryDiscount.textContent=`-${rupiah(checkoutDiscount)}`; if(summaryTotal)summaryTotal.textContent=rupiah(Math.max(0,subtotal+shippingCost-checkoutDiscount));
 }
 function openCheckout(){
     if(!cart.length){showToast("Keranjang masih kosong.");return;}
@@ -2736,7 +2869,7 @@ if(backToCartButton)backToCartButton.addEventListener("click",()=>{closeCheckout
 document.addEventListener("click",(event)=>{ if(event.target.closest("[data-close-checkout]")) closeCheckout(); });
 document.querySelectorAll('input[name="shipping"]').forEach(input=>input.addEventListener("change",()=>{checkoutShipping=Number(input.value);document.querySelectorAll(".shipping-option").forEach(el=>el.classList.remove("selected"));input.closest(".shipping-option")?.classList.add("selected");renderCheckout();}));
 document.querySelectorAll('input[name="payment"]').forEach(input=>input.addEventListener("change",()=>{document.querySelectorAll(".payment-option").forEach(el=>el.classList.remove("selected"));input.closest(".payment-option")?.classList.add("selected");}));
-if(applyVoucherButton)applyVoucherButton.addEventListener("click",()=>{const code=(checkoutVoucher?.value||"").trim().toUpperCase(),subtotal=getCartSubtotal();voucherMessage.style.color="";if(code==="MABHEMAT"){checkoutDiscount=Math.min(100000,Math.round(subtotal*.10));appliedVoucher=code;voucherMessage.textContent=`✓ Voucher ${code} berhasil digunakan. Hemat ${rupiah(checkoutDiscount)}.`;}else if(!code){checkoutDiscount=0;appliedVoucher="";voucherMessage.textContent="Masukkan kode voucher terlebih dahulu.";}else{checkoutDiscount=0;appliedVoucher="";voucherMessage.textContent="Kode voucher tidak ditemukan.";voucherMessage.style.color="#d34b4b";}renderCheckout();});
+if(applyVoucherButton)applyVoucherButton.addEventListener("click",()=>{const code=(checkoutVoucher?.value||"").trim().toUpperCase(),subtotal=getCartSubtotal();voucherMessage.style.color="";if(code==="MABHEMAT"){checkoutDiscount=Math.min(100000,Math.round(subtotal*.10));checkoutFreeShipping=false;appliedVoucher=code;voucherMessage.textContent=`✓ Voucher ${code} berhasil digunakan. Hemat ${rupiah(checkoutDiscount)}.`;}else if(code==="ONGKIRGRATIS"){checkoutDiscount=0;checkoutFreeShipping=true;appliedVoucher=code;voucherMessage.textContent=`✓ Voucher ${code} berhasil digunakan. Ongkos kirim jadi gratis.`;}else if(code==="MEMBERBARU"){if(subtotal>=150000){checkoutDiscount=20000;checkoutFreeShipping=false;appliedVoucher=code;voucherMessage.textContent=`✓ Voucher ${code} berhasil digunakan. Hemat ${rupiah(checkoutDiscount)}.`;}else{checkoutDiscount=0;checkoutFreeShipping=false;appliedVoucher="";voucherMessage.textContent="Minimal belanja Rp150.000 untuk voucher ini.";voucherMessage.style.color="#d34b4b";}}else if(!code){checkoutDiscount=0;checkoutFreeShipping=false;appliedVoucher="";voucherMessage.textContent="Masukkan kode voucher terlebih dahulu.";}else{checkoutDiscount=0;checkoutFreeShipping=false;appliedVoucher="";voucherMessage.textContent="Kode voucher tidak ditemukan.";voucherMessage.style.color="#d34b4b";}renderCheckout();});
 if (placeOrderButton) {
     placeOrderButton.addEventListener("click", () => {
         if (!cart.length) {
@@ -2756,12 +2889,28 @@ if (placeOrderButton) {
 
         setTimeout(() => {
             const payment = document.querySelector('input[name="payment"]:checked')?.value || "QRIS";
-            const total = Math.max(0, getCartSubtotal() + checkoutShipping - checkoutDiscount);
+            const total = Math.max(0, getCartSubtotal() + getShippingCost() - checkoutDiscount);
             const orderCode = `MAB-${Date.now().toString().slice(-8)}`;
+
+            saveOrder({
+                code: orderCode,
+                date: Date.now(),
+                items: cart.map(item => ({ ...item })),
+                subtotal: getCartSubtotal(),
+                shipping: getShippingCost(),
+                discount: checkoutDiscount,
+                total: total,
+                payment: payment,
+                voucher: appliedVoucher,
+                address: { ...checkoutAddress },
+                status: "diproses"
+            });
+
+            addNotification("Pesanan Dibuat 🎉", `Pesanan ${orderCode} berhasil dibuat, total ${rupiah(total)}.`);
 
             const success = document.createElement("div");
             success.className = "order-success";
-            success.innerHTML = `<div class="order-success-card"><div class="success-icon">✓</div><h2>Pesanan Berhasil Dibuat!</h2><p>Terima kasih. Pesanan kamu sudah tercatat di MAB-Store.</p><div class="order-code">${orderCode}</div><p>Total <b>${rupiah(total)}</b> • Pembayaran: <b>${payment}</b></p><button type="button" id="continueShoppingAfterOrder">Kembali Belanja</button></div>`;
+            success.innerHTML = `<div class="order-success-card"><div class="success-icon">✓</div><h2>Pesanan Berhasil Dibuat!</h2><p>Terima kasih. Pesanan kamu sudah tercatat di MAB-Store.</p><div class="order-code">${orderCode}</div><p>Total <b>${rupiah(total)}</b> • Pembayaran: <b>${payment}</b></p><button type="button" id="continueShoppingAfterOrder">Kembali Belanja</button><button type="button" id="viewOrdersAfterOrder">Lihat Pesanan Saya</button></div>`;
             document.body.appendChild(success);
 
             cart = [];
@@ -2769,6 +2918,7 @@ if (placeOrderButton) {
             updateCart();
             closeCheckout();
             checkoutDiscount = 0;
+            checkoutFreeShipping = false;
             appliedVoucher = "";
 
             placeOrderButton.disabled = false;
@@ -2778,6 +2928,11 @@ if (placeOrderButton) {
             success.querySelector("#continueShoppingAfterOrder").addEventListener("click", () => {
                 success.remove();
                 showHome(true);
+            });
+
+            success.querySelector("#viewOrdersAfterOrder").addEventListener("click", () => {
+                success.remove();
+                showOrdersPage();
             });
         }, 1200);
     });
@@ -2805,8 +2960,9 @@ if (voucherButton) {
                 "Voucher Berhasil Diklaim ✓";
 
 
-            showToast(
-                "Voucher MAB-Store berhasil diklaim 🎟️"
+            addNotification(
+                "Voucher Diklaim 🎟️",
+                "Voucher MAB-Store berhasil diklaim. Cek halaman produk untuk kode promo lainnya."
             );
 
         }
@@ -2916,6 +3072,11 @@ function loadCategoryFromURL() {
             )
         );
 
+    const view =
+        params.get(
+            "view"
+        );
+
 
     const product =
         productId
@@ -2941,6 +3102,24 @@ function loadCategoryFromURL() {
             category,
             false
         );
+
+    }
+
+    else if (view === "orders") {
+
+        showOrdersPage(false);
+
+    }
+
+    else if (view === "store") {
+
+        showStorePage(false);
+
+    }
+
+    else if (view === "search") {
+
+        showSearchPage("", false);
 
     }
 
@@ -2981,6 +3160,11 @@ window.addEventListener(
                 )
             );
 
+        const view =
+            params.get(
+                "view"
+            );
+
         const product =
             productId
                 ? products.find(item => item.id === productId)
@@ -3005,6 +3189,24 @@ window.addEventListener(
                 category,
                 false
             );
+
+        }
+
+        else if (view === "orders") {
+
+            showOrdersPage(false);
+
+        }
+
+        else if (view === "store") {
+
+            showStorePage(false);
+
+        }
+
+        else if (view === "search") {
+
+            showSearchPage("", false);
 
         }
 
@@ -3226,6 +3428,432 @@ updateAccountUI();
 
 
 /* =========================================================
+   NOTIFIKASI (dipicu dari pesanan & promo)
+   ========================================================= */
+
+let notifications = JSON.parse(localStorage.getItem("mabstore_notifications") || "[]");
+
+function saveNotifications() {
+    localStorage.setItem("mabstore_notifications", JSON.stringify(notifications));
+}
+
+function timeAgo(timestamp) {
+    const diff = Math.max(0, Date.now() - timestamp);
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return "Baru saja";
+    if (mins < 60) return `${mins} menit lalu`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours} jam lalu`;
+    const days = Math.floor(hours / 24);
+    return `${days} hari lalu`;
+}
+
+function addNotification(title, message) {
+    notifications.unshift({
+        id: Date.now() + Math.random(),
+        title,
+        message,
+        time: Date.now(),
+        read: false
+    });
+
+    notifications = notifications.slice(0, 30);
+    saveNotifications();
+    renderNotifications();
+    showToast(`${title} — ${message}`);
+}
+
+function renderNotifications() {
+    const list = document.getElementById("notifList");
+    const count = document.getElementById("notifCount");
+    if (!list || !count) return;
+
+    const unread = notifications.filter(n => !n.read).length;
+    count.hidden = unread === 0;
+    count.textContent = unread;
+
+    list.innerHTML = notifications.length
+        ? notifications.map(n => `
+            <div class="notif-item${n.read ? "" : " unread"}">
+                <b>${n.title}</b>
+                <p>${n.message}</p>
+                <span>${timeAgo(n.time)}</span>
+            </div>
+        `).join("")
+        : `<p class="notif-empty">Belum ada notifikasi.</p>`;
+}
+
+const notifButton = document.getElementById("notifButton");
+const notifDropdown = document.getElementById("notifDropdown");
+const clearNotifButton = document.getElementById("clearNotifButton");
+
+if (notifButton) {
+    notifButton.addEventListener("click", event => {
+        event.stopPropagation();
+        const willOpen = notifDropdown.hidden;
+        notifDropdown.hidden = !willOpen;
+        if (willOpen) {
+            notifications.forEach(n => { n.read = true; });
+            saveNotifications();
+            renderNotifications();
+        }
+    });
+}
+
+if (clearNotifButton) {
+    clearNotifButton.addEventListener("click", event => {
+        event.stopPropagation();
+        notifications = [];
+        saveNotifications();
+        renderNotifications();
+    });
+}
+
+document.addEventListener("click", event => {
+    if (notifDropdown && !notifDropdown.hidden && !notifDropdown.contains(event.target) && event.target !== notifButton) {
+        notifDropdown.hidden = true;
+    }
+});
+
+
+/* =========================================================
+   PESANAN SAYA (order history + tracking simulasi)
+   ========================================================= */
+
+let orders = JSON.parse(localStorage.getItem("mabstore_orders") || "[]");
+let activeOrderFilter = "semua";
+
+const orderStatusLabels = {
+    diproses: "Diproses",
+    dikirim: "Dikirim",
+    selesai: "Selesai"
+};
+
+const orderStatusSteps = ["dibuat", "diproses", "dikirim", "selesai"];
+
+function saveOrders() {
+    localStorage.setItem("mabstore_orders", JSON.stringify(orders));
+}
+
+function saveOrder(order) {
+    orders.unshift(order);
+    saveOrders();
+}
+
+function nextOrderStatus(status) {
+    if (status === "diproses") return "dikirim";
+    if (status === "dikirim") return "selesai";
+    return "selesai";
+}
+
+function renderOrderTracking(order) {
+    const currentIndex = orderStatusSteps.indexOf(order.status === "diproses" ? "diproses" : order.status);
+    const stepLabels = { dibuat: "Pesanan Dibuat", diproses: "Diproses", dikirim: "Dikirim", selesai: "Selesai" };
+
+    return `
+        <div class="order-tracking">
+            ${orderStatusSteps.map((step, index) => `
+                <div class="order-track-step${index <= currentIndex ? " done" : ""}">
+                    <span class="order-track-dot">${index <= currentIndex ? "✓" : ""}</span>
+                    <span class="order-track-label">${stepLabels[step]}</span>
+                </div>
+            `).join("")}
+        </div>
+    `;
+}
+
+function renderOrders() {
+    const list = document.getElementById("ordersList");
+    const empty = document.getElementById("ordersEmpty");
+    if (!list || !empty) return;
+
+    const filtered = activeOrderFilter === "semua" ? orders : orders.filter(o => o.status === activeOrderFilter);
+
+    if (!orders.length) {
+        list.innerHTML = "";
+        empty.hidden = false;
+        return;
+    }
+
+    empty.hidden = true;
+
+    list.innerHTML = filtered.length ? filtered.map(order => `
+        <div class="order-card" data-order-code="${order.code}">
+            <div class="order-card-header">
+                <div>
+                    <b>${order.code}</b>
+                    <span>${new Date(order.date).toLocaleString("id-ID")}</span>
+                </div>
+                <span class="order-status-badge status-${order.status}">${orderStatusLabels[order.status] || order.status}</span>
+            </div>
+
+            <div class="order-card-items">
+                ${order.items.slice(0, 3).map(item => `
+                    <img src="${item.image}" alt="${item.name}">
+                `).join("")}
+                ${order.items.length > 3 ? `<span class="order-more-items">+${order.items.length - 3}</span>` : ""}
+            </div>
+
+            <p class="order-card-summary">${order.items.reduce((sum, i) => sum + i.quantity, 0)} barang &nbsp;•&nbsp; Total <b>${rupiah(order.total)}</b></p>
+
+            ${renderOrderTracking(order)}
+
+            <div class="order-card-actions">
+                <button type="button" class="order-toggle-detail" data-order-toggle="${order.code}">Lihat Detail</button>
+                ${order.status !== "selesai" ? `<button type="button" class="order-simulate-button" data-order-advance="${order.code}">Perbarui Status (Simulasi)</button>` : ""}
+                <button type="button" class="order-buy-again" data-order-buyagain="${order.code}">Beli Lagi</button>
+            </div>
+
+            <div class="order-detail-panel" data-order-detail="${order.code}" hidden>
+                ${order.items.map(item => `
+                    <div class="order-detail-item">
+                        <img src="${item.image}" alt="${item.name}">
+                        <div>
+                            <b>${item.name}</b>
+                            ${item.variantLabel ? `<span>${item.variantLabel}</span>` : ""}
+                            <span>${rupiah(item.price)} × ${item.quantity}</span>
+                        </div>
+                    </div>
+                `).join("")}
+                <p class="order-detail-address">📍 ${order.address?.name || "-"} — ${order.address?.address || "-"}</p>
+                <p class="order-detail-payment">💳 Pembayaran: ${order.payment}${order.voucher ? ` &nbsp;•&nbsp; 🎟️ Voucher: ${order.voucher}` : ""}</p>
+            </div>
+        </div>
+    `).join("") : `<p class="no-reviews">Tidak ada pesanan dengan status ini.</p>`;
+}
+
+function showOrdersPage(updateUrl = true) {
+    [homePage, categoryPage, productPage, storePage, searchPage].forEach(page => {
+        if (page) { page.hidden = true; page.style.display = "none"; }
+    });
+
+    if (ordersPage) { ordersPage.hidden = false; ordersPage.style.display = "block"; }
+
+    renderOrders();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    if (updateUrl) {
+        const url = new URL(window.location.href);
+        url.searchParams.set("view", "orders");
+        history.pushState({ view: "orders" }, "", url);
+    }
+}
+
+const ordersPage = document.getElementById("ordersPage");
+const ordersNavButton = document.getElementById("ordersNavButton");
+const backFromOrdersButton = document.getElementById("backFromOrdersButton");
+const ordersEmptyShopButton = document.getElementById("ordersEmptyShopButton");
+
+if (ordersNavButton) ordersNavButton.addEventListener("click", () => showOrdersPage());
+if (backFromOrdersButton) backFromOrdersButton.addEventListener("click", () => showHome());
+if (ordersEmptyShopButton) ordersEmptyShopButton.addEventListener("click", () => showHome());
+
+document.querySelectorAll("[data-order-filter]").forEach(tab => {
+    tab.addEventListener("click", () => {
+        document.querySelectorAll("[data-order-filter]").forEach(t => t.classList.remove("active"));
+        tab.classList.add("active");
+        activeOrderFilter = tab.dataset.orderFilter;
+        renderOrders();
+    });
+});
+
+document.addEventListener("click", event => {
+    const toggleBtn = event.target.closest("[data-order-toggle]");
+    if (toggleBtn) {
+        const panel = document.querySelector(`[data-order-detail="${toggleBtn.dataset.orderToggle}"]`);
+        if (panel) {
+            panel.hidden = !panel.hidden;
+            toggleBtn.textContent = panel.hidden ? "Lihat Detail" : "Sembunyikan Detail";
+        }
+        return;
+    }
+
+    const advanceBtn = event.target.closest("[data-order-advance]");
+    if (advanceBtn) {
+        const order = orders.find(o => o.code === advanceBtn.dataset.orderAdvance);
+        if (order) {
+            order.status = nextOrderStatus(order.status);
+            saveOrders();
+            renderOrders();
+            addNotification("Update Pesanan 📦", `Pesanan ${order.code} sekarang berstatus "${orderStatusLabels[order.status]}".`);
+        }
+        return;
+    }
+
+    const buyAgainBtn = event.target.closest("[data-order-buyagain]");
+    if (buyAgainBtn) {
+        const order = orders.find(o => o.code === buyAgainBtn.dataset.orderBuyagain);
+        if (order) {
+            order.items.forEach(item => {
+                const product = products.find(p => p.id === item.id);
+                if (product) addToCart(product, item.quantity, item.variant || null);
+            });
+            showToast("Semua barang dari pesanan ini ditambahkan ke keranjang.");
+            openCart();
+        }
+    }
+});
+
+
+/* =========================================================
+   TOKO / PENJUAL (simulasi)
+   ========================================================= */
+
+const storePage = document.getElementById("storePage");
+const backFromStoreButton = document.getElementById("backFromStoreButton");
+const storeFollowButton = document.getElementById("storeFollowButton");
+const storeProducts = document.getElementById("storeProducts");
+
+let followingStore = localStorage.getItem("mabstore_following") === "1";
+
+function renderStorePage() {
+    if (storeProducts) storeProducts.innerHTML = products.map(createProductCard).join("");
+    const statProducts = document.getElementById("storeStatProducts");
+    if (statProducts) statProducts.textContent = products.length;
+    updateStoreFollowButton();
+}
+
+function updateStoreFollowButton() {
+    if (!storeFollowButton) return;
+    storeFollowButton.textContent = followingStore ? "✓ Mengikuti" : "+ Ikuti Toko";
+    storeFollowButton.classList.toggle("following", followingStore);
+
+    const followers = document.getElementById("storeFollowers");
+    if (followers) followers.textContent = followingStore ? "2.451" : "2.450";
+}
+
+function showStorePage(updateUrl = true) {
+    [homePage, categoryPage, productPage, ordersPage, searchPage].forEach(page => {
+        if (page) { page.hidden = true; page.style.display = "none"; }
+    });
+
+    if (storePage) { storePage.hidden = false; storePage.style.display = "block"; }
+
+    renderStorePage();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    if (updateUrl) {
+        const url = new URL(window.location.href);
+        url.searchParams.set("view", "store");
+        history.pushState({ view: "store" }, "", url);
+    }
+}
+
+if (backFromStoreButton) backFromStoreButton.addEventListener("click", () => showHome());
+
+if (storeFollowButton) {
+    storeFollowButton.addEventListener("click", () => {
+        followingStore = !followingStore;
+        localStorage.setItem("mabstore_following", followingStore ? "1" : "0");
+        updateStoreFollowButton();
+        if (followingStore) addNotification("Mengikuti Toko 🏬", "Kamu akan mendapat info promo terbaru dari MAB-Official Store.");
+    });
+}
+
+document.addEventListener("click", event => {
+    if (event.target.closest("#pdVisitStoreButton")) showStorePage();
+});
+
+
+/* =========================================================
+   PENCARIAN & FILTER LANJUTAN (standalone, client-side)
+   ========================================================= */
+
+const searchPage = document.getElementById("searchPage");
+const advancedSearchButton = document.getElementById("advancedSearchButton");
+const backFromSearchButton = document.getElementById("backFromSearchButton");
+
+function setupAdvancedSearchCategories() {
+    const box = document.getElementById("advSearchCategories");
+    if (!box) return;
+    const categories = [...new Set(products.map(p => p.category))];
+    box.innerHTML = categories.map(cat => `
+        <label><input type="checkbox" value="${cat}" class="adv-category-check"> ${cat}</label>
+    `).join("");
+}
+
+function runAdvancedSearch() {
+    const keyword = (document.getElementById("advSearchKeyword")?.value || "").trim().toLowerCase();
+    const checkedCategories = [...document.querySelectorAll(".adv-category-check:checked")].map(c => c.value);
+    const minPrice = Number(document.getElementById("advSearchMinPrice")?.value) || 0;
+    const maxPrice = Number(document.getElementById("advSearchMaxPrice")?.value) || Infinity;
+    const minRating = Number(document.querySelector('input[name="advRating"]:checked')?.value) || 0;
+    const sortMode = document.getElementById("advSearchSort")?.value || "relevansi";
+
+    let results = products.filter(p => {
+        const matchKeyword = !keyword || p.name.toLowerCase().includes(keyword) || (p.keywords || "").includes(keyword);
+        const matchCategory = !checkedCategories.length || checkedCategories.includes(p.category);
+        const matchPrice = p.price >= minPrice && p.price <= maxPrice;
+        const matchRating = p.rating >= minRating;
+        return matchKeyword && matchCategory && matchPrice && matchRating;
+    });
+
+    if (sortMode === "harga-rendah") results.sort((a, b) => a.price - b.price);
+    else if (sortMode === "harga-tinggi") results.sort((a, b) => b.price - a.price);
+    else if (sortMode === "rating") results.sort((a, b) => b.rating - a.rating);
+    else if (sortMode === "terlaris") results.sort((a, b) => b.sold - a.sold);
+
+    const resultsBox = document.getElementById("advSearchResults");
+    const countLabel = document.getElementById("advSearchCount");
+    if (countLabel) countLabel.textContent = `${results.length} produk ditemukan`;
+    if (resultsBox) resultsBox.innerHTML = results.length ? results.map(createProductCard).join("") : `<p class="no-reviews">Tidak ada produk yang cocok dengan filter ini.</p>`;
+}
+
+function showSearchPage(prefillKeyword = "", updateUrl = true) {
+    [homePage, categoryPage, productPage, ordersPage, storePage].forEach(page => {
+        if (page) { page.hidden = true; page.style.display = "none"; }
+    });
+
+    if (searchPage) { searchPage.hidden = false; searchPage.style.display = "block"; }
+
+    const keywordInput = document.getElementById("advSearchKeyword");
+    if (keywordInput) keywordInput.value = prefillKeyword;
+
+    runAdvancedSearch();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    if (updateUrl) {
+        const url = new URL(window.location.href);
+        url.searchParams.set("view", "search");
+        history.pushState({ view: "search" }, "", url);
+    }
+}
+
+setupAdvancedSearchCategories();
+
+if (advancedSearchButton) {
+    advancedSearchButton.addEventListener("click", () => showSearchPage(searchInput?.value || ""));
+}
+
+if (backFromSearchButton) backFromSearchButton.addEventListener("click", () => showHome());
+
+["advSearchKeyword", "advSearchMinPrice", "advSearchMaxPrice", "advSearchSort"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener("input", runAdvancedSearch);
+});
+
+document.addEventListener("change", event => {
+    if (event.target.classList.contains("adv-category-check") || event.target.name === "advRating") {
+        runAdvancedSearch();
+    }
+});
+
+const advSearchReset = document.getElementById("advSearchReset");
+if (advSearchReset) {
+    advSearchReset.addEventListener("click", () => {
+        document.getElementById("advSearchKeyword").value = "";
+        document.getElementById("advSearchMinPrice").value = "";
+        document.getElementById("advSearchMaxPrice").value = "";
+        document.getElementById("advSearchSort").value = "relevansi";
+        document.querySelectorAll(".adv-category-check").forEach(c => { c.checked = false; });
+        const allRating = document.querySelector('input[name="advRating"][value="0"]');
+        if (allRating) allRating.checked = true;
+        runAdvancedSearch();
+    });
+}
+
+
+/* =========================================================
    INITIALIZATION
    ========================================================= */
 
@@ -3238,6 +3866,7 @@ renderHomeProducts();
 updateCart();
 updateWishlistCount();
 renderWishlist();
+renderNotifications();
 
 loadCategoryFromURL();
 
