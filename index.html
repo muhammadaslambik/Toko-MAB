@@ -917,9 +917,11 @@
 
 
     <!-- =====================================================
-         CHECKOUT PAGE — ADDED WITHOUT REMOVING ORIGINAL CONTENT
+         CHECKOUT PAGE — OVERLAY PANEL
     ====================================================== -->
-    <main id="checkoutPage" class="checkout-page" hidden>
+    <div id="checkoutPage" class="checkout-overlay" hidden>
+        <div class="checkout-overlay-backdrop" data-close-checkout></div>
+        <div class="checkout-panel">
         <div class="container">
             <div class="checkout-topbar">
                 <button id="backToCartButton" class="back-home-button" type="button">← Kembali ke Keranjang</button>
@@ -970,7 +972,8 @@
                 <aside class="checkout-summary"><div class="summary-card"><h2>Ringkasan Belanja</h2><div class="summary-line"><span>Total Produk</span><strong id="summarySubtotal">Rp0</strong></div><div class="summary-line"><span>Pengiriman</span><strong id="summaryShipping">Rp15.000</strong></div><div class="summary-line discount"><span>Diskon Voucher</span><strong id="summaryDiscount">-Rp0</strong></div><div class="summary-divider"></div><div class="summary-total"><span>Total Pembayaran</span><strong id="summaryTotal">Rp0</strong></div><button id="placeOrderButton" class="place-order-button" type="button">Buat Pesanan <span>→</span></button><p class="secure-checkout">🔒 Transaksi aman &amp; data pembayaran terlindungi.</p></div></aside>
             </div>
         </div>
-    </main>
+        </div>
+    </div>
 
     <!-- WISHLIST DRAWER -->
     <aside class="wishlist-drawer" id="wishlistDrawer" aria-label="Wishlist saya">
