@@ -1962,9 +1962,44 @@ function createProductModal() {
             <button id="detailWishlistButton" class="detail-wishlist-button" type="button">♡ Simpan ke Wishlist</button>
           </div>
         </div>
+        <div class="product-reviews-section">
+          <div class="reviews-header">
+            <h3>Rating &amp; Ulasan Pembeli</h3>
+            <div class="reviews-summary">
+              <span class="reviews-avg" id="reviewsAvg">—</span>
+              <span class="reviews-stars" id="reviewsStars">☆☆☆☆☆</span>
+              <span class="reviews-count" id="reviewsCount">(0 ulasan)</span>
+            </div>
+          </div>
+          <div class="review-form">
+            <p>Bagikan pendapatmu tentang produk ini</p>
+            <div class="review-form-row" id="reviewNameRow">
+              <input type="text" id="reviewName" placeholder="Nama kamu">
+            </div>
+            <div class="review-star-input" id="reviewStarInput">
+              <button type="button" data-star="1">★</button>
+              <button type="button" data-star="2">★</button>
+              <button type="button" data-star="3">★</button>
+              <button type="button" data-star="4">★</button>
+              <button type="button" data-star="5">★</button>
+            </div>
+            <textarea id="reviewComment" placeholder="Tulis ulasan kamu di sini..." rows="3"></textarea>
+            <div class="review-media-input">
+              <label class="review-media-label" for="reviewMediaFile">
+                📷 Tambah Foto / Video
+                <input type="file" id="reviewMediaFile" accept="image/*,video/*" multiple hidden>
+              </label>
+              <div class="review-media-preview" id="reviewMediaPreview"></div>
+            </div>
+            <button id="submitReviewButton" type="button">Kirim Ulasan</button>
+          </div>
+          <div class="review-list" id="reviewList"></div>
+        </div>
       </div>`;
     document.body.appendChild(modal);
     modal.addEventListener("click", e => { if (e.target.closest("[data-close-product]")) closeProductModal(); });
+    setupReviewStarInput();
+    setupReviewMediaInput();
 }
 
 
@@ -1981,6 +2016,277 @@ function openProductModal(product) {
     set("detailProductDescription",`${product.name} merupakan produk pilihan kategori ${product.category}. Nikmati harga bersahabat, kualitas terbaik, dan pengalaman belanja yang mudah di MAB-Store.`); set("detailRatingBox",`${product.rating}/5`); set("detailSoldBox",`${product.sold}+`); set("detailQuantity","1");
     const wish=document.getElementById("detailWishlistButton"); if(wish){const liked=wishlist.includes(product.id);wish.textContent=liked?"♥ Tersimpan di Wishlist":"♡ Simpan ke Wishlist";wish.classList.toggle("active",liked);}
     document.getElementById("productModal")?.classList.add("show"); document.body.classList.add("modal-open");
+
+    selectedReviewStar = 0;
+    document.querySelectorAll("#reviewStarInput button").forEach(b => b.classList.remove("active"));
+    const reviewComment = document.getElementById("reviewComment");
+    if (reviewComment) reviewComment.value = "";
+
+    selectedReviewMedia = [];
+    renderMediaPreview();
+
+    const nameRow = document.getElementById("reviewNameRow");
+    const nameInput = document.getElementById("reviewName");
+    if (currentUser) {
+        if (nameRow) nameRow.hidden = true;
+        if (nameInput) nameInput.value = currentUser.name;
+    } else {
+        if (nameRow) nameRow.hidden = false;
+        if (nameInput) nameInput.value = "";
+    }
+
+    renderReviews(product.id);
+}
+
+
+/* =========================================================
+   RATING & REVIEW (localStorage)
+   ========================================================= */
+
+const REVIEWS_KEY = "mabstore_reviews_v1";
+let productReviews = JSON.parse(localStorage.getItem(REVIEWS_KEY) || "{}");
+let selectedReviewStar = 0;
+
+function saveReviews() {
+    try {
+        localStorage.setItem(REVIEWS_KEY, JSON.stringify(productReviews));
+        return true;
+    } catch (error) {
+        console.warn("Reviews storage error:", error);
+        return false;
+    }
+}
+
+function getReviews(productId) {
+    return productReviews[productId] || [];
+}
+
+function starString(value) {
+    const rounded = Math.round(value);
+    return "★".repeat(rounded) + "☆".repeat(5 - rounded);
+}
+
+function escapeReviewText(text) {
+    const div = document.createElement("div");
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function setupReviewStarInput() {
+    const box = document.getElementById("reviewStarInput");
+    if (!box) return;
+    const buttons = box.querySelectorAll("button");
+    buttons.forEach(btn => {
+        btn.addEventListener("click", () => {
+            selectedReviewStar = Number(btn.dataset.star);
+            buttons.forEach(b => b.classList.toggle("active", Number(b.dataset.star) <= selectedReviewStar));
+        });
+    });
+}
+
+
+/* =========================================================
+   REVIEW MEDIA (FOTO & VIDEO)
+   ========================================================= */
+
+const REVIEW_MEDIA_MAX = 4;
+const REVIEW_VIDEO_MAX_BYTES = 8 * 1024 * 1024;
+
+let selectedReviewMedia = [];
+
+function readFileAsDataURL(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
+function compressReviewImage(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = e => {
+            const img = new Image();
+            img.onload = () => {
+                const maxWidth = 900;
+                const scale = Math.min(1, maxWidth / img.width);
+                const canvas = document.createElement("canvas");
+                canvas.width = Math.round(img.width * scale);
+                canvas.height = Math.round(img.height * scale);
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                resolve(canvas.toDataURL("image/jpeg", 0.72));
+            };
+            img.onerror = reject;
+            img.src = e.target.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
+function setupReviewMediaInput() {
+    const input = document.getElementById("reviewMediaFile");
+    if (!input) return;
+    input.addEventListener("change", async event => {
+        const files = Array.from(event.target.files || []);
+
+        for (const file of files) {
+            if (selectedReviewMedia.length >= REVIEW_MEDIA_MAX) {
+                showToast(`Maksimal ${REVIEW_MEDIA_MAX} lampiran foto/video per ulasan.`);
+                break;
+            }
+
+            if (file.type.startsWith("image/")) {
+                try {
+                    const data = await compressReviewImage(file);
+                    selectedReviewMedia.push({ type: "image", data });
+                } catch (error) {
+                    showToast("Gagal memproses foto.");
+                }
+            } else if (file.type.startsWith("video/")) {
+                if (file.size > REVIEW_VIDEO_MAX_BYTES) {
+                    showToast("Ukuran video maksimal 8MB.");
+                    continue;
+                }
+                try {
+                    const data = await readFileAsDataURL(file);
+                    selectedReviewMedia.push({ type: "video", data });
+                } catch (error) {
+                    showToast("Gagal memproses video.");
+                }
+            }
+        }
+
+        input.value = "";
+        renderMediaPreview();
+    });
+}
+
+function renderMediaPreview() {
+    const box = document.getElementById("reviewMediaPreview");
+    if (!box) return;
+
+    box.innerHTML = selectedReviewMedia.map((media, index) => `
+        <div class="review-media-thumb">
+            ${media.type === "image"
+                ? `<img src="${media.data}" alt="Preview foto ulasan">`
+                : `<video src="${media.data}" muted></video>`}
+            <button type="button" class="review-media-remove" data-remove-media="${index}">✕</button>
+        </div>
+    `).join("");
+}
+
+function openMediaLightbox(src) {
+    let overlay = document.getElementById("mediaLightbox");
+    if (!overlay) {
+        overlay = document.createElement("div");
+        overlay.id = "mediaLightbox";
+        overlay.className = "media-lightbox";
+        overlay.innerHTML = `<img id="mediaLightboxImg" src="" alt="Foto ulasan">`;
+        overlay.addEventListener("click", () => overlay.classList.remove("show"));
+        document.body.appendChild(overlay);
+    }
+    document.getElementById("mediaLightboxImg").src = src;
+    overlay.classList.add("show");
+}
+
+
+function renderReviews(productId) {
+    const reviews = getReviews(productId);
+    const avgEl = document.getElementById("reviewsAvg");
+    const starsEl = document.getElementById("reviewsStars");
+    const countEl = document.getElementById("reviewsCount");
+    const listEl = document.getElementById("reviewList");
+
+    if (!reviews.length) {
+        if (avgEl) avgEl.textContent = "—";
+        if (starsEl) starsEl.textContent = "☆☆☆☆☆";
+        if (countEl) countEl.textContent = "(0 ulasan)";
+        if (listEl) listEl.innerHTML = `<p class="no-reviews">Belum ada ulasan. Jadilah yang pertama memberi ulasan!</p>`;
+        return;
+    }
+
+    const avg = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
+
+    if (avgEl) avgEl.textContent = avg.toFixed(1);
+    if (starsEl) starsEl.textContent = starString(avg);
+    if (countEl) countEl.textContent = `(${reviews.length} ulasan)`;
+
+    if (listEl) {
+        listEl.innerHTML = reviews
+            .slice()
+            .reverse()
+            .map(r => `
+                <div class="review-item">
+                    <div class="review-item-head">
+                        <strong>${escapeReviewText(r.name)}</strong>
+                        <span class="review-item-stars">${starString(r.rating)}</span>
+                    </div>
+                    <p class="review-item-date">${escapeReviewText(r.date)}</p>
+                    <p class="review-item-comment">${escapeReviewText(r.comment)}</p>
+                    ${r.media && r.media.length ? `
+                        <div class="review-item-media">
+                            ${r.media.map(m => m.type === "image"
+                                ? `<img src="${m.data}" alt="Foto ulasan" class="review-media-item" data-lightbox>`
+                                : `<video src="${m.data}" controls class="review-media-item"></video>`
+                            ).join("")}
+                        </div>
+                    ` : ""}
+                </div>
+            `).join("");
+    }
+}
+
+function submitReview() {
+    if (!selectedProduct) return;
+
+    const commentEl = document.getElementById("reviewComment");
+    const nameEl = document.getElementById("reviewName");
+    const comment = commentEl ? commentEl.value.trim() : "";
+    const name = currentUser ? currentUser.name : (nameEl ? nameEl.value.trim() : "");
+
+    if (!selectedReviewStar) {
+        showToast("Pilih rating bintang dulu ya.");
+        return;
+    }
+    if (!name) {
+        showToast("Isi nama kamu dulu ya.");
+        return;
+    }
+    if (!comment) {
+        showToast("Tulis ulasan kamu dulu ya.");
+        return;
+    }
+
+    const list = getReviews(selectedProduct.id);
+    list.push({
+        name,
+        rating: selectedReviewStar,
+        comment,
+        media: selectedReviewMedia.slice(),
+        date: new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })
+    });
+    productReviews[selectedProduct.id] = list;
+
+    const saved = saveReviews();
+    if (!saved) {
+        list.pop();
+        showToast("Penyimpanan browser penuh. Coba kurangi jumlah/ukuran foto atau video.");
+        return;
+    }
+
+    renderReviews(selectedProduct.id);
+
+    if (commentEl) commentEl.value = "";
+    if (nameEl && !currentUser) nameEl.value = "";
+    selectedReviewStar = 0;
+    selectedReviewMedia = [];
+    renderMediaPreview();
+    document.querySelectorAll("#reviewStarInput button").forEach(b => b.classList.remove("active"));
+
+    showToast("Terima kasih atas ulasannya! ⭐");
 }
 
 
@@ -2116,6 +2422,21 @@ document.addEventListener(
             if(btn){const liked=wishlist.includes(selectedProduct.id);btn.textContent=liked?"♥ Tersimpan di Wishlist":"♡ Simpan ke Wishlist";btn.classList.toggle("active",liked);}
         }
 
+        if (event.target.id === "submitReviewButton") {
+            submitReview();
+        }
+
+        const removeMediaBtn = event.target.closest("[data-remove-media]");
+        if (removeMediaBtn) {
+            const index = Number(removeMediaBtn.dataset.removeMedia);
+            selectedReviewMedia.splice(index, 1);
+            renderMediaPreview();
+        }
+
+        if (event.target.matches("[data-lightbox]")) {
+            openMediaLightbox(event.target.src);
+        }
+
     }
 );
 
@@ -2208,10 +2529,26 @@ function renderCheckout(){
     checkoutItems.innerHTML=cart.map(item=>`<div class="checkout-item"><div class="checkout-item-image"><img src="${item.image}" alt="${item.name}"></div><div><h3>${item.name}</h3><p>${rupiah(item.price)} × ${item.quantity}</p></div><strong>${rupiah(item.price*item.quantity)}</strong></div>`).join("");
     if(summarySubtotal)summarySubtotal.textContent=rupiah(subtotal); if(summaryShipping)summaryShipping.textContent=rupiah(checkoutShipping); if(summaryDiscount)summaryDiscount.textContent=`-${rupiah(checkoutDiscount)}`; if(summaryTotal)summaryTotal.textContent=rupiah(Math.max(0,subtotal+checkoutShipping-checkoutDiscount));
 }
-function openCheckout(){if(!cart.length){showToast("Keranjang masih kosong.");return;}closeCartDrawer();if(checkoutPage){checkoutPage.hidden=false;checkoutPage.style.display="block";renderCheckout();window.scrollTo({top:0,behavior:"smooth"});}}
-function closeCheckout(){if(checkoutPage){checkoutPage.hidden=true;checkoutPage.style.display="none";}}
+function openCheckout(){
+    if(!cart.length){showToast("Keranjang masih kosong.");return;}
+    closeCartDrawer();
+    if(checkoutPage){
+        checkoutPage.hidden=false;
+        renderCheckout();
+        requestAnimationFrame(()=>checkoutPage.classList.add("show"));
+        document.body.classList.add("modal-open");
+    }
+}
+function closeCheckout(){
+    if(checkoutPage){
+        checkoutPage.classList.remove("show");
+        document.body.classList.remove("modal-open");
+        setTimeout(()=>{ if(!checkoutPage.classList.contains("show")) checkoutPage.hidden=true; },320);
+    }
+}
 if(checkoutButton)checkoutButton.addEventListener("click",openCheckout);
 if(backToCartButton)backToCartButton.addEventListener("click",()=>{closeCheckout();openCart();});
+document.addEventListener("click",(event)=>{ if(event.target.closest("[data-close-checkout]")) closeCheckout(); });
 document.querySelectorAll('input[name="shipping"]').forEach(input=>input.addEventListener("change",()=>{checkoutShipping=Number(input.value);document.querySelectorAll(".shipping-option").forEach(el=>el.classList.remove("selected"));input.closest(".shipping-option")?.classList.add("selected");renderCheckout();}));
 document.querySelectorAll('input[name="payment"]').forEach(input=>input.addEventListener("change",()=>{document.querySelectorAll(".payment-option").forEach(el=>el.classList.remove("selected"));input.closest(".payment-option")?.classList.add("selected");}));
 if(applyVoucherButton)applyVoucherButton.addEventListener("click",()=>{const code=(checkoutVoucher?.value||"").trim().toUpperCase(),subtotal=getCartSubtotal();voucherMessage.style.color="";if(code==="MABHEMAT"){checkoutDiscount=Math.min(100000,Math.round(subtotal*.10));appliedVoucher=code;voucherMessage.textContent=`✓ Voucher ${code} berhasil digunakan. Hemat ${rupiah(checkoutDiscount)}.`;}else if(!code){checkoutDiscount=0;appliedVoucher="";voucherMessage.textContent="Masukkan kode voucher terlebih dahulu.";}else{checkoutDiscount=0;appliedVoucher="";voucherMessage.textContent="Kode voucher tidak ditemukan.";voucherMessage.style.color="#d34b4b";}renderCheckout();});
