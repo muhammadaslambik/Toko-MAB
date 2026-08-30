@@ -2502,6 +2502,152 @@ if (sellerButton) {
     sellerButton.addEventListener("click", () => showToast("Pendaftaran seller segera hadir 🏪"));
 }
 
+
+/* =========================================================
+   AUTH SYSTEM (SIMULASI)
+   ========================================================= */
+let registeredUsers = JSON.parse(localStorage.getItem("mabstore_users") || "[]");
+let currentUser = JSON.parse(localStorage.getItem("mabstore_current_user") || "null");
+
+const accountButton = document.getElementById("accountButton");
+const accountLabel = document.getElementById("accountLabel");
+const accountDropdown = document.getElementById("accountDropdown");
+const accountDropdownName = document.getElementById("accountDropdownName");
+const accountDropdownRole = document.getElementById("accountDropdownRole");
+const logoutButton = document.getElementById("logoutButton");
+
+const authModal = document.getElementById("authModal");
+const closeAuthModal = document.getElementById("closeAuthModal");
+const authTabs = document.querySelectorAll("[data-auth-tab]");
+const loginForm = document.getElementById("loginForm");
+const registerForm = document.getElementById("registerForm");
+const loginError = document.getElementById("loginError");
+const registerError = document.getElementById("registerError");
+
+function saveUsers() {
+    localStorage.setItem("mabstore_users", JSON.stringify(registeredUsers));
+}
+
+function saveCurrentUser() {
+    localStorage.setItem("mabstore_current_user", JSON.stringify(currentUser));
+}
+
+function updateAccountUI() {
+    if (!accountLabel) return;
+    if (currentUser) {
+        accountLabel.textContent = currentUser.name.split(" ")[0];
+        if (accountDropdownName) accountDropdownName.textContent = currentUser.name;
+        if (accountDropdownRole) accountDropdownRole.textContent = currentUser.role === "seller" ? "Penjual" : "Pembeli";
+    } else {
+        accountLabel.textContent = "Masuk";
+    }
+}
+
+function openAuthModal() {
+    if (authModal) authModal.hidden = false;
+}
+
+function closeAuth() {
+    if (authModal) authModal.hidden = true;
+    loginError.textContent = "";
+    registerError.textContent = "";
+    loginForm.reset();
+    registerForm.reset();
+}
+
+if (accountButton) {
+    accountButton.addEventListener("click", () => {
+        if (currentUser) {
+            accountDropdown.hidden = !accountDropdown.hidden;
+        } else {
+            openAuthModal();
+        }
+    });
+}
+
+if (closeAuthModal) closeAuthModal.addEventListener("click", closeAuth);
+
+authTabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+        authTabs.forEach(t => t.classList.remove("active"));
+        tab.classList.add("active");
+        const target = tab.dataset.authTab;
+        loginForm.hidden = target !== "login";
+        registerForm.hidden = target !== "register";
+    });
+});
+
+if (registerForm) {
+    registerForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const name = document.getElementById("registerName").value.trim();
+        const email = document.getElementById("registerEmail").value.trim().toLowerCase();
+        const password = document.getElementById("registerPassword").value;
+        const role = document.querySelector('input[name="registerRole"]:checked')?.value || "buyer";
+
+        if (!name || !email || !password) {
+            registerError.textContent = "Lengkapi semua data terlebih dahulu.";
+            return;
+        }
+
+        if (registeredUsers.some(user => user.email === email)) {
+            registerError.textContent = "Email sudah terdaftar, silakan masuk.";
+            return;
+        }
+
+        registeredUsers.push({ name, email, password, role });
+        saveUsers();
+
+        currentUser = { name, email, role };
+        saveCurrentUser();
+        updateAccountUI();
+        closeAuth();
+        showToast(`Selamat datang, ${name}! Akun berhasil dibuat 🎉`);
+    });
+}
+
+if (loginForm) {
+    loginForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const email = document.getElementById("loginEmail").value.trim().toLowerCase();
+        const password = document.getElementById("loginPassword").value;
+
+        const found = registeredUsers.find(user => user.email === email && user.password === password);
+
+        if (!found) {
+            loginError.textContent = "Email atau kata sandi salah.";
+            return;
+        }
+
+        currentUser = { name: found.name, email: found.email, role: found.role };
+        saveCurrentUser();
+        updateAccountUI();
+        closeAuth();
+        showToast(`Selamat datang kembali, ${found.name}! 👋`);
+    });
+}
+
+if (logoutButton) {
+    logoutButton.addEventListener("click", () => {
+        currentUser = null;
+        localStorage.removeItem("mabstore_current_user");
+        updateAccountUI();
+        accountDropdown.hidden = true;
+        showToast("Kamu berhasil keluar.");
+    });
+}
+
+document.addEventListener("click", (event) => {
+    if (accountDropdown && !accountDropdown.hidden) {
+        if (!accountDropdown.contains(event.target) && !accountButton.contains(event.target)) {
+            accountDropdown.hidden = true;
+        }
+    }
+});
+
+updateAccountUI();
+
+
 /* =========================================================
    INITIALIZATION
    ========================================================= */
