@@ -1286,14 +1286,14 @@ function updateCategoryButtons() {
    ========================================================= */
 
 function hideExtraPages() {
-    ["ordersPage", "storePage", "searchPage", "chatPage", "sellerDashboardPage"].forEach(id => {
+    ["ordersPage", "storePage", "searchPage", "sellerDashboardPage"].forEach(id => {
         const page = document.getElementById(id);
         if (page) { page.hidden = true; page.style.display = "none"; }
     });
 }
 
 function hideAllMainPages() {
-    ["homePage", "categoryPage", "productPage", "ordersPage", "storePage", "searchPage", "chatPage", "sellerDashboardPage"].forEach(id => {
+    ["homePage", "categoryPage", "productPage", "ordersPage", "storePage", "searchPage", "sellerDashboardPage"].forEach(id => {
         const page = document.getElementById(id);
         if (page) { page.hidden = true; page.style.display = "none"; }
     });
@@ -4473,7 +4473,9 @@ document.addEventListener("click", event => {
 
 
 /* =========================================================================
-   FITUR BARU #1: CHAT PENJUAL & PEMBELI (lengkap: teks, foto, video, tag produk)
+   FITUR BARU #1: CHAT WIDGET PENJUAL & PEMBELI
+   (mengambang di atas halaman, dukung teks/foto/video/tag produk,
+    + alih Admin Asli <-> Admin AI yang menjawab otomatis & akurat)
    ========================================================================= */
 
 let chatConversations = JSON.parse(localStorage.getItem("mabstore_chats") || "null");
@@ -4488,6 +4490,8 @@ function seedDefaultChats() {
             storeName: "MAB-Official Store",
             avatar: "🏬",
             unread: 1,
+            adminMode: "asli",
+            contextProduct: null,
             messages: [
                 {
                     id: "m1", from: "seller", type: "text",
@@ -4504,6 +4508,10 @@ function loadChats() {
         chatConversations = seedDefaultChats();
         saveChats();
     }
+    chatConversations.forEach(c => {
+        if (!c.adminMode) c.adminMode = "asli";
+        if (c.contextProduct === undefined) c.contextProduct = null;
+    });
 }
 
 function saveChats() {
@@ -4513,7 +4521,10 @@ function saveChats() {
 function findOrCreateConversation(storeName) {
     let conv = chatConversations.find(c => c.storeName === storeName);
     if (!conv) {
-        conv = { id: "conv-" + storeName.toLowerCase().replace(/[^a-z0-9]+/g, "-"), storeName, avatar: "🏬", unread: 0, messages: [] };
+        conv = {
+            id: "conv-" + storeName.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+            storeName, avatar: "🏬", unread: 0, adminMode: "asli", contextProduct: null, messages: []
+        };
         chatConversations.unshift(conv);
         saveChats();
     }
@@ -4548,6 +4559,7 @@ function renderChatConvList() {
             else if (last.type === "image") preview = "📷 Foto";
             else if (last.type === "video") preview = "🎬 Video";
             else if (last.type === "product") preview = "🏷️ " + last.product.name;
+            else if (last.type === "system") preview = last.text;
         }
         return `
             <button type="button" class="chat-conv-item${conv.id === activeChatConvId ? " active" : ""}" data-conv-id="${conv.id}">
@@ -4573,6 +4585,10 @@ function renderChatMessages() {
     if (!wrap || !conv) return;
 
     wrap.innerHTML = conv.messages.map(msg => {
+        if (msg.type === "system") {
+            return `<div class="chat-bubble-row system"><div class="chat-bubble">${escapeHtml(msg.text)}</div></div>`;
+        }
+
         let inner = "";
         if (msg.type === "text") {
             inner = `<div>${escapeHtml(msg.text)}</div>`;
@@ -4592,8 +4608,10 @@ function renderChatMessages() {
                 ${msg.text ? `<div style="margin-top:6px;">${escapeHtml(msg.text)}</div>` : ""}
             `;
         }
+
+        const rowClass = msg.from === "me" ? "me" : (msg.viaAI ? "ai" : "seller");
         return `
-            <div class="chat-bubble-row ${msg.from === "me" ? "me" : "seller"}">
+            <div class="chat-bubble-row ${rowClass}">
                 <div class="chat-bubble">
                     ${inner}
                     <time>${formatChatTime(msg.time)}</time>
@@ -4611,6 +4629,24 @@ function escapeHtml(str) {
     return div.innerHTML;
 }
 
+function updateAdminSwitchUI(conv) {
+    document.querySelectorAll(".chat-admin-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.adminMode === conv.adminMode);
+    });
+    const statusEl = document.getElementById("chatThreadStatus");
+    const nameEl = document.getElementById("chatThreadName");
+    const avatarEl = document.getElementById("chatThreadAvatar");
+    if (conv.adminMode === "ai") {
+        if (nameEl) nameEl.textContent = "Admin AI — " + conv.storeName;
+        if (avatarEl) avatarEl.textContent = "🤖";
+        if (statusEl) statusEl.textContent = "Selalu online • dibantu AI";
+    } else {
+        if (nameEl) nameEl.textContent = conv.storeName;
+        if (avatarEl) avatarEl.textContent = conv.avatar;
+        if (statusEl) statusEl.textContent = "Online";
+    }
+}
+
 function openConversation(convId) {
     activeChatConvId = convId;
     const conv = chatConversations.find(c => c.id === convId);
@@ -4620,29 +4656,29 @@ function openConversation(convId) {
 
     document.getElementById("chatThreadEmpty").hidden = true;
     document.getElementById("chatThreadActive").hidden = false;
-    document.getElementById("chatThreadAvatar").textContent = conv.avatar;
-    document.getElementById("chatThreadName").textContent = conv.storeName;
     document.querySelector(".chat-shell")?.classList.add("thread-open");
 
+    updateAdminSwitchUI(conv);
     renderChatMessages();
     renderChatConvList();
 }
 
 function appendMessage(convId, msg) {
     const conv = chatConversations.find(c => c.id === convId);
-    if (!conv) return;
+    if (!conv) return null;
     msg.id = "m" + Date.now() + Math.random().toString(36).slice(2, 6);
     msg.time = Date.now();
     conv.messages.push(msg);
     saveChats();
     if (convId === activeChatConvId) renderChatMessages();
     renderChatConvList();
+    return msg;
 }
 
-function simulateSellerReply(convId, userMsg) {
+function simulateHumanAdminReply(convId, userMsg) {
     setTimeout(() => {
         const conv = chatConversations.find(c => c.id === convId);
-        if (!conv) return;
+        if (!conv || conv.adminMode !== "asli") return;
         let reply = "Baik, terima kasih infonya! Tim kami akan segera membalas 🙏";
         if (userMsg.type === "product") reply = `Untuk produk "${userMsg.product.name}" masih ready stock kak, silakan langsung checkout ya 😊`;
         else if (userMsg.type === "image") reply = "Foto sudah kami terima, akan segera kami cek ya kak 📷";
@@ -4658,10 +4694,318 @@ function simulateSellerReply(convId, userMsg) {
     }, 900 + Math.random() * 900);
 }
 
+
+/* ---------------------------------------------------------------------
+   MESIN JAWABAN ADMIN AI — akurat berdasarkan data produk asli (nama,
+   kategori, deskripsi, harga, varian, rating, terjual), bukan jawaban
+   generik. Menjawab dengan bahasa sopan & menyesuaikan jenis pertanyaan.
+   --------------------------------------------------------------------- */
+
+function detectProductFromText(text) {
+    const lower = text.toLowerCase();
+    let best = null, bestScore = 0;
+    products.forEach(p => {
+        const nameWords = p.name.toLowerCase().split(/\s+/).filter(w => w.length > 2);
+        let score = 0;
+        nameWords.forEach(w => { if (lower.includes(w)) score++; });
+        if (score > bestScore) { bestScore = score; best = p; }
+    });
+    return bestScore > 0 ? best : null;
+}
+
+function resolveAIContextProduct(conv, text) {
+    const fromText = detectProductFromText(text);
+    if (fromText) {
+        conv.contextProduct = { id: fromText.id };
+        saveChats();
+        return fromText;
+    }
+    if (conv.contextProduct) {
+        const found = products.find(p => p.id === conv.contextProduct.id);
+        if (found) return found;
+    }
+    return null;
+}
+
+function describeVariants(product) {
+    const entries = Object.entries(product.variants || {});
+    if (!entries.length) return "Produk ini hanya tersedia dalam satu varian standar.";
+    return entries.map(([label, values]) => `${label}: ${values.join(", ")}`).join(" | ");
+}
+
+function generateAIReply(userText, conv) {
+    const text = (userText || "").toLowerCase().trim();
+    const product = resolveAIContextProduct(conv, userText || "");
+    const storeName = conv.storeName;
+
+    const greet = /\b(halo|hai|hi|permisi|selamat (pagi|siang|sore|malam)|min|admin)\b/;
+    const askPrice = /\b(harga|berapa (harga|duit|rupiah)|price|worth)\b/;
+    const askStock = /\b(stok|ready|tersedia|ada (ga|gak|nggak|tidak)|masih ada)\b/;
+    const askVariant = /\b(warna|varian|pilihan|tipe|opsi|model)\b/;
+    const askSize = /\b(ukuran|size|muat|nomor sepatu)\b/;
+    const askSpec = /\b(spek|spesifikasi|detail|fitur|bahan|material|kapasitas)\b/;
+    const askShipping = /\b(ongkir|ongkos|kirim|pengiriman|sampai|estimasi|berapa hari)\b/;
+    const askWarranty = /\b(garansi|warranty|rusak|resmi)\b/;
+    const askPayment = /\b(bayar|pembayaran|cod|transfer|cicilan|kredit)\b/;
+    const askReview = /\b(rating|ulasan|review|testimoni|terjual|laku)\b/;
+    const askUsage = /\b(cara pakai|cara penggunaan|cara menggunakan|panduan|cara setting)\b/;
+    const askRecommend = /\b(rekomendasi|bagus (ga|gak|nggak)|worth it|cocok (buat|untuk)|recommended)\b/;
+    const thanks = /\b(terima kasih|makasih|thanks|thx)\b/;
+
+    // Tidak ada produk yang teridentifikasi sama sekali
+    if (!product) {
+        if (greet.test(text)) {
+            return `Halo, selamat datang di ${storeName} 🙏 Saya Admin AI yang siap membantu menjawab pertanyaan seputar produk kami secara otomatis dan akurat. Produk apa yang ingin kakak tanyakan? Kakak juga bisa tag produk lewat ikon 🏷️ di bawah supaya saya bisa jawab lebih detail.`;
+        }
+        if (thanks.test(text)) {
+            return "Sama-sama, senang bisa membantu 🙏 Kalau ada pertanyaan lain seputar produk kami, jangan ragu untuk bertanya lagi ya.";
+        }
+        return `Mohon maaf, saya belum tahu produk mana yang kakak maksud 🙏 Bisa disebutkan nama produknya, atau tag langsung produknya lewat ikon 🏷️ di kolom chat supaya saya bisa berikan jawaban yang akurat sesuai spesifikasinya.`;
+    }
+
+    const productName = productNameById(product.id, product.name);
+    const parts = [];
+
+    if (greet.test(text) && text.length < 40) {
+        parts.push(`Halo, terima kasih sudah menghubungi ${storeName} 🙏 Ada yang ingin ditanyakan seputar ${productName}?`);
+    }
+
+    if (askPrice.test(text)) {
+        let priceInfo = `${productName} saat ini dibanderol seharga ${rupiah(product.price)}`;
+        if (product.oldPrice && product.oldPrice > product.price) {
+            const diskon = Math.round((1 - product.price / product.oldPrice) * 100);
+            priceInfo += ` (harga normal ${rupiah(product.oldPrice)}, hemat ${diskon}%)`;
+        }
+        parts.push(priceInfo + ".");
+    }
+
+    if (askStock.test(text)) {
+        parts.push(`Untuk stok, ${productName} saat ini tersedia dan siap dikirim ya kak. Total sudah ${product.sold || 0} terjual, jadi kualitasnya sudah teruji banyak pembeli.`);
+    }
+
+    if (askVariant.test(text) || askSize.test(text)) {
+        const entries = Object.entries(product.variants || {});
+        if (entries.length) {
+            parts.push(`Varian yang tersedia untuk ${productName}: ${describeVariants(product)}. Kakak bisa pilih sesuai kebutuhan saat checkout.`);
+        } else {
+            parts.push(`${productName} tersedia dalam satu varian standar tanpa pilihan warna/ukuran tambahan.`);
+        }
+    }
+
+    if (askSpec.test(text)) {
+        parts.push(`Berikut detail ${productName} (kategori ${product.category}): ${product.descId || "deskripsi lengkap dapat dilihat di halaman produk."} ${Object.keys(product.variants || {}).length ? "Varian tersedia: " + describeVariants(product) + "." : ""}`);
+    }
+
+    if (askShipping.test(text)) {
+        parts.push(`Untuk pengiriman, ${productName} akan dikemas rapi dan dikirim setelah pesanan dikonfirmasi. Estimasi tiba mengikuti kurir yang dipilih saat checkout (reguler 2-4 hari, ekspres 1-2 hari), dan kakak bisa pantau posisinya lewat menu "Lacak Pesanan" setelah status berubah menjadi Dikirim.`);
+    }
+
+    if (askWarranty.test(text)) {
+        const isElektronik = /elektronik|gaming/i.test(product.category);
+        parts.push(isElektronik
+            ? `${productName} adalah produk resmi bergaransi toko selama 7 hari untuk kerusakan pabrik (dead on arrival). Jika ada kendala setelah barang diterima, silakan hubungi kami dengan menyertakan foto/video unboxing.`
+            : `Untuk kategori ${product.category}, kami menjamin barang sesuai deskripsi saat diterima. Jika ada cacat produksi, bisa diajukan komplain maksimal 2x24 jam setelah barang diterima.`);
+    }
+
+    if (askPayment.test(text)) {
+        parts.push("Pembayaran bisa melalui transfer bank, e-wallet, kartu kredit/debit, hingga COD (tergantung lokasi), semua bisa dipilih langsung di halaman checkout.");
+    }
+
+    if (askReview.test(text)) {
+        parts.push(`${productName} memiliki rating ${product.rating || "4.8"} dari pembeli dan sudah terjual ${product.sold || 0}+ unit, jadi kualitasnya sudah terbukti di lapangan.`);
+    }
+
+    if (askUsage.test(text)) {
+        parts.push(`Untuk cara penggunaan ${productName}, secara umum ikuti buku panduan/kemasan yang disertakan. Jika kakak butuh panduan spesifik (misalnya cara pairing, cara perawatan, atau cara setting awal), boleh disebutkan detailnya supaya saya bisa bantu jelaskan lebih spesifik.`);
+    }
+
+    if (askRecommend.test(text)) {
+        parts.push(`${productName} cocok untuk kebutuhan sehari-hari di kategori ${product.category}, dengan rating ${product.rating || "4.8"} dan sudah ${product.sold || 0}+ terjual — jadi cukup direkomendasikan berdasarkan histori penjualan dan ulasan pembeli.`);
+    }
+
+    if (thanks.test(text)) {
+        parts.push("Sama-sama kak, senang bisa membantu 🙏 Ada lagi yang ingin ditanyakan?");
+    }
+
+    if (!parts.length) {
+        // Fallback cerdas: rangkum info penting produk agar tetap relevan & akurat
+        parts.push(
+            `Baik kak, mengenai ${productName}: ${product.descId || "produk ini tersedia di kategori " + product.category + "."} ` +
+            `Harganya ${rupiah(product.price)}, rating ${product.rating || "4.8"}, dan sudah ${product.sold || 0}+ terjual. ` +
+            `${Object.keys(product.variants || {}).length ? "Varian tersedia: " + describeVariants(product) + ". " : ""}` +
+            `Kalau ada pertanyaan lebih spesifik (stok, ongkir, garansi, cara pakai, dsb) silakan tanyakan ya 🙏`
+        );
+    }
+
+    return parts.join(" ");
+}
+
+function simulateAIReply(convId, userText) {
+    const conv = chatConversations.find(c => c.id === convId);
+    if (!conv || conv.adminMode !== "ai") return;
+
+    const typingEl = document.getElementById("chatAiTyping");
+    if (convId === activeChatConvId && typingEl) typingEl.hidden = false;
+
+    const minDelay = 500 + Math.random() * 400;
+
+    const finish = (replyText) => {
+        setTimeout(() => {
+            if (convId === activeChatConvId && typingEl) typingEl.hidden = true;
+            conv.messages.push({ id: "m" + Date.now(), from: "seller", viaAI: true, type: "text", text: replyText, time: Date.now() });
+            if (convId !== activeChatConvId) conv.unread = (conv.unread || 0) + 1;
+            saveChats();
+            if (convId === activeChatConvId) renderChatMessages();
+            renderChatConvList();
+        }, minDelay);
+    };
+
+    const llmConfig = getAiLlmConfig();
+    if (llmConfig && llmConfig.enabled && llmConfig.apiKey) {
+        const product = resolveAIContextProduct(conv, userText || "");
+        const systemPrompt = buildProductSystemPrompt(product, conv.storeName);
+        callExternalLLM(llmConfig, systemPrompt, userText || "(pembeli mengirim lampiran)")
+            .then(text => finish(text && text.trim() ? text.trim() : generateAIReply(userText, conv)))
+            .catch(err => {
+                console.warn("Panggilan LLM eksternal gagal, fallback ke mesin logika:", err);
+                finish(generateAIReply(userText, conv));
+            });
+    } else {
+        finish(generateAIReply(userText, conv));
+    }
+}
+
+
+/* ---------------------------------------------------------------------
+   KONEKSI KE LLM EKSTERNAL SUNGGUHAN (Gemini / Claude / ChatGPT / DeepSeek
+   / lainnya) — dikonfigurasi penjual di Dashboard > Admin AI (LLM).
+   CATATAN JUJUR: karena situs ini statis (tanpa backend), key hanya
+   tersimpan di localStorage PERANGKAT INI, jadi hanya berfungsi ketika
+   yang chat memakai perangkat yang sama dengan tempat key disimpan.
+   --------------------------------------------------------------------- */
+
+const AI_LLM_STORAGE_KEY = "mabstore_ai_llm_config";
+
+const AI_PROVIDER_DEFAULTS = {
+    gemini: { label: "Google Gemini", defaultModel: "gemini-2.0-flash" },
+    anthropic: { label: "Anthropic Claude", defaultModel: "claude-3-5-haiku-20241022" },
+    openai: { label: "OpenAI ChatGPT", defaultModel: "gpt-4o-mini" },
+    deepseek: { label: "DeepSeek", defaultModel: "deepseek-chat" },
+    custom: { label: "Lainnya (OpenAI-compatible)", defaultModel: "" }
+};
+
+function getAiLlmConfig() {
+    return JSON.parse(localStorage.getItem(AI_LLM_STORAGE_KEY) || "null");
+}
+
+function saveAiLlmConfig(config) {
+    localStorage.setItem(AI_LLM_STORAGE_KEY, JSON.stringify(config));
+}
+
+function buildProductSystemPrompt(product, storeName) {
+    let prompt = `Kamu adalah Admin AI toko "${storeName}" di marketplace MAB-Store. Jawab pertanyaan pembeli dengan sopan, ramah, singkat-padat, dan berbahasa Indonesia. Hanya gunakan informasi produk yang diberikan di bawah ini — jangan mengarang spesifikasi yang tidak disebutkan.`;
+
+    if (product) {
+        prompt += `\n\nData produk yang sedang ditanyakan:
+- Nama: ${productNameById(product.id, product.name)}
+- Kategori: ${product.category}
+- Harga: ${rupiah(product.price)}${product.oldPrice ? ` (harga normal ${rupiah(product.oldPrice)})` : ""}
+- Rating: ${product.rating || "4.8"} dari ${product.sold || 0}+ terjual
+- Deskripsi: ${product.descId || "-"}
+- Varian tersedia: ${describeVariants(product)}`;
+    } else {
+        prompt += `\n\nBelum ada produk spesifik yang ditandai dalam percakapan ini. Jika pembeli bertanya tentang produk tertentu, minta mereka menyebut nama produknya atau memakai tombol tag produk (🏷️).`;
+    }
+
+    return prompt;
+}
+
+function callExternalLLM(config, systemPrompt, userMessage) {
+    const { provider, apiKey, model, customUrl } = config;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 20000);
+
+    let url, options;
+
+    if (provider === "gemini") {
+        const m = model || AI_PROVIDER_DEFAULTS.gemini.defaultModel;
+        url = `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${encodeURIComponent(apiKey)}`;
+        options = {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: systemPrompt + "\n\nPertanyaan pembeli: " + userMessage }] }] }),
+            signal: controller.signal
+        };
+    } else if (provider === "anthropic") {
+        url = "https://api.anthropic.com/v1/messages";
+        options = {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "x-api-key": apiKey,
+                "anthropic-version": "2023-06-01",
+                "anthropic-dangerous-direct-browser-access": "true"
+            },
+            body: JSON.stringify({
+                model: model || AI_PROVIDER_DEFAULTS.anthropic.defaultModel,
+                max_tokens: 500,
+                system: systemPrompt,
+                messages: [{ role: "user", content: userMessage }]
+            }),
+            signal: controller.signal
+        };
+    } else if (provider === "openai" || provider === "deepseek" || provider === "custom") {
+        const endpoints = { openai: "https://api.openai.com/v1/chat/completions", deepseek: "https://api.deepseek.com/chat/completions" };
+        url = provider === "custom" ? customUrl : endpoints[provider];
+        options = {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Authorization": "Bearer " + apiKey },
+            body: JSON.stringify({
+                model: model || (provider === "openai" ? AI_PROVIDER_DEFAULTS.openai.defaultModel : AI_PROVIDER_DEFAULTS.deepseek.defaultModel),
+                messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userMessage }],
+                max_tokens: 500
+            }),
+            signal: controller.signal
+        };
+    } else {
+        return Promise.reject(new Error("Provider tidak dikenali"));
+    }
+
+    return fetch(url, options)
+        .then(res => {
+            clearTimeout(timeout);
+            if (!res.ok) return res.text().then(t => { throw new Error(`HTTP ${res.status}: ${t.slice(0, 200)}`); });
+            return res.json();
+        })
+        .then(data => {
+            if (provider === "gemini") return data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+            if (provider === "anthropic") return data?.content?.[0]?.text || "";
+            return data?.choices?.[0]?.message?.content || "";
+        })
+        .finally(() => clearTimeout(timeout));
+}
+
+
+function replyForUserMessage(convId, userMsg) {
+    const conv = chatConversations.find(c => c.id === convId);
+    if (!conv) return;
+    if (conv.adminMode === "ai") {
+        let text = userMsg.text || "";
+        if (userMsg.type === "product") text = `Tanya tentang produk ${userMsg.product.name}. ${userMsg.text || ""}`;
+        else if (userMsg.type === "image") text = "kirim foto";
+        else if (userMsg.type === "video") text = "kirim video";
+        simulateAIReply(convId, text);
+    } else {
+        simulateHumanAdminReply(convId, userMsg);
+    }
+}
+
 function openChatWithStore(storeName, product) {
     loadChats();
     const conv = findOrCreateConversation(storeName);
-    showChatPage(true);
+    if (product) conv.contextProduct = { id: product.id };
+    saveChats();
+    openChatWidget();
     openConversation(conv.id);
     if (product) {
         chatTaggedProduct = { id: product.id, name: productNameById(product.id, product.name), image: product.image, price: product.price };
@@ -4695,21 +5039,25 @@ function renderChatProductPicker(keyword = "") {
     `).join("");
 }
 
-function showChatPage(updateUrl = true) {
+/* Buka/tutup widget chat mengambang (bukan halaman penuh) */
+function openChatWidget() {
     loadChats();
-    hideAllMainPages();
-    const page = document.getElementById("chatPage");
-    if (page) { page.hidden = false; page.style.display = "block"; }
-    document.querySelector(".chat-shell")?.classList.remove("thread-open");
+    const widget = document.getElementById("chatPage");
+    const backdrop = document.getElementById("chatWidgetBackdrop");
+    if (widget) { widget.hidden = false; }
+    if (backdrop && window.innerWidth <= 780) backdrop.hidden = false;
     renderChatConvList();
-    window.scrollTo({ top: 0, behavior: "smooth" });
-
-    if (updateUrl) {
-        const url = new URL(window.location.href);
-        url.searchParams.set("view", "chat");
-        history.pushState({ view: "chat" }, "", url);
-    }
 }
+
+function closeChatWidget() {
+    const widget = document.getElementById("chatPage");
+    const backdrop = document.getElementById("chatWidgetBackdrop");
+    if (widget) widget.hidden = true;
+    if (backdrop) backdrop.hidden = true;
+}
+
+// Kompatibilitas dengan pemanggilan lama (mis. mobile menu "chat")
+function showChatPage() { openChatWidget(); }
 
 const chatNavButton = document.getElementById("chatNavButton");
 const backFromChatButton = document.getElementById("backFromChatButton");
@@ -4719,8 +5067,10 @@ const chatTextInput = document.getElementById("chatTextInput");
 const chatImageInput = document.getElementById("chatImageInput");
 const chatVideoInput = document.getElementById("chatVideoInput");
 
-if (chatNavButton) chatNavButton.addEventListener("click", () => showChatPage());
-if (backFromChatButton) backFromChatButton.addEventListener("click", () => showHome());
+if (chatNavButton) chatNavButton.addEventListener("click", () => openChatWidget());
+if (backFromChatButton) backFromChatButton.addEventListener("click", () => closeChatWidget());
+document.getElementById("chatWidgetCloseInThread")?.addEventListener("click", () => closeChatWidget());
+document.getElementById("chatWidgetBackdrop")?.addEventListener("click", () => closeChatWidget());
 if (backToConvListButton) backToConvListButton.addEventListener("click", () => document.querySelector(".chat-shell")?.classList.remove("thread-open"));
 
 document.addEventListener("click", event => {
@@ -4728,6 +5078,7 @@ document.addEventListener("click", event => {
     if (convBtn) { openConversation(convBtn.dataset.convId); return; }
 
     if (event.target.closest("#chatVisitStoreFromThread")) {
+        closeChatWidget();
         showStorePage();
         return;
     }
@@ -4735,9 +5086,27 @@ document.addEventListener("click", event => {
     const chatProdCard = event.target.closest("[data-chat-product-id]");
     if (chatProdCard) {
         const product = products.find(p => p.id === Number(chatProdCard.dataset.chatProductId));
-        if (product) showProductDetail(product);
+        if (product) { closeChatWidget(); showProductDetail(product); }
         return;
     }
+});
+
+document.getElementById("chatAdminSwitch")?.addEventListener("click", event => {
+    const btn = event.target.closest("[data-admin-mode]");
+    if (!btn || !activeChatConvId) return;
+    const conv = chatConversations.find(c => c.id === activeChatConvId);
+    if (!conv || conv.adminMode === btn.dataset.adminMode) return;
+
+    conv.adminMode = btn.dataset.adminMode;
+    saveChats();
+    updateAdminSwitchUI(conv);
+
+    const noticeText = conv.adminMode === "ai"
+        ? "🤖 Kamu beralih bicara dengan Admin AI — akan menjawab otomatis seputar produk"
+        : "👤 Kamu beralih bicara dengan Admin Asli — mohon tunggu balasan dari tim kami";
+    conv.messages.push({ id: "m" + Date.now(), from: "system", type: "system", text: noticeText, time: Date.now() });
+    saveChats();
+    renderChatMessages();
 });
 
 if (chatInputForm) {
@@ -4745,18 +5114,19 @@ if (chatInputForm) {
         event.preventDefault();
         if (!activeChatConvId) return;
         const text = chatTextInput.value.trim();
+        let sentMsg = null;
 
         if (chatTaggedProduct) {
-            appendMessage(activeChatConvId, { from: "me", type: "product", product: chatTaggedProduct, text });
-            simulateSellerReply(activeChatConvId, { type: "product", product: chatTaggedProduct });
+            sentMsg = appendMessage(activeChatConvId, { from: "me", type: "product", product: chatTaggedProduct, text });
             chatTaggedProduct = null;
             renderChatProductPreview();
         } else if (text) {
-            appendMessage(activeChatConvId, { from: "me", type: "text", text });
-            simulateSellerReply(activeChatConvId, { type: "text", text });
+            sentMsg = appendMessage(activeChatConvId, { from: "me", type: "text", text });
         } else {
             return;
         }
+
+        replyForUserMessage(activeChatConvId, sentMsg);
         chatTextInput.value = "";
     });
 }
@@ -4770,8 +5140,8 @@ if (chatImageInput) {
         if (!file || !activeChatConvId) return;
         const reader = new FileReader();
         reader.onload = () => {
-            appendMessage(activeChatConvId, { from: "me", type: "image", mediaUrl: reader.result });
-            simulateSellerReply(activeChatConvId, { type: "image" });
+            const msg = appendMessage(activeChatConvId, { from: "me", type: "image", mediaUrl: reader.result });
+            replyForUserMessage(activeChatConvId, msg);
         };
         reader.readAsDataURL(file);
         chatImageInput.value = "";
@@ -4789,8 +5159,8 @@ if (chatVideoInput) {
         }
         const reader = new FileReader();
         reader.onload = () => {
-            appendMessage(activeChatConvId, { from: "me", type: "video", mediaUrl: reader.result });
-            simulateSellerReply(activeChatConvId, { type: "video" });
+            const msg = appendMessage(activeChatConvId, { from: "me", type: "video", mediaUrl: reader.result });
+            replyForUserMessage(activeChatConvId, msg);
         };
         reader.readAsDataURL(file);
         chatVideoInput.value = "";
@@ -4818,6 +5188,8 @@ document.getElementById("chatProductPickerList")?.addEventListener("click", even
     if (product) {
         chatTaggedProduct = { id: product.id, name: productNameById(product.id, product.name), image: product.image, price: product.price };
         renderChatProductPreview();
+        const conv = chatConversations.find(c => c.id === activeChatConvId);
+        if (conv) { conv.contextProduct = { id: product.id }; saveChats(); }
     }
     document.getElementById("chatProductPicker").hidden = true;
 });
@@ -4826,6 +5198,7 @@ document.getElementById("chatProductPreviewRemove")?.addEventListener("click", (
     chatTaggedProduct = null;
     renderChatProductPreview();
 });
+
 
 
 /* =========================================================================
@@ -5054,7 +5427,88 @@ function renderDashboardAll() {
     document.getElementById("dashBannerSubtitle").value = sellerBanner.subtitle;
     document.getElementById("dashBannerColor").value = sellerBanner.color;
     renderBannerPreview();
+
+    renderAiLlmSettings();
 }
+
+function renderAiLlmSettings() {
+    const config = getAiLlmConfig() || { provider: "gemini", model: "", apiKey: "", customUrl: "", enabled: false };
+
+    document.getElementById("dashAiProvider").value = config.provider || "gemini";
+    document.getElementById("dashAiModel").value = config.model || "";
+    document.getElementById("dashAiApiKey").value = config.apiKey || "";
+    document.getElementById("dashAiCustomUrl").value = config.customUrl || "";
+    document.getElementById("dashAiEnableToggle").checked = !!config.enabled;
+    document.getElementById("dashAiCustomUrlWrap").hidden = config.provider !== "custom";
+    document.getElementById("dashAiModel").placeholder = "Otomatis: " + (AI_PROVIDER_DEFAULTS[config.provider || "gemini"].defaultModel || "(isi manual)");
+
+    renderAiLlmStatusBox(config);
+}
+
+function renderAiLlmStatusBox(config) {
+    const box = document.getElementById("dashAiStatusBox");
+    if (!box) return;
+    const providerLabel = AI_PROVIDER_DEFAULTS[config.provider]?.label || "-";
+    const maskedKey = config.apiKey ? config.apiKey.slice(0, 4) + "••••••••" + config.apiKey.slice(-4) : "(belum diisi)";
+
+    box.innerHTML = `
+        Status Admin AI eksternal: <b class="${config.enabled && config.apiKey ? "on" : "off"}">${config.enabled && config.apiKey ? "AKTIF ✅" : "NONAKTIF"}</b><br>
+        Provider: <b>${providerLabel}</b><br>
+        Model: <b>${config.model || AI_PROVIDER_DEFAULTS[config.provider]?.defaultModel || "-"}</b><br>
+        API Key: <code>${maskedKey}</code><br>
+        <span style="color:var(--muted);font-size:12px;">*Hanya aktif untuk chat yang dibuka dari perangkat/browser ini. Kalau nonaktif atau key tidak valid, Admin AI otomatis memakai mesin logika bawaan.</span>
+    `;
+}
+
+document.getElementById("dashAiProvider")?.addEventListener("change", event => {
+    const provider = event.target.value;
+    document.getElementById("dashAiCustomUrlWrap").hidden = provider !== "custom";
+    document.getElementById("dashAiModel").placeholder = "Otomatis: " + (AI_PROVIDER_DEFAULTS[provider].defaultModel || "(isi manual)");
+});
+
+document.getElementById("dashAiKeyToggle")?.addEventListener("click", () => {
+    const input = document.getElementById("dashAiApiKey");
+    input.type = input.type === "password" ? "text" : "password";
+});
+
+function readAiLlmFormValues() {
+    return {
+        provider: document.getElementById("dashAiProvider").value,
+        model: document.getElementById("dashAiModel").value.trim(),
+        apiKey: document.getElementById("dashAiApiKey").value.trim(),
+        customUrl: document.getElementById("dashAiCustomUrl").value.trim(),
+        enabled: document.getElementById("dashAiEnableToggle").checked
+    };
+}
+
+document.getElementById("dashAiTestBtn")?.addEventListener("click", () => {
+    const config = readAiLlmFormValues();
+    const resultBox = document.getElementById("dashAiTestResult");
+    if (!config.apiKey) { showToast("Isi API key terlebih dahulu."); return; }
+    if (config.provider === "custom" && !config.customUrl) { showToast("Isi Base URL untuk provider custom."); return; }
+
+    resultBox.hidden = false;
+    resultBox.className = "dash-ai-test-result loading";
+    resultBox.textContent = "🔄 Menghubungi provider...";
+
+    callExternalLLM(config, "Kamu adalah asisten uji koneksi. Balas singkat saja.", "Halo, ini tes koneksi. Balas dengan satu kalimat pendek konfirmasi.")
+        .then(text => {
+            resultBox.className = "dash-ai-test-result ok";
+            resultBox.textContent = "✅ Koneksi berhasil! Balasan model: \u201c" + (text || "(kosong)").slice(0, 160) + "\u201d";
+        })
+        .catch(err => {
+            resultBox.className = "dash-ai-test-result error";
+            resultBox.textContent = "❌ Gagal terhubung: " + err.message + " — periksa API key, model, atau kemungkinan provider memblokir panggilan langsung dari browser (CORS).";
+        });
+});
+
+document.getElementById("dashAiLlmForm")?.addEventListener("submit", event => {
+    event.preventDefault();
+    const config = readAiLlmFormValues();
+    saveAiLlmConfig(config);
+    renderAiLlmStatusBox(config);
+    showToast("Pengaturan Admin AI (LLM) tersimpan di perangkat ini ✅");
+});
 
 function showSellerDashboard(updateUrl = true) {
     hideAllMainPages();
