@@ -5836,6 +5836,128 @@ function renderDashboardAdsList() {
     `).join("");
 }
 
+
+/* =========================================================
+   ANALISA MARKET, GOOGLE TRENDS & STRATEGI IKLAN AI
+   ========================================================= */
+
+function renderMarketAnalysis() {
+    const wrap = document.getElementById("dashMarketAnalysis");
+    if (!wrap) return;
+
+    const byCategory = {};
+    products.forEach(p => {
+        const cat = p.category || "Lainnya";
+        if (!byCategory[cat]) byCategory[cat] = { sold: 0, revenue: 0, count: 0, ratingSum: 0 };
+        byCategory[cat].sold += p.sold || 0;
+        byCategory[cat].revenue += (p.sold || 0) * p.price;
+        byCategory[cat].count += 1;
+        byCategory[cat].ratingSum += p.rating || 4.5;
+    });
+
+    const rows = Object.entries(byCategory)
+        .map(([cat, d]) => ({ cat, ...d, avgRating: (d.ratingSum / d.count).toFixed(1) }))
+        .sort((a, b) => b.revenue - a.revenue);
+
+    if (!rows.length) { wrap.innerHTML = `<p class="dash-empty-text">Belum ada data produk.</p>`; return; }
+
+    const best = rows[0];
+    const worst = rows[rows.length - 1];
+
+    wrap.innerHTML = `
+        <div class="dash-market-rows">
+            ${rows.map((r, i) => `
+                <div class="dash-market-row">
+                    <span class="dash-market-rank">#${i + 1}</span>
+                    <div class="dash-market-row-info">
+                        <b>${r.cat}</b>
+                        <span>${r.count} produk &nbsp;•&nbsp; ${r.sold} terjual &nbsp;•&nbsp; ⭐ ${r.avgRating}</span>
+                    </div>
+                    <b class="dash-market-revenue">${rupiah(r.revenue)}</b>
+                </div>
+            `).join("")}
+        </div>
+        <div class="dash-market-insight">
+            💡 Kategori <b>${best.cat}</b> menyumbang omzet terbesar — pertimbangkan naikkan anggaran iklan di kategori ini.
+            ${rows.length > 1 ? `Kategori <b>${worst.cat}</b> paling lambat bergerak — coba buat voucher diskon khusus kategori ini di Pusat Promosi.` : ""}
+        </div>
+    `;
+}
+
+let trendsWidgetLoaded = false;
+
+function loadGoogleTrendsScript() {
+    return new Promise(resolve => {
+        if (trendsWidgetLoaded) return resolve();
+        const script = document.createElement("script");
+        script.src = "https://ssl.gstatic.com/trends_nrtr/current/embed_loader.js";
+        script.onload = () => { trendsWidgetLoaded = true; resolve(); };
+        script.onerror = () => resolve();
+        document.head.appendChild(script);
+    });
+}
+
+document.getElementById("dashTrendsForm")?.addEventListener("submit", async event => {
+    event.preventDefault();
+    const keyword = document.getElementById("dashTrendsKeyword").value.trim();
+    const geo = document.getElementById("dashTrendsGeo").value;
+    const widget = document.getElementById("dashTrendsWidget");
+    if (!keyword || !widget) return;
+
+    widget.innerHTML = `<p class="dash-empty-text">Memuat data Google Trends...</p>`;
+    await loadGoogleTrendsScript();
+
+    if (!window.trends || !window.trends.embed) {
+        widget.innerHTML = `<p class="dash-empty-text">Google Trends tidak dapat dimuat (mungkin diblokir oleh jaringan/adblock). <a href="https://trends.google.com/trends/explore?q=${encodeURIComponent(keyword)}&geo=${geo}" target="_blank" rel="noopener">Buka langsung di Google Trends ↗</a></p>`;
+        return;
+    }
+
+    const containerId = "dashTrendsChart";
+    widget.innerHTML = `<div id="${containerId}"></div>`;
+    window.trends.embed.renderExploreWidget(
+        "TIMESERIES",
+        { comparisonItem: [{ keyword, geo, time: "today 12-m" }], category: 0, property: "" },
+        { exploreQuery: `q=${encodeURIComponent(keyword)}&geo=${geo}`, guestPath: "https://trends.google.com:443/trends/embed/" },
+        containerId
+    );
+});
+
+document.getElementById("dashAiAdStrategyBtn")?.addEventListener("click", async () => {
+    const btn = document.getElementById("dashAiAdStrategyBtn");
+    const resultBox = document.getElementById("dashAiAdStrategyResult");
+    const config = getAiLlmConfig();
+
+    if (!config || !config.enabled || !config.apiKey) {
+        resultBox.hidden = false;
+        resultBox.innerHTML = `⚠️ Admin AI belum aktif. Buka tab <b>🔑 Admin AI (LLM)</b>, masukkan API key, lalu aktifkan dulu.`;
+        return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = "⏳ Sedang menyusun strategi...";
+    resultBox.hidden = false;
+    resultBox.innerHTML = `<p class="dash-empty-text">AI sedang menganalisa data tokomu...</p>`;
+
+    const topProducts = [...products].sort((a, b) => (b.sold || 0) - (a.sold || 0)).slice(0, 5)
+        .map(p => `- ${p.name} (${p.category}), harga ${rupiah(p.price)}, terjual ${p.sold || 0}, rating ${p.rating || 4.5}`).join("\n");
+
+    const totalRevenue = orders.reduce((s, o) => s + (o.total || 0), 0);
+    const activeAdsCount = sellerAds.filter(a => a.status === "aktif").length;
+
+    const systemPrompt = `Kamu adalah konsultan strategi iklan untuk toko online "MAB-Official Store". Berikan rekomendasi strategi iklan yang ringkas (maksimal 6 poin), praktis, dan bisa langsung dieksekusi, dalam Bahasa Indonesia. Fokus pada: produk mana yang sebaiknya diiklankan, alokasi anggaran, dan target audiens.`;
+    const userMessage = `Data toko:\nTotal pendapatan: ${rupiah(totalRevenue)}\nJumlah iklan aktif saat ini: ${activeAdsCount}\nProduk terlaris:\n${topProducts}\n\nBuatkan rekomendasi strategi iklan.`;
+
+    try {
+        const reply = await callExternalLLM(config, systemPrompt, userMessage);
+        resultBox.innerHTML = `<div>${escapeHtml(reply || "AI tidak memberikan jawaban.").replace(/\n/g, "<br>")}</div>`;
+    } catch (err) {
+        resultBox.innerHTML = `❌ Gagal menghubungi AI: ${escapeHtml(err.message)}`;
+    } finally {
+        btn.disabled = false;
+        btn.textContent = "✨ Buat Rekomendasi Strategi Iklan";
+    }
+});
+
 function populateProductMediaSelect() {
     const select = document.getElementById("dashProductSelect");
     if (!select) return;
@@ -5873,6 +5995,7 @@ function renderDashboardAll() {
     renderDashboardTrafficChart();
     renderDashboardAdsForm();
     renderDashboardAdsList();
+    renderMarketAnalysis();
     renderDashOrderList();
     renderShippingSettings();
     renderVoucherList();
