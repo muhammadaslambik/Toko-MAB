@@ -36,6 +36,7 @@
                 Download App
                 <span>|</span>
                  <button id="sellerButton" type="button" class="top-link">Jadi Seller</button>
+                 <button id="sellerDashboardTopButton" type="button" class="top-link" hidden>Dashboard Penjual</button>
             </div>
 
             <div>
@@ -138,6 +139,11 @@
                     </div>
                 </div>
 
+                <button class="chat-nav-button" id="chatNavButton" type="button" aria-label="Chat">
+                    💬
+                    <span id="chatUnreadCount" hidden>0</span>
+                </button>
+
                 <button class="orders-nav-button" id="ordersNavButton" type="button" aria-label="Pesanan saya">
                     📦
                 </button>
@@ -182,6 +188,7 @@
 
         <div class="mobile-menu-section">
             <button type="button" class="mobile-menu-link" data-mobile-nav="home">🏠 <span>Beranda</span></button>
+            <button type="button" class="mobile-menu-link" data-mobile-nav="chat">💬 <span>Chat</span></button>
             <button type="button" class="mobile-menu-link" data-mobile-nav="orders">📦 <span>Pesanan Saya</span></button>
             <button type="button" class="mobile-menu-link" data-mobile-nav="wishlist">♡ <span>Wishlist Saya</span></button>
             <button type="button" class="mobile-menu-link" data-mobile-nav="search">⚙️ <span>Pencarian &amp; Filter Lanjutan</span></button>
@@ -194,6 +201,7 @@
         </div>
 
         <div class="mobile-menu-section">
+            <button type="button" class="mobile-menu-link" id="mobileSellerDashboardButton" hidden>📊 <span>Dashboard Penjual</span></button>
             <button type="button" class="mobile-menu-link" id="mobileSellerButton">🏪 <span>Jadi Seller</span></button>
             <button type="button" class="mobile-menu-link" id="mobileHelpButton">❓ <span>Bantuan</span></button>
             <button type="button" class="mobile-menu-link" id="mobileLangButton">🌐 <span id="mobileLangLabel">Bahasa: Indonesia</span></button>
@@ -211,7 +219,7 @@
 
         <!-- HERO -->
 
-        <section class="hero">
+        <section class="hero" id="heroSection">
 
             <div class="container hero-content">
 
@@ -221,12 +229,12 @@
                         SELAMAT DATANG DI MAB-STORE
                     </p>
 
-                    <h1>
+                    <h1 id="heroTitle">
                         Belanja Mudah.<br>
                         Harga Bersahabat.
                     </h1>
 
-                    <p>
+                    <p id="heroSubtitle">
                         Temukan berbagai produk pilihan
                         dengan harga terbaik.
                     </p>
@@ -1069,10 +1077,10 @@
                     <button id="detailWishlistButton" class="detail-wishlist-button" type="button">♡ Simpan ke Wishlist</button>
 
                     <div class="pd-seller-card">
-                        <div class="pd-seller-avatar">🏬</div>
+                        <div class="pd-seller-avatar" id="pdSellerAvatar">🏬</div>
                         <div class="pd-seller-info">
-                            <b>MAB-Official Store</b>
-                            <span>⭐ 4.9 &nbsp;•&nbsp; 98% Ulasan Positif &nbsp;•&nbsp; Jakarta Selatan</span>
+                            <b id="pdSellerName">MAB-Official Store</b>
+                            <span>⭐ 4.9 &nbsp;•&nbsp; 98% Ulasan Positif &nbsp;•&nbsp; <span id="pdSellerLocation">Jakarta Selatan</span></span>
                         </div>
                         <button type="button" id="pdVisitStoreButton">🏬 Kunjungi Toko</button>
                         <button type="button" id="pdChatSellerButton">💬 Chat</button>
@@ -1199,10 +1207,11 @@
             <button id="backFromStoreButton" class="back-home-button" type="button">← Kembali</button>
 
             <div class="store-header">
-                <div class="store-header-avatar">🏬</div>
+                <div class="store-header-avatar" id="storePageAvatar">🏬</div>
                 <div class="store-header-info">
-                    <h1>MAB-Official Store</h1>
-                    <p>⭐ <b id="storeRating">4.9</b> &nbsp;•&nbsp; <span id="storeFollowers">2.450</span> Pengikut &nbsp;•&nbsp; Jakarta Selatan</p>
+                    <h1 id="storePageName">MAB-Official Store</h1>
+                    <p id="storePageDesc" class="store-header-sub" style="margin-bottom:4px;"></p>
+                    <p>⭐ <b id="storeRating">4.9</b> &nbsp;•&nbsp; <span id="storeFollowers">2.450</span> Pengikut &nbsp;•&nbsp; <span id="storePageLocation">Jakarta Selatan</span></p>
                     <p class="store-header-sub">Bergabung sejak 2021 &nbsp;•&nbsp; Respon cepat &nbsp;•&nbsp; 98% Ulasan Positif</p>
                 </div>
                 <button type="button" id="storeFollowButton">+ Ikuti Toko</button>
@@ -1544,7 +1553,265 @@
     </form>
   </div>
 </div>
-    
+
+
+<!-- =====================================================
+     CHAT (PENJUAL & PEMBELI)
+====================================================== -->
+<main id="chatPage" class="chat-page" hidden>
+    <div class="chat-shell">
+
+        <aside class="chat-sidebar">
+            <div class="chat-sidebar-header">
+                <button id="backFromChatButton" class="back-home-button" type="button">← Kembali</button>
+                <h2>Chat</h2>
+            </div>
+            <div class="chat-conv-list" id="chatConvList"></div>
+        </aside>
+
+        <section class="chat-thread" id="chatThreadSection">
+
+            <div class="chat-thread-empty" id="chatThreadEmpty">
+                <p>💬 Pilih percakapan untuk mulai chat.</p>
+            </div>
+
+            <div class="chat-thread-active" id="chatThreadActive" hidden>
+
+                <div class="chat-thread-header">
+                    <button id="backToConvListButton" class="chat-back-mobile" type="button">←</button>
+                    <div class="chat-thread-avatar" id="chatThreadAvatar">🏬</div>
+                    <div class="chat-thread-info">
+                        <b id="chatThreadName">-</b>
+                        <span id="chatThreadStatus">Online</span>
+                    </div>
+                    <button type="button" id="chatVisitStoreFromThread" title="Kunjungi Toko">🏬</button>
+                </div>
+
+                <div class="chat-messages" id="chatMessages"></div>
+
+                <div class="chat-product-preview" id="chatProductPreview" hidden>
+                    <img id="chatProductPreviewImg" src="" alt="">
+                    <div>
+                        <b id="chatProductPreviewName"></b>
+                        <span id="chatProductPreviewPrice"></span>
+                    </div>
+                    <button type="button" id="chatProductPreviewRemove">✕</button>
+                </div>
+
+                <form class="chat-input-bar" id="chatInputForm">
+                    <button type="button" id="chatAttachImageBtn" title="Kirim Foto">🖼️</button>
+                    <button type="button" id="chatAttachVideoBtn" title="Kirim Video">🎬</button>
+                    <button type="button" id="chatTagProductBtn" title="Tag Produk">🏷️</button>
+                    <input type="text" id="chatTextInput" placeholder="Tulis pesan...">
+                    <button type="submit" id="chatSendBtn">➤</button>
+                </form>
+                <input type="file" id="chatImageInput" accept="image/*" hidden>
+                <input type="file" id="chatVideoInput" accept="video/*" hidden>
+
+            </div>
+
+        </section>
+
+    </div>
+
+    <!-- Product tag picker -->
+    <div class="chat-product-picker" id="chatProductPicker" hidden>
+        <div class="chat-product-picker-backdrop" data-close-product-picker></div>
+        <div class="chat-product-picker-panel">
+            <div class="chat-product-picker-header">
+                <b>Tag Produk</b>
+                <button type="button" data-close-product-picker>✕</button>
+            </div>
+            <input type="text" id="chatProductPickerSearch" placeholder="Cari produk...">
+            <div class="chat-product-picker-list" id="chatProductPickerList"></div>
+        </div>
+    </div>
+</main>
+
+
+<!-- =====================================================
+     DASHBOARD PENJUAL
+====================================================== -->
+<main id="sellerDashboardPage" class="seller-dashboard-page" hidden>
+    <div class="container">
+
+        <button id="backFromDashboardButton" class="back-home-button" type="button">← Kembali</button>
+
+        <div class="dashboard-header">
+            <h1>Dashboard Penjual</h1>
+            <p>Kelola toko, produk, iklan, dan pantau performa penjualanmu.</p>
+        </div>
+
+        <div class="dashboard-tabs" id="dashboardTabs">
+            <button type="button" class="dashboard-tab active" data-dash-tab="analitik">📊 Analitik</button>
+            <button type="button" class="dashboard-tab" data-dash-tab="iklan">📢 Iklan</button>
+            <button type="button" class="dashboard-tab" data-dash-tab="toko">🏬 Edit Toko</button>
+            <button type="button" class="dashboard-tab" data-dash-tab="produk">🖼️ Foto &amp; Video Produk</button>
+            <button type="button" class="dashboard-tab" data-dash-tab="banner">🎨 Banner</button>
+        </div>
+
+        <!-- ANALITIK -->
+        <div class="dashboard-panel" data-dash-panel="analitik">
+
+            <div class="dash-stat-grid" id="dashStatGrid"></div>
+
+            <div class="dash-chart-row">
+                <div class="dash-card">
+                    <div class="dash-card-header">
+                        <b>Penjualan 7 Hari Terakhir</b>
+                    </div>
+                    <div id="dashSalesChart" class="dash-bar-chart"></div>
+                </div>
+                <div class="dash-card">
+                    <div class="dash-card-header"><b>Produk Terlaris</b></div>
+                    <div id="dashTopProducts" class="dash-top-products"></div>
+                </div>
+            </div>
+
+            <div class="dash-card">
+                <div class="dash-card-header"><b>Trafik Toko (30 Hari)</b></div>
+                <div id="dashTrafficChart" class="dash-line-chart"></div>
+            </div>
+
+        </div>
+
+        <!-- IKLAN -->
+        <div class="dashboard-panel" data-dash-panel="iklan" hidden>
+
+            <div class="dash-card">
+                <div class="dash-card-header"><b>Buat Iklan Baru</b></div>
+                <form id="dashAdForm" class="dash-ad-form">
+                    <select id="dashAdProduct"></select>
+                    <input type="number" id="dashAdBudget" placeholder="Anggaran harian (Rp)" min="10000" step="1000" required>
+                    <select id="dashAdDuration">
+                        <option value="3">3 Hari</option>
+                        <option value="7" selected>7 Hari</option>
+                        <option value="14">14 Hari</option>
+                        <option value="30">30 Hari</option>
+                    </select>
+                    <button type="submit">🚀 Jalankan Iklan</button>
+                </form>
+            </div>
+
+            <div class="dash-card">
+                <div class="dash-card-header"><b>Iklan Aktif</b></div>
+                <div id="dashAdsList" class="dash-ads-list"></div>
+            </div>
+
+        </div>
+
+        <!-- EDIT TOKO -->
+        <div class="dashboard-panel" data-dash-panel="toko" hidden>
+            <div class="dash-card">
+                <div class="dash-card-header"><b>Profil Toko</b></div>
+                <form id="dashStoreForm" class="dash-store-form">
+                    <label>Nama Toko
+                        <input type="text" id="dashStoreName" required>
+                    </label>
+                    <label>Deskripsi Toko
+                        <textarea id="dashStoreDesc" rows="3"></textarea>
+                    </label>
+                    <label>Lokasi
+                        <input type="text" id="dashStoreLocation">
+                    </label>
+                    <label>Avatar Toko (emoji atau URL gambar)
+                        <input type="text" id="dashStoreAvatar" placeholder="🏬 atau https://...">
+                    </label>
+                    <button type="submit">💾 Simpan Perubahan</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- FOTO & VIDEO PRODUK -->
+        <div class="dashboard-panel" data-dash-panel="produk" hidden>
+            <div class="dash-card">
+                <div class="dash-card-header">
+                    <b>Kelola Media Produk</b>
+                    <select id="dashProductSelect"></select>
+                </div>
+
+                <div class="dash-product-media-editor">
+                    <div class="dash-media-current">
+                        <p>Foto Utama</p>
+                        <img id="dashProductMainImg" src="" alt="">
+                        <input type="text" id="dashProductMainImgInput" placeholder="URL foto utama...">
+                    </div>
+
+                    <div class="dash-media-gallery">
+                        <p>Galeri Foto Tambahan</p>
+                        <div id="dashProductGalleryList" class="dash-gallery-list"></div>
+                        <div class="dash-gallery-add">
+                            <input type="text" id="dashGalleryUrlInput" placeholder="Tambahkan URL foto galeri...">
+                            <button type="button" id="dashGalleryAddBtn">+ Tambah</button>
+                        </div>
+                    </div>
+
+                    <div class="dash-media-video">
+                        <p>Video Produk (URL video)</p>
+                        <input type="text" id="dashProductVideoInput" placeholder="https://.../video.mp4">
+                    </div>
+
+                    <button type="button" id="dashProductMediaSave">💾 Simpan Media Produk</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- BANNER -->
+        <div class="dashboard-panel" data-dash-panel="banner" hidden>
+            <div class="dash-card">
+                <div class="dash-card-header"><b>Banner Beranda</b></div>
+                <div class="dash-banner-editor">
+                    <div class="dash-banner-preview" id="dashBannerPreview"></div>
+                    <label>Judul Banner
+                        <input type="text" id="dashBannerTitle">
+                    </label>
+                    <label>Subjudul Banner
+                        <input type="text" id="dashBannerSubtitle">
+                    </label>
+                    <label>Warna Latar (hex)
+                        <input type="color" id="dashBannerColor" value="#0f3d2e">
+                    </label>
+                    <button type="button" id="dashBannerSave">💾 Simpan Banner</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+
+<!-- =====================================================
+     PELACAKAN PESANAN REAL-TIME (MAP SIMULATION)
+====================================================== -->
+<div class="tracking-overlay" id="trackingOverlay" hidden>
+    <div class="tracking-overlay-backdrop" data-close-tracking></div>
+    <div class="tracking-panel">
+
+        <div class="tracking-header">
+            <b>Lacak Pesanan — <span id="trackingOrderCode">-</span></b>
+            <button type="button" data-close-tracking>✕</button>
+        </div>
+
+        <div class="tracking-map-wrap">
+            <svg id="trackingMapSvg" viewBox="0 0 400 260" class="tracking-map-svg"></svg>
+            <div class="tracking-eta-badge">
+                ⏱️ Estimasi tiba: <b id="trackingEta">-</b>
+            </div>
+        </div>
+
+        <div class="tracking-courier-info" id="trackingCourierInfo">
+            <div class="tracking-courier-avatar">🛵</div>
+            <div>
+                <b id="trackingCourierName">-</b>
+                <span id="trackingCourierStatus">-</span>
+            </div>
+        </div>
+
+        <div class="tracking-timeline" id="trackingTimeline"></div>
+
+    </div>
+</div>
+
     <script src="script.js"></script>
 
 </body>
