@@ -1286,7 +1286,14 @@ function updateCategoryButtons() {
    ========================================================= */
 
 function hideExtraPages() {
-    ["ordersPage", "storePage", "searchPage"].forEach(id => {
+    ["ordersPage", "storePage", "searchPage", "chatPage", "sellerDashboardPage"].forEach(id => {
+        const page = document.getElementById(id);
+        if (page) { page.hidden = true; page.style.display = "none"; }
+    });
+}
+
+function hideAllMainPages() {
+    ["homePage", "categoryPage", "productPage", "ordersPage", "storePage", "searchPage", "chatPage", "sellerDashboardPage"].forEach(id => {
         const page = document.getElementById(id);
         if (page) { page.hidden = true; page.style.display = "none"; }
     });
@@ -2644,8 +2651,8 @@ document.addEventListener("click", event => {
         if (mainBtn) { mainBtn.textContent = liked ? "♥ Tersimpan di Wishlist" : "♡ Simpan ke Wishlist"; mainBtn.classList.toggle("active", liked); }
     }
 
-    if (event.target.id === "pdChatSellerButton") {
-        showToast("Fitur chat penjual belum tersedia di demo ini.");
+    if (event.target.id === "pdChatSellerButton" && selectedProduct) {
+        openChatWithStore("MAB-Official Store", selectedProduct);
     }
 });
 
@@ -3587,6 +3594,12 @@ function updateAccountUI() {
     } else {
         accountLabel.textContent = "Masuk";
     }
+
+    const isSeller = !!(currentUser && currentUser.role === "seller");
+    const dashTop = document.getElementById("sellerDashboardTopButton");
+    const dashMobile = document.getElementById("mobileSellerDashboardButton");
+    if (dashTop) dashTop.hidden = !isSeller;
+    if (dashMobile) dashMobile.hidden = !isSeller;
 }
 
 function openAuthModal() {
@@ -3893,9 +3906,7 @@ function renderOrders() {
 }
 
 function showOrdersPage(updateUrl = true) {
-    [homePage, categoryPage, productPage, storePage, searchPage].forEach(page => {
-        if (page) { page.hidden = true; page.style.display = "none"; }
-    });
+    hideAllMainPages();
 
     if (ordersPage) { ordersPage.hidden = false; ordersPage.style.display = "block"; }
 
@@ -3998,9 +4009,7 @@ function updateStoreFollowButton() {
 }
 
 function showStorePage(updateUrl = true) {
-    [homePage, categoryPage, productPage, ordersPage, searchPage].forEach(page => {
-        if (page) { page.hidden = true; page.style.display = "none"; }
-    });
+    hideAllMainPages();
 
     if (storePage) { storePage.hidden = false; storePage.style.display = "block"; }
 
@@ -4079,9 +4088,7 @@ function runAdvancedSearch() {
 }
 
 function showSearchPage(prefillKeyword = "", updateUrl = true) {
-    [homePage, categoryPage, productPage, ordersPage, storePage].forEach(page => {
-        if (page) { page.hidden = true; page.style.display = "none"; }
-    });
+    hideAllMainPages();
 
     if (searchPage) { searchPage.hidden = false; searchPage.style.display = "block"; }
 
@@ -4447,6 +4454,7 @@ document.addEventListener("click", event => {
         closeMobileMenu();
         const target = navBtn.dataset.mobileNav;
         if (target === "home") showHome();
+        else if (target === "chat") showChatPage();
         else if (target === "orders") showOrdersPage();
         else if (target === "wishlist") openWishlist();
         else if (target === "search") showSearchPage();
@@ -4464,6 +4472,903 @@ document.addEventListener("click", event => {
 
 
 
+/* =========================================================================
+   FITUR BARU #1: CHAT PENJUAL & PEMBELI (lengkap: teks, foto, video, tag produk)
+   ========================================================================= */
+
+let chatConversations = JSON.parse(localStorage.getItem("mabstore_chats") || "null");
+let activeChatConvId = null;
+let chatTaggedProduct = null;
+
+function seedDefaultChats() {
+    const now = Date.now();
+    return [
+        {
+            id: "conv-mab-official",
+            storeName: "MAB-Official Store",
+            avatar: "🏬",
+            unread: 1,
+            messages: [
+                {
+                    id: "m1", from: "seller", type: "text",
+                    text: "Halo! Terima kasih sudah mengunjungi MAB-Official Store 🙏 Ada yang bisa kami bantu?",
+                    time: now - 1000 * 60 * 40
+                }
+            ]
+        }
+    ];
+}
+
+function loadChats() {
+    if (!chatConversations || !Array.isArray(chatConversations) || !chatConversations.length) {
+        chatConversations = seedDefaultChats();
+        saveChats();
+    }
+}
+
+function saveChats() {
+    localStorage.setItem("mabstore_chats", JSON.stringify(chatConversations));
+}
+
+function findOrCreateConversation(storeName) {
+    let conv = chatConversations.find(c => c.storeName === storeName);
+    if (!conv) {
+        conv = { id: "conv-" + storeName.toLowerCase().replace(/[^a-z0-9]+/g, "-"), storeName, avatar: "🏬", unread: 0, messages: [] };
+        chatConversations.unshift(conv);
+        saveChats();
+    }
+    return conv;
+}
+
+function formatChatTime(ts) {
+    const d = new Date(ts);
+    const now = new Date();
+    const sameDay = d.toDateString() === now.toDateString();
+    return sameDay
+        ? d.toLocaleTimeString(currentLang === "en" ? "en-US" : "id-ID", { hour: "2-digit", minute: "2-digit" })
+        : d.toLocaleDateString(currentLang === "en" ? "en-US" : "id-ID", { day: "2-digit", month: "short" });
+}
+
+function updateChatUnreadBadge() {
+    const badge = document.getElementById("chatUnreadCount");
+    if (!badge) return;
+    const total = chatConversations.reduce((sum, c) => sum + (c.unread || 0), 0);
+    if (total > 0) { badge.hidden = false; badge.textContent = total > 9 ? "9+" : String(total); }
+    else badge.hidden = true;
+}
+
+function renderChatConvList() {
+    const list = document.getElementById("chatConvList");
+    if (!list) return;
+    list.innerHTML = chatConversations.map(conv => {
+        const last = conv.messages[conv.messages.length - 1];
+        let preview = "Belum ada pesan";
+        if (last) {
+            if (last.type === "text") preview = last.text;
+            else if (last.type === "image") preview = "📷 Foto";
+            else if (last.type === "video") preview = "🎬 Video";
+            else if (last.type === "product") preview = "🏷️ " + last.product.name;
+        }
+        return `
+            <button type="button" class="chat-conv-item${conv.id === activeChatConvId ? " active" : ""}" data-conv-id="${conv.id}">
+                <div class="chat-conv-avatar">${conv.avatar}</div>
+                <div class="chat-conv-meta">
+                    <b>${conv.storeName}</b>
+                    <span>${preview}</span>
+                </div>
+                <div class="chat-conv-side">
+                    ${last ? `<time>${formatChatTime(last.time)}</time>` : ""}
+                    ${conv.unread ? `<span class="chat-conv-unread">${conv.unread}</span>` : ""}
+                </div>
+            </button>
+        `;
+    }).join("");
+
+    updateChatUnreadBadge();
+}
+
+function renderChatMessages() {
+    const wrap = document.getElementById("chatMessages");
+    const conv = chatConversations.find(c => c.id === activeChatConvId);
+    if (!wrap || !conv) return;
+
+    wrap.innerHTML = conv.messages.map(msg => {
+        let inner = "";
+        if (msg.type === "text") {
+            inner = `<div>${escapeHtml(msg.text)}</div>`;
+        } else if (msg.type === "image") {
+            inner = `<img class="chat-msg-image" src="${msg.mediaUrl}" alt="foto">`;
+        } else if (msg.type === "video") {
+            inner = `<video class="chat-msg-video" src="${msg.mediaUrl}" controls></video>`;
+        } else if (msg.type === "product") {
+            inner = `
+                <div class="chat-product-card" data-chat-product-id="${msg.product.id}">
+                    <img src="${msg.product.image}" alt="">
+                    <div>
+                        <b>${msg.product.name}</b>
+                        <span>${rupiah(msg.product.price)}</span>
+                    </div>
+                </div>
+                ${msg.text ? `<div style="margin-top:6px;">${escapeHtml(msg.text)}</div>` : ""}
+            `;
+        }
+        return `
+            <div class="chat-bubble-row ${msg.from === "me" ? "me" : "seller"}">
+                <div class="chat-bubble">
+                    ${inner}
+                    <time>${formatChatTime(msg.time)}</time>
+                </div>
+            </div>
+        `;
+    }).join("");
+
+    wrap.scrollTop = wrap.scrollHeight;
+}
+
+function escapeHtml(str) {
+    const div = document.createElement("div");
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+function openConversation(convId) {
+    activeChatConvId = convId;
+    const conv = chatConversations.find(c => c.id === convId);
+    if (!conv) return;
+    conv.unread = 0;
+    saveChats();
+
+    document.getElementById("chatThreadEmpty").hidden = true;
+    document.getElementById("chatThreadActive").hidden = false;
+    document.getElementById("chatThreadAvatar").textContent = conv.avatar;
+    document.getElementById("chatThreadName").textContent = conv.storeName;
+    document.querySelector(".chat-shell")?.classList.add("thread-open");
+
+    renderChatMessages();
+    renderChatConvList();
+}
+
+function appendMessage(convId, msg) {
+    const conv = chatConversations.find(c => c.id === convId);
+    if (!conv) return;
+    msg.id = "m" + Date.now() + Math.random().toString(36).slice(2, 6);
+    msg.time = Date.now();
+    conv.messages.push(msg);
+    saveChats();
+    if (convId === activeChatConvId) renderChatMessages();
+    renderChatConvList();
+}
+
+function simulateSellerReply(convId, userMsg) {
+    setTimeout(() => {
+        const conv = chatConversations.find(c => c.id === convId);
+        if (!conv) return;
+        let reply = "Baik, terima kasih infonya! Tim kami akan segera membalas 🙏";
+        if (userMsg.type === "product") reply = `Untuk produk "${userMsg.product.name}" masih ready stock kak, silakan langsung checkout ya 😊`;
+        else if (userMsg.type === "image") reply = "Foto sudah kami terima, akan segera kami cek ya kak 📷";
+        else if (userMsg.type === "video") reply = "Video sudah kami terima, terima kasih kak 🎬";
+        else if (/ongkir|ongkos|kirim/i.test(userMsg.text || "")) reply = "Ongkos kirim mengikuti kurir yang dipilih saat checkout ya kak 🚚";
+        else if (/stok|ready|ada/i.test(userMsg.text || "")) reply = "Stok masih tersedia kak, silakan order 🙏";
+
+        conv.messages.push({ id: "m" + Date.now(), from: "seller", type: "text", text: reply, time: Date.now() });
+        if (convId !== activeChatConvId) conv.unread = (conv.unread || 0) + 1;
+        saveChats();
+        if (convId === activeChatConvId) renderChatMessages();
+        renderChatConvList();
+    }, 900 + Math.random() * 900);
+}
+
+function openChatWithStore(storeName, product) {
+    loadChats();
+    const conv = findOrCreateConversation(storeName);
+    showChatPage(true);
+    openConversation(conv.id);
+    if (product) {
+        chatTaggedProduct = { id: product.id, name: productNameById(product.id, product.name), image: product.image, price: product.price };
+        renderChatProductPreview();
+    }
+}
+
+function renderChatProductPreview() {
+    const bar = document.getElementById("chatProductPreview");
+    if (!bar) return;
+    if (!chatTaggedProduct) { bar.hidden = true; return; }
+    bar.hidden = false;
+    document.getElementById("chatProductPreviewImg").src = chatTaggedProduct.image;
+    document.getElementById("chatProductPreviewName").textContent = chatTaggedProduct.name;
+    document.getElementById("chatProductPreviewPrice").textContent = rupiah(chatTaggedProduct.price);
+}
+
+function renderChatProductPicker(keyword = "") {
+    const list = document.getElementById("chatProductPickerList");
+    if (!list) return;
+    const kw = keyword.trim().toLowerCase();
+    const filtered = products.filter(p => !kw || p.name.toLowerCase().includes(kw) || (p.keywords || "").includes(kw));
+    list.innerHTML = filtered.slice(0, 30).map(p => `
+        <button type="button" class="chat-picker-item" data-pick-product="${p.id}">
+            <img src="${p.image}" alt="">
+            <div>
+                <b>${productNameById(p.id, p.name)}</b>
+                <span>${rupiah(p.price)}</span>
+            </div>
+        </button>
+    `).join("");
+}
+
+function showChatPage(updateUrl = true) {
+    loadChats();
+    hideAllMainPages();
+    const page = document.getElementById("chatPage");
+    if (page) { page.hidden = false; page.style.display = "block"; }
+    document.querySelector(".chat-shell")?.classList.remove("thread-open");
+    renderChatConvList();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    if (updateUrl) {
+        const url = new URL(window.location.href);
+        url.searchParams.set("view", "chat");
+        history.pushState({ view: "chat" }, "", url);
+    }
+}
+
+const chatNavButton = document.getElementById("chatNavButton");
+const backFromChatButton = document.getElementById("backFromChatButton");
+const backToConvListButton = document.getElementById("backToConvListButton");
+const chatInputForm = document.getElementById("chatInputForm");
+const chatTextInput = document.getElementById("chatTextInput");
+const chatImageInput = document.getElementById("chatImageInput");
+const chatVideoInput = document.getElementById("chatVideoInput");
+
+if (chatNavButton) chatNavButton.addEventListener("click", () => showChatPage());
+if (backFromChatButton) backFromChatButton.addEventListener("click", () => showHome());
+if (backToConvListButton) backToConvListButton.addEventListener("click", () => document.querySelector(".chat-shell")?.classList.remove("thread-open"));
+
+document.addEventListener("click", event => {
+    const convBtn = event.target.closest("[data-conv-id]");
+    if (convBtn) { openConversation(convBtn.dataset.convId); return; }
+
+    if (event.target.closest("#chatVisitStoreFromThread")) {
+        showStorePage();
+        return;
+    }
+
+    const chatProdCard = event.target.closest("[data-chat-product-id]");
+    if (chatProdCard) {
+        const product = products.find(p => p.id === Number(chatProdCard.dataset.chatProductId));
+        if (product) showProductDetail(product);
+        return;
+    }
+});
+
+if (chatInputForm) {
+    chatInputForm.addEventListener("submit", event => {
+        event.preventDefault();
+        if (!activeChatConvId) return;
+        const text = chatTextInput.value.trim();
+
+        if (chatTaggedProduct) {
+            appendMessage(activeChatConvId, { from: "me", type: "product", product: chatTaggedProduct, text });
+            simulateSellerReply(activeChatConvId, { type: "product", product: chatTaggedProduct });
+            chatTaggedProduct = null;
+            renderChatProductPreview();
+        } else if (text) {
+            appendMessage(activeChatConvId, { from: "me", type: "text", text });
+            simulateSellerReply(activeChatConvId, { type: "text", text });
+        } else {
+            return;
+        }
+        chatTextInput.value = "";
+    });
+}
+
+document.getElementById("chatAttachImageBtn")?.addEventListener("click", () => chatImageInput?.click());
+document.getElementById("chatAttachVideoBtn")?.addEventListener("click", () => chatVideoInput?.click());
+
+if (chatImageInput) {
+    chatImageInput.addEventListener("change", () => {
+        const file = chatImageInput.files[0];
+        if (!file || !activeChatConvId) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+            appendMessage(activeChatConvId, { from: "me", type: "image", mediaUrl: reader.result });
+            simulateSellerReply(activeChatConvId, { type: "image" });
+        };
+        reader.readAsDataURL(file);
+        chatImageInput.value = "";
+    });
+}
+
+if (chatVideoInput) {
+    chatVideoInput.addEventListener("change", () => {
+        const file = chatVideoInput.files[0];
+        if (!file || !activeChatConvId) return;
+        if (file.size > 15 * 1024 * 1024) {
+            showToast("Video terlalu besar untuk demo ini (maks 15MB).");
+            chatVideoInput.value = "";
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = () => {
+            appendMessage(activeChatConvId, { from: "me", type: "video", mediaUrl: reader.result });
+            simulateSellerReply(activeChatConvId, { type: "video" });
+        };
+        reader.readAsDataURL(file);
+        chatVideoInput.value = "";
+    });
+}
+
+document.getElementById("chatTagProductBtn")?.addEventListener("click", () => {
+    document.getElementById("chatProductPicker").hidden = false;
+    renderChatProductPicker();
+    document.getElementById("chatProductPickerSearch").value = "";
+});
+
+document.querySelectorAll("[data-close-product-picker]").forEach(btn => {
+    btn.addEventListener("click", () => { document.getElementById("chatProductPicker").hidden = true; });
+});
+
+document.getElementById("chatProductPickerSearch")?.addEventListener("input", event => {
+    renderChatProductPicker(event.target.value);
+});
+
+document.getElementById("chatProductPickerList")?.addEventListener("click", event => {
+    const btn = event.target.closest("[data-pick-product]");
+    if (!btn) return;
+    const product = products.find(p => p.id === Number(btn.dataset.pickProduct));
+    if (product) {
+        chatTaggedProduct = { id: product.id, name: productNameById(product.id, product.name), image: product.image, price: product.price };
+        renderChatProductPreview();
+    }
+    document.getElementById("chatProductPicker").hidden = true;
+});
+
+document.getElementById("chatProductPreviewRemove")?.addEventListener("click", () => {
+    chatTaggedProduct = null;
+    renderChatProductPreview();
+});
+
+
+/* =========================================================================
+   FITUR BARU #2: DASHBOARD PENJUAL LENGKAP
+   ========================================================================= */
+
+let sellerAds = JSON.parse(localStorage.getItem("mabstore_ads") || "[]");
+let sellerStoreProfile = JSON.parse(localStorage.getItem("mabstore_seller_profile") || "null") || {
+    name: "MAB-Official Store",
+    desc: "Toko resmi MAB-Store — produk original dengan harga bersahabat.",
+    location: "Jakarta Selatan",
+    avatar: "🏬"
+};
+let sellerProductMedia = JSON.parse(localStorage.getItem("mabstore_product_media") || "{}");
+let sellerBanner = JSON.parse(localStorage.getItem("mabstore_banner") || "null") || {
+    title: "Belanja Mudah.<br>Harga Bersahabat.",
+    subtitle: "Temukan berbagai produk pilihan dengan harga terbaik.",
+    color: "#0f3d2e"
+};
+
+function saveSellerAds() { localStorage.setItem("mabstore_ads", JSON.stringify(sellerAds)); }
+function saveSellerStoreProfile() { localStorage.setItem("mabstore_seller_profile", JSON.stringify(sellerStoreProfile)); }
+function saveSellerProductMedia() { localStorage.setItem("mabstore_product_media", JSON.stringify(sellerProductMedia)); }
+function saveSellerBanner() { localStorage.setItem("mabstore_banner", JSON.stringify(sellerBanner)); }
+
+function getProductDisplayImage(product) {
+    const media = sellerProductMedia[product.id];
+    return (media && media.mainImage) ? media.mainImage : product.image;
+}
+
+function applyStoreProfileToUI() {
+    const nameEls = [document.getElementById("storePageName"), document.getElementById("pdSellerName")];
+    nameEls.forEach(el => { if (el) el.textContent = sellerStoreProfile.name; });
+
+    const avatarEls = [document.getElementById("storePageAvatar"), document.getElementById("pdSellerAvatar")];
+    avatarEls.forEach(el => {
+        if (!el) return;
+        if (sellerStoreProfile.avatar && sellerStoreProfile.avatar.startsWith("http")) {
+            el.innerHTML = `<img src="${sellerStoreProfile.avatar}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">`;
+        } else {
+            el.textContent = sellerStoreProfile.avatar || "🏬";
+        }
+    });
+
+    const locEls = [document.getElementById("storePageLocation"), document.getElementById("pdSellerLocation")];
+    locEls.forEach(el => { if (el) el.textContent = sellerStoreProfile.location; });
+
+    const descEl = document.getElementById("storePageDesc");
+    if (descEl) descEl.textContent = sellerStoreProfile.desc;
+}
+
+function applyBannerToUI() {
+    const heroSection = document.getElementById("heroSection");
+    const heroTitle = document.getElementById("heroTitle");
+    const heroSubtitle = document.getElementById("heroSubtitle");
+    if (heroTitle) heroTitle.innerHTML = sellerBanner.title;
+    if (heroSubtitle) heroSubtitle.textContent = sellerBanner.subtitle;
+    if (heroSection) heroSection.style.background = `linear-gradient(120deg, ${sellerBanner.color}, ${sellerBanner.color}cc)`;
+}
+
+function renderBannerPreview() {
+    const prev = document.getElementById("dashBannerPreview");
+    if (!prev) return;
+    prev.style.background = sellerBanner.color;
+    prev.innerHTML = `<h3>${sellerBanner.title.replace(/<br\s*\/?>/gi, " ")}</h3><p>${sellerBanner.subtitle}</p>`;
+}
+
+function getDashSeed() {
+    let seed = JSON.parse(localStorage.getItem("mabstore_dash_seed") || "null");
+    if (!seed) {
+        seed = { traffic: Array.from({ length: 30 }, () => 40 + Math.round(Math.random() * 160)) };
+        localStorage.setItem("mabstore_dash_seed", JSON.stringify(seed));
+    }
+    return seed;
+}
+
+function renderDashboardStats() {
+    const grid = document.getElementById("dashStatGrid");
+    if (!grid) return;
+    const totalRevenue = orders.reduce((sum, o) => sum + (o.total || 0), 0);
+    const totalOrders = orders.length;
+    const avgOrder = totalOrders ? Math.round(totalRevenue / totalOrders) : 0;
+    const totalVisitors = getDashSeed().traffic.reduce((a, b) => a + b, 0);
+
+    const stats = [
+        { label: "Total Pendapatan", value: rupiah(totalRevenue), delta: "+12%", up: true },
+        { label: "Total Pesanan", value: totalOrders, delta: "+8%", up: true },
+        { label: "Rata-rata Nilai Pesanan", value: rupiah(avgOrder), delta: "+3%", up: true },
+        { label: "Pengunjung Toko (30 hari)", value: totalVisitors.toLocaleString("id-ID"), delta: "-2%", up: false }
+    ];
+
+    grid.innerHTML = stats.map(s => `
+        <div class="dash-stat-card">
+            <span class="dash-stat-label">${s.label}</span>
+            <b class="dash-stat-value">${s.value}</b>
+            <span class="dash-stat-delta ${s.up ? "up" : "down"}">${s.delta}</span>
+        </div>
+    `).join("");
+}
+
+function renderDashboardSalesChart() {
+    const wrap = document.getElementById("dashSalesChart");
+    if (!wrap) return;
+    const days = [];
+    const dayLabels = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
+    const today = new Date();
+
+    for (let i = 6; i >= 0; i--) {
+        const d = new Date(today);
+        d.setDate(d.getDate() - i);
+        const dayTotal = orders
+            .filter(o => new Date(o.date).toDateString() === d.toDateString())
+            .reduce((sum, o) => sum + (o.total || 0), 0);
+        days.push({ label: dayLabels[d.getDay()], value: dayTotal || Math.round(150000 + Math.random() * 400000) });
+    }
+
+    const max = Math.max(...days.map(d => d.value), 1);
+    wrap.innerHTML = days.map(d => `
+        <div class="dash-bar-col">
+            <div class="dash-bar" style="height:${Math.max(6, (d.value / max) * 100)}%;" title="${rupiah(d.value)}"></div>
+            <span class="dash-bar-label">${d.label}</span>
+        </div>
+    `).join("");
+}
+
+function renderDashboardTopProducts() {
+    const wrap = document.getElementById("dashTopProducts");
+    if (!wrap) return;
+    const top = [...products].sort((a, b) => (b.sold || 0) - (a.sold || 0)).slice(0, 5);
+    wrap.innerHTML = top.map(p => `
+        <div class="dash-top-product-row">
+            <img src="${getProductDisplayImage(p)}" alt="">
+            <div>
+                <b>${productNameById(p.id, p.name)}</b>
+                <span>${p.sold || 0} terjual &nbsp;•&nbsp; ${rupiah(p.price)}</span>
+            </div>
+        </div>
+    `).join("");
+}
+
+function renderDashboardTrafficChart() {
+    const wrap = document.getElementById("dashTrafficChart");
+    if (!wrap) return;
+    const data = getDashSeed().traffic;
+    const max = Math.max(...data);
+    const w = 600, h = 140, stepX = w / (data.length - 1);
+    const points = data.map((v, i) => `${(i * stepX).toFixed(1)},${(h - (v / max) * (h - 10) - 5).toFixed(1)}`).join(" ");
+
+    wrap.innerHTML = `
+        <svg viewBox="0 0 ${w} ${h}" width="100%" height="100%" preserveAspectRatio="none">
+            <polyline points="${points}" fill="none" stroke="#16a34a" stroke-width="2.5" />
+            <polygon points="0,${h} ${points} ${w},${h}" fill="#16a34a22" />
+        </svg>
+    `;
+}
+
+function renderDashboardAdsForm() {
+    const select = document.getElementById("dashAdProduct");
+    if (!select) return;
+    select.innerHTML = products.map(p => `<option value="${p.id}">${productNameById(p.id, p.name)}</option>`).join("");
+}
+
+function renderDashboardAdsList() {
+    const wrap = document.getElementById("dashAdsList");
+    if (!wrap) return;
+    if (!sellerAds.length) { wrap.innerHTML = `<p class="no-reviews">Belum ada iklan yang berjalan.</p>`; return; }
+
+    wrap.innerHTML = sellerAds.map(ad => `
+        <div class="dash-ad-row">
+            <img src="${ad.productImage}" alt="">
+            <div class="dash-ad-info">
+                <b>${ad.productName}</b>
+                <span>Anggaran ${rupiah(ad.budget)}/hari &nbsp;•&nbsp; ${ad.duration} hari &nbsp;•&nbsp; 👁️ ${ad.impressions.toLocaleString("id-ID")} dilihat &nbsp;•&nbsp; 🖱️ ${ad.clicks} klik</span>
+            </div>
+            <span class="dash-ad-status">${ad.status}</span>
+            ${ad.status === "aktif" ? `<button type="button" class="dash-ad-stop" data-stop-ad="${ad.id}">Hentikan</button>` : ""}
+        </div>
+    `).join("");
+}
+
+function populateProductMediaSelect() {
+    const select = document.getElementById("dashProductSelect");
+    if (!select) return;
+    select.innerHTML = products.map(p => `<option value="${p.id}">${productNameById(p.id, p.name)}</option>`).join("");
+    loadProductMediaEditor(Number(select.value));
+}
+
+function loadProductMediaEditor(productId) {
+    const product = products.find(p => p.id === productId);
+    if (!product) return;
+    const media = sellerProductMedia[productId] || { mainImage: product.image, gallery: [], video: "" };
+
+    document.getElementById("dashProductMainImg").src = media.mainImage || product.image;
+    document.getElementById("dashProductMainImgInput").value = media.mainImage || product.image;
+    document.getElementById("dashProductVideoInput").value = media.video || "";
+    renderGalleryList(media.gallery || []);
+}
+
+function renderGalleryList(gallery) {
+    const wrap = document.getElementById("dashProductGalleryList");
+    if (!wrap) return;
+    wrap.innerHTML = gallery.map((url, i) => `
+        <div class="dash-gallery-item">
+            <img src="${url}" alt="">
+            <button type="button" data-remove-gallery="${i}">✕</button>
+        </div>
+    `).join("");
+}
+
+function renderDashboardAll() {
+    renderDashboardStats();
+    renderDashboardSalesChart();
+    renderDashboardTopProducts();
+    renderDashboardTrafficChart();
+    renderDashboardAdsForm();
+    renderDashboardAdsList();
+
+    document.getElementById("dashStoreName").value = sellerStoreProfile.name;
+    document.getElementById("dashStoreDesc").value = sellerStoreProfile.desc;
+    document.getElementById("dashStoreLocation").value = sellerStoreProfile.location;
+    document.getElementById("dashStoreAvatar").value = sellerStoreProfile.avatar;
+
+    populateProductMediaSelect();
+
+    document.getElementById("dashBannerTitle").value = sellerBanner.title.replace(/<br\s*\/?>/gi, " ");
+    document.getElementById("dashBannerSubtitle").value = sellerBanner.subtitle;
+    document.getElementById("dashBannerColor").value = sellerBanner.color;
+    renderBannerPreview();
+}
+
+function showSellerDashboard(updateUrl = true) {
+    hideAllMainPages();
+    const page = document.getElementById("sellerDashboardPage");
+    if (page) { page.hidden = false; page.style.display = "block"; }
+    renderDashboardAll();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    if (updateUrl) {
+        const url = new URL(window.location.href);
+        url.searchParams.set("view", "seller-dashboard");
+        history.pushState({ view: "seller-dashboard" }, "", url);
+    }
+}
+
+document.getElementById("sellerDashboardTopButton")?.addEventListener("click", () => showSellerDashboard());
+document.getElementById("mobileSellerDashboardButton")?.addEventListener("click", () => { closeMobileMenu(); showSellerDashboard(); });
+document.getElementById("backFromDashboardButton")?.addEventListener("click", () => showHome());
+
+document.getElementById("dashboardTabs")?.addEventListener("click", event => {
+    const tab = event.target.closest("[data-dash-tab]");
+    if (!tab) return;
+    document.querySelectorAll(".dashboard-tab").forEach(b => b.classList.remove("active"));
+    tab.classList.add("active");
+    const key = tab.dataset.dashTab;
+    document.querySelectorAll("[data-dash-panel]").forEach(panel => {
+        panel.hidden = panel.dataset.dashPanel !== key;
+    });
+});
+
+document.getElementById("dashAdForm")?.addEventListener("submit", event => {
+    event.preventDefault();
+    const productId = Number(document.getElementById("dashAdProduct").value);
+    const product = products.find(p => p.id === productId);
+    if (!product) return;
+    const budget = Number(document.getElementById("dashAdBudget").value) || 10000;
+    const duration = Number(document.getElementById("dashAdDuration").value);
+
+    sellerAds.unshift({
+        id: "ad" + Date.now(),
+        productId,
+        productName: productNameById(product.id, product.name),
+        productImage: getProductDisplayImage(product),
+        budget, duration,
+        status: "aktif",
+        impressions: Math.round(budget / 50 * duration * (0.8 + Math.random() * 0.5)),
+        clicks: Math.round(budget / 2000 * duration * (0.6 + Math.random() * 0.6))
+    });
+    saveSellerAds();
+    renderDashboardAdsList();
+    showToast("Iklan berhasil dijalankan 🚀");
+    event.target.reset();
+});
+
+document.getElementById("dashAdsList")?.addEventListener("click", event => {
+    const btn = event.target.closest("[data-stop-ad]");
+    if (!btn) return;
+    const ad = sellerAds.find(a => a.id === btn.dataset.stopAd);
+    if (ad) { ad.status = "dihentikan"; saveSellerAds(); renderDashboardAdsList(); }
+});
+
+document.getElementById("dashStoreForm")?.addEventListener("submit", event => {
+    event.preventDefault();
+    sellerStoreProfile = {
+        name: document.getElementById("dashStoreName").value.trim() || sellerStoreProfile.name,
+        desc: document.getElementById("dashStoreDesc").value.trim(),
+        location: document.getElementById("dashStoreLocation").value.trim() || sellerStoreProfile.location,
+        avatar: document.getElementById("dashStoreAvatar").value.trim() || "🏬"
+    };
+    saveSellerStoreProfile();
+    applyStoreProfileToUI();
+    showToast("Profil toko berhasil diperbarui ✅");
+});
+
+document.getElementById("dashProductSelect")?.addEventListener("change", event => {
+    loadProductMediaEditor(Number(event.target.value));
+});
+
+document.getElementById("dashProductMainImgInput")?.addEventListener("input", event => {
+    document.getElementById("dashProductMainImg").src = event.target.value;
+});
+
+document.getElementById("dashGalleryAddBtn")?.addEventListener("click", () => {
+    const input = document.getElementById("dashGalleryUrlInput");
+    const url = input.value.trim();
+    if (!url) return;
+    const productId = Number(document.getElementById("dashProductSelect").value);
+    const media = sellerProductMedia[productId] || { mainImage: "", gallery: [], video: "" };
+    media.gallery = media.gallery || [];
+    media.gallery.push(url);
+    sellerProductMedia[productId] = media;
+    renderGalleryList(media.gallery);
+    input.value = "";
+});
+
+document.getElementById("dashProductGalleryList")?.addEventListener("click", event => {
+    const btn = event.target.closest("[data-remove-gallery]");
+    if (!btn) return;
+    const productId = Number(document.getElementById("dashProductSelect").value);
+    const media = sellerProductMedia[productId];
+    if (!media) return;
+    media.gallery.splice(Number(btn.dataset.removeGallery), 1);
+    renderGalleryList(media.gallery);
+});
+
+document.getElementById("dashProductMediaSave")?.addEventListener("click", () => {
+    const productId = Number(document.getElementById("dashProductSelect").value);
+    const existing = sellerProductMedia[productId] || { gallery: [] };
+    sellerProductMedia[productId] = {
+        mainImage: document.getElementById("dashProductMainImgInput").value.trim(),
+        gallery: existing.gallery || [],
+        video: document.getElementById("dashProductVideoInput").value.trim()
+    };
+    saveSellerProductMedia();
+    renderDashboardTopProducts();
+    showToast("Media produk berhasil disimpan 🖼️");
+});
+
+document.getElementById("dashBannerTitle")?.addEventListener("input", () => renderBannerPreview());
+document.getElementById("dashBannerSubtitle")?.addEventListener("input", () => renderBannerPreview());
+document.getElementById("dashBannerColor")?.addEventListener("input", () => renderBannerPreview());
+
+document.getElementById("dashBannerSave")?.addEventListener("click", () => {
+    sellerBanner = {
+        title: document.getElementById("dashBannerTitle").value.trim() || "Belanja Mudah.",
+        subtitle: document.getElementById("dashBannerSubtitle").value.trim(),
+        color: document.getElementById("dashBannerColor").value
+    };
+    saveSellerBanner();
+    applyBannerToUI();
+    showToast("Banner beranda berhasil diperbarui 🎨");
+});
+
+
+/* =========================================================================
+   FITUR BARU #3: PELACAKAN PESANAN REAL-TIME (simulasi rute peta)
+   ========================================================================= */
+
+let trackingTimer = null;
+let trackingRouteProgress = 0;
+const trackingCourierNames = ["Budi Kurir", "Andi Ekspedisi", "Siti Antar", "Rudi Cepat"];
+
+const trackingRoutePoints = [
+    { x: 40, y: 210 },
+    { x: 90, y: 150 },
+    { x: 150, y: 165 },
+    { x: 210, y: 95 },
+    { x: 270, y: 110 },
+    { x: 330, y: 55 },
+    { x: 365, y: 40 }
+];
+
+function pointOnRoute(progress) {
+    const totalSegments = trackingRoutePoints.length - 1;
+    const pos = Math.min(progress, 0.999) * totalSegments;
+    const segIndex = Math.floor(pos);
+    const segT = pos - segIndex;
+    const a = trackingRoutePoints[segIndex];
+    const b = trackingRoutePoints[segIndex + 1] || a;
+    return { x: a.x + (b.x - a.x) * segT, y: a.y + (b.y - a.y) * segT };
+}
+
+function drawTrackingMap(progress) {
+    const svg = document.getElementById("trackingMapSvg");
+    if (!svg) return;
+    const pathD = "M " + trackingRoutePoints.map(p => `${p.x},${p.y}`).join(" L ");
+    const cur = pointOnRoute(progress);
+    const start = trackingRoutePoints[0];
+    const end = trackingRoutePoints[trackingRoutePoints.length - 1];
+
+    svg.innerHTML = `
+        <rect x="0" y="0" width="400" height="260" fill="#e7efe9"></rect>
+        ${Array.from({ length: 9 }).map((_, i) => `<line x1="${i * 45}" y1="0" x2="${i * 45}" y2="260" stroke="#d6e3da" stroke-width="1"></line>`).join("")}
+        ${Array.from({ length: 7 }).map((_, i) => `<line x1="0" y1="${i * 40}" x2="400" y2="${i * 40}" stroke="#d6e3da" stroke-width="1"></line>`).join("")}
+        <path d="${pathD}" fill="none" stroke="#0f3d2e" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.25"></path>
+        <path d="${pathD}" fill="none" stroke="#16a34a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"
+              stroke-dasharray="1000" stroke-dashoffset="${1000 - progress * 1000}"></path>
+        <circle cx="${start.x}" cy="${start.y}" r="7" fill="#0f3d2e"></circle>
+        <text x="${start.x + 10}" y="${start.y + 4}" font-size="11" fill="#0f3d2e" font-weight="700">Gudang</text>
+        <circle cx="${end.x}" cy="${end.y}" r="7" fill="#e63946"></circle>
+        <text x="${end.x - 46}" y="${end.y - 10}" font-size="11" fill="#e63946" font-weight="700">Tujuan</text>
+        <text x="${cur.x - 10}" y="${cur.y - 14}" font-size="18">🛵</text>
+        <circle cx="${cur.x}" cy="${cur.y}" r="5" fill="#0f3d2e"></circle>
+    `;
+}
+
+function trackingStatusToProgress(status) {
+    if (status === "diproses") return 0.08;
+    if (status === "dikirim") return null;
+    if (status === "selesai") return 1;
+    return 0;
+}
+
+function renderTrackingTimeline(order, currentEtaMinutes) {
+    const wrap = document.getElementById("trackingTimeline");
+    if (!wrap) return;
+    const stepLabels = t_dict.tracking[currentLang] || t_dict.tracking.id;
+    const currentIndex = orderStatusSteps.indexOf(order.status === "diproses" ? "diproses" : order.status);
+
+    const descriptions = {
+        dibuat: "Pesanan telah diterima penjual",
+        diproses: "Penjual sedang menyiapkan pesananmu",
+        dikirim: currentEtaMinutes != null ? `Kurir dalam perjalanan • estimasi ${currentEtaMinutes} menit` : "Kurir dalam perjalanan menuju alamatmu",
+        selesai: "Pesanan telah sampai tujuan"
+    };
+
+    wrap.innerHTML = orderStatusSteps.map((step, i) => `
+        <div class="tracking-timeline-step${i < currentIndex ? " done" : ""}${i === currentIndex ? " current" : ""}">
+            <div class="tracking-timeline-dot">${i <= currentIndex ? "✓" : ""}</div>
+            <div class="tracking-timeline-text">
+                <b>${stepLabels[step]}</b>
+                <span>${descriptions[step]}</span>
+            </div>
+        </div>
+    `).join("");
+}
+
+function openOrderTracking(orderCode) {
+    const order = orders.find(o => o.code === orderCode);
+    if (!order) return;
+
+    document.getElementById("trackingOrderCode").textContent = order.code;
+    document.getElementById("trackingOverlay").hidden = false;
+
+    const courierName = trackingCourierNames[Math.abs(hashCode(order.code)) % trackingCourierNames.length];
+    document.getElementById("trackingCourierName").textContent = courierName;
+
+    if (trackingTimer) clearInterval(trackingTimer);
+
+    if (order.status === "selesai") {
+        trackingRouteProgress = 1;
+        drawTrackingMap(1);
+        document.getElementById("trackingEta").textContent = "Sudah tiba";
+        document.getElementById("trackingCourierStatus").textContent = "Pengiriman selesai";
+        renderTrackingTimeline(order, 0);
+        return;
+    }
+
+    if (order.status === "diproses") {
+        trackingRouteProgress = 0.05;
+        drawTrackingMap(trackingRouteProgress);
+        document.getElementById("trackingEta").textContent = "Menunggu pengiriman";
+        document.getElementById("trackingCourierStatus").textContent = "Sedang menyiapkan paket";
+        renderTrackingTimeline(order, null);
+        return;
+    }
+
+    // status "dikirim" → jalankan simulasi rute real-time
+    trackingRouteProgress = 0.12;
+    document.getElementById("trackingCourierStatus").textContent = "Sedang menuju alamatmu";
+
+    trackingTimer = setInterval(() => {
+        trackingRouteProgress = Math.min(1, trackingRouteProgress + 0.015);
+        drawTrackingMap(trackingRouteProgress);
+        const etaMinutes = Math.max(1, Math.round((1 - trackingRouteProgress) * 45));
+        document.getElementById("trackingEta").textContent = `${etaMinutes} menit lagi`;
+        renderTrackingTimeline(order, etaMinutes);
+
+        if (trackingRouteProgress >= 1) {
+            clearInterval(trackingTimer);
+            document.getElementById("trackingEta").textContent = "Paket telah tiba!";
+            document.getElementById("trackingCourierStatus").textContent = "Pesanan sampai tujuan";
+
+            if (order.status !== "selesai") {
+                order.status = "selesai";
+                saveOrders();
+                renderOrders();
+                addNotification("Pesanan Tiba 📦", `Pesanan ${order.code} telah sampai di alamatmu.`);
+            }
+        }
+    }, 800);
+
+    drawTrackingMap(trackingRouteProgress);
+    renderTrackingTimeline(order, Math.round((1 - trackingRouteProgress) * 45));
+}
+
+function hashCode(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) { hash = (hash << 5) - hash + str.charCodeAt(i); hash |= 0; }
+    return hash;
+}
+
+function closeOrderTracking() {
+    document.getElementById("trackingOverlay").hidden = true;
+    if (trackingTimer) clearInterval(trackingTimer);
+}
+
+document.querySelectorAll("[data-close-tracking]").forEach(el => el.addEventListener("click", closeOrderTracking));
+
+// Tambahkan tombol "Lacak Pesanan" secara dinamis ke setiap kartu pesanan
+const originalRenderOrders = renderOrders;
+renderOrders = function () {
+    originalRenderOrders();
+    document.querySelectorAll(".order-card").forEach(card => {
+        const code = card.dataset.orderCode;
+        const actions = card.querySelector(".order-card-actions");
+        const order = orders.find(o => o.code === code);
+        if (actions && order && order.status !== "diproses" && !actions.querySelector("[data-track-order]")) {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "order-track-more-button";
+            btn.dataset.trackOrder = code;
+            btn.textContent = "🗺️ Lacak Pesanan";
+            actions.appendChild(btn);
+        }
+    });
+};
+
+document.addEventListener("click", event => {
+    const trackBtn = event.target.closest("[data-track-order]");
+    if (trackBtn) openOrderTracking(trackBtn.dataset.trackOrder);
+});
+
+
 loadStorage();
 
 renderFlashSale();
@@ -4479,6 +5384,12 @@ applyLanguage(currentLang);
 fetchExchangeRate();
 
 loadCategoryFromURL();
+
+loadChats();
+updateChatUnreadBadge();
+applyStoreProfileToUI();
+applyBannerToUI();
+updateAccountUI();
 
 
 console.log(
