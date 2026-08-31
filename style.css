@@ -3030,3 +3030,12 @@ img.review-media-item { cursor: pointer; }
 .tracking-timeline-text span { font-size: 12px; color: var(--muted); }
 
 .order-track-more-button { background: transparent; color: #0f3d2e; font-weight: 700; text-decoration: underline; }
+
+
+/* =========================================================
+   PERBAIKAN GLOBAL: elemen ber-atribut [hidden] WAJIB tersembunyi
+   (mencegah bug "tidak bisa ditutup" pada elemen apa pun yang
+   class-nya sendiri menyetel `display`, spt hamburger menu &
+   panel chat kosong/aktif)
+   ========================================================= */
+[hidden] { display: none; }
