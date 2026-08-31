@@ -1556,15 +1556,16 @@
 
 
 <!-- =====================================================
-     CHAT (PENJUAL & PEMBELI)
+     CHAT WIDGET (PENJUAL & PEMBELI) — muncul mengambang di atas halaman
 ====================================================== -->
-<main id="chatPage" class="chat-page" hidden>
+<div class="chat-widget-backdrop" id="chatWidgetBackdrop" hidden></div>
+<div id="chatPage" class="chat-widget" hidden>
     <div class="chat-shell">
 
         <aside class="chat-sidebar">
             <div class="chat-sidebar-header">
-                <button id="backFromChatButton" class="back-home-button" type="button">← Kembali</button>
-                <h2>Chat</h2>
+                <h2>💬 Chat</h2>
+                <button id="backFromChatButton" class="chat-widget-close" type="button" title="Tutup">✕</button>
             </div>
             <div class="chat-conv-list" id="chatConvList"></div>
         </aside>
@@ -1585,9 +1586,20 @@
                         <span id="chatThreadStatus">Online</span>
                     </div>
                     <button type="button" id="chatVisitStoreFromThread" title="Kunjungi Toko">🏬</button>
+                    <button type="button" id="chatWidgetCloseInThread" title="Tutup">✕</button>
+                </div>
+
+                <div class="chat-admin-switch" id="chatAdminSwitch">
+                    <span class="chat-admin-switch-label">Bicara dengan:</span>
+                    <div class="chat-admin-switch-buttons">
+                        <button type="button" class="chat-admin-btn active" data-admin-mode="asli">👤 Admin Asli</button>
+                        <button type="button" class="chat-admin-btn" data-admin-mode="ai">🤖 Admin AI</button>
+                    </div>
                 </div>
 
                 <div class="chat-messages" id="chatMessages"></div>
+
+                <div class="chat-ai-typing" id="chatAiTyping" hidden>🤖 Admin AI sedang mengetik...</div>
 
                 <div class="chat-product-preview" id="chatProductPreview" hidden>
                     <img id="chatProductPreviewImg" src="" alt="">
@@ -1626,7 +1638,7 @@
             <div class="chat-product-picker-list" id="chatProductPickerList"></div>
         </div>
     </div>
-</main>
+</div>
 
 
 <!-- =====================================================
@@ -1648,6 +1660,7 @@
             <button type="button" class="dashboard-tab" data-dash-tab="toko">🏬 Edit Toko</button>
             <button type="button" class="dashboard-tab" data-dash-tab="produk">🖼️ Foto &amp; Video Produk</button>
             <button type="button" class="dashboard-tab" data-dash-tab="banner">🎨 Banner</button>
+            <button type="button" class="dashboard-tab" data-dash-tab="ai-llm">🔑 Admin AI (LLM)</button>
         </div>
 
         <!-- ANALITIK -->
@@ -1776,8 +1789,72 @@
             </div>
         </div>
 
+        <!-- ADMIN AI / LLM API KEY -->
+        <div class="dashboard-panel" data-dash-panel="ai-llm" hidden>
+
+            <div class="ai-llm-warning">
+                ⚠️ <b>Baca dulu sebelum pakai:</b> MAB-Store adalah situs statis (GitHub Pages) tanpa server backend.
+                API key yang kamu masukkan di sini <b>hanya tersimpan di browser perangkat ini saja</b> (localStorage) — <u>tidak</u>
+                otomatis terkirim/tersedia untuk pembeli lain yang membuka toko dari perangkat lain. Karena itu, mode ini paling cocok
+                untuk <b>uji coba pribadi</b> (kamu login &amp; chat dari perangkat yang sama tempat key ini disimpan).
+                Untuk fitur AI beneran yang aktif bagi <b>semua pembeli</b> di berbagai perangkat, key wajib disimpan di server/backend
+                terpisah — bukan di file website ini — supaya key tidak bisa dicuri lewat "View Source". Jangan bagikan API key ke siapa pun.
+            </div>
+
+            <div class="dash-card">
+                <div class="dash-card-header"><b>Hubungkan Provider AI/LLM</b></div>
+
+                <form id="dashAiLlmForm" class="dash-ai-llm-form">
+
+                    <label>Pilih Provider
+                        <select id="dashAiProvider">
+                            <option value="gemini">Google Gemini</option>
+                            <option value="anthropic">Anthropic Claude</option>
+                            <option value="openai">OpenAI ChatGPT</option>
+                            <option value="deepseek">DeepSeek</option>
+                            <option value="custom">Lainnya (OpenAI-compatible)</option>
+                        </select>
+                    </label>
+
+                    <label id="dashAiCustomUrlWrap" hidden>Base URL API (khusus provider "Lainnya")
+                        <input type="text" id="dashAiCustomUrl" placeholder="https://api.contoh.com/v1/chat/completions">
+                    </label>
+
+                    <label>Nama Model
+                        <input type="text" id="dashAiModel" placeholder="Otomatis terisi sesuai provider">
+                    </label>
+
+                    <label>API Key
+                        <div class="dash-ai-key-input">
+                            <input type="password" id="dashAiApiKey" placeholder="Tempel API key di sini...">
+                            <button type="button" id="dashAiKeyToggle">👁️</button>
+                        </div>
+                    </label>
+
+                    <div class="dash-ai-actions">
+                        <button type="button" id="dashAiTestBtn">🔌 Tes Koneksi</button>
+                        <button type="submit" id="dashAiSaveBtn">💾 Simpan</button>
+                    </div>
+
+                    <div id="dashAiTestResult" class="dash-ai-test-result" hidden></div>
+
+                    <label class="dash-ai-enable-row">
+                        <input type="checkbox" id="dashAiEnableToggle">
+                        Aktifkan provider ini sebagai mesin "Admin AI" (menggantikan mesin logika bawaan, khusus di perangkat ini)
+                    </label>
+                </form>
+            </div>
+
+            <div class="dash-card">
+                <div class="dash-card-header"><b>Status Saat Ini</b></div>
+                <div id="dashAiStatusBox" class="dash-ai-status-box"></div>
+            </div>
+
+        </div>
+
     </div>
 </main>
+
 
 
 <!-- =====================================================
