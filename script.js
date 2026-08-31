@@ -3140,7 +3140,7 @@ if(backToCartButton)backToCartButton.addEventListener("click",()=>{closeCheckout
 document.addEventListener("click",(event)=>{ if(event.target.closest("[data-close-checkout]")) closeCheckout(); });
 document.querySelectorAll('input[name="shipping"]').forEach(input=>input.addEventListener("change",()=>{checkoutShipping=Number(input.value);document.querySelectorAll(".shipping-option").forEach(el=>el.classList.remove("selected"));input.closest(".shipping-option")?.classList.add("selected");renderCheckout();}));
 document.querySelectorAll('input[name="payment"]').forEach(input=>input.addEventListener("change",()=>{document.querySelectorAll(".payment-option").forEach(el=>el.classList.remove("selected"));input.closest(".payment-option")?.classList.add("selected");}));
-if(applyVoucherButton)applyVoucherButton.addEventListener("click",()=>{const code=(checkoutVoucher?.value||"").trim().toUpperCase(),subtotal=getCartSubtotal();voucherMessage.style.color="";if(code==="MABHEMAT"){checkoutDiscount=Math.min(100000,Math.round(subtotal*.10));checkoutFreeShipping=false;appliedVoucher=code;voucherMessage.textContent=`✓ Voucher ${code} berhasil digunakan. Hemat ${rupiah(checkoutDiscount)}.`;}else if(code==="ONGKIRGRATIS"){checkoutDiscount=0;checkoutFreeShipping=true;appliedVoucher=code;voucherMessage.textContent=`✓ Voucher ${code} berhasil digunakan. Ongkos kirim jadi gratis.`;}else if(code==="MEMBERBARU"){if(subtotal>=150000){checkoutDiscount=20000;checkoutFreeShipping=false;appliedVoucher=code;voucherMessage.textContent=`✓ Voucher ${code} berhasil digunakan. Hemat ${rupiah(checkoutDiscount)}.`;}else{checkoutDiscount=0;checkoutFreeShipping=false;appliedVoucher="";voucherMessage.textContent="Minimal belanja Rp150.000 untuk voucher ini.";voucherMessage.style.color="#d34b4b";}}else if(!code){checkoutDiscount=0;checkoutFreeShipping=false;appliedVoucher="";voucherMessage.textContent="Masukkan kode voucher terlebih dahulu.";}else{checkoutDiscount=0;checkoutFreeShipping=false;appliedVoucher="";voucherMessage.textContent="Kode voucher tidak ditemukan.";voucherMessage.style.color="#d34b4b";}renderCheckout();});
+if(applyVoucherButton)applyVoucherButton.addEventListener("click",()=>{const code=(checkoutVoucher?.value||"").trim().toUpperCase(),subtotal=getCartSubtotal();voucherMessage.style.color="";if(code==="MABHEMAT"){checkoutDiscount=Math.min(100000,Math.round(subtotal*.10));checkoutFreeShipping=false;appliedVoucher=code;voucherMessage.textContent=`✓ Voucher ${code} berhasil digunakan. Hemat ${rupiah(checkoutDiscount)}.`;}else if(code==="ONGKIRGRATIS"){checkoutDiscount=0;checkoutFreeShipping=true;appliedVoucher=code;voucherMessage.textContent=`✓ Voucher ${code} berhasil digunakan. Ongkos kirim jadi gratis.`;}else if(code==="MEMBERBARU"){if(subtotal>=150000){checkoutDiscount=20000;checkoutFreeShipping=false;appliedVoucher=code;voucherMessage.textContent=`✓ Voucher ${code} berhasil digunakan. Hemat ${rupiah(checkoutDiscount)}.`;}else{checkoutDiscount=0;checkoutFreeShipping=false;appliedVoucher="";voucherMessage.textContent="Minimal belanja Rp150.000 untuk voucher ini.";voucherMessage.style.color="#d34b4b";}}else if(!code){checkoutDiscount=0;checkoutFreeShipping=false;appliedVoucher="";voucherMessage.textContent="Masukkan kode voucher terlebih dahulu.";}else{const sv=getSellerVouchers().find(v=>v.code===code);if(sv&&subtotal>=(sv.min||0)){if(sv.type==="ongkir"){checkoutDiscount=0;checkoutFreeShipping=true;}else if(sv.type==="persen"){checkoutDiscount=Math.round(subtotal*(sv.value/100));checkoutFreeShipping=false;}else{checkoutDiscount=Math.min(sv.value,subtotal);checkoutFreeShipping=false;}appliedVoucher=code;voucherMessage.textContent=`✓ Voucher ${code} berhasil digunakan.`+(checkoutFreeShipping?" Ongkos kirim jadi gratis.":` Hemat ${rupiah(checkoutDiscount)}.`);}else if(sv){checkoutDiscount=0;checkoutFreeShipping=false;appliedVoucher="";voucherMessage.textContent=`Minimal belanja ${rupiah(sv.min||0)} untuk voucher ini.`;voucherMessage.style.color="#d34b4b";}else{checkoutDiscount=0;checkoutFreeShipping=false;appliedVoucher="";voucherMessage.textContent="Kode voucher tidak ditemukan.";voucherMessage.style.color="#d34b4b";}}renderCheckout();});
 if (placeOrderButton) {
     placeOrderButton.addEventListener("click", () => {
         if (!cart.length) {
@@ -3827,6 +3827,451 @@ function nextOrderStatus(status) {
     if (status === "dikirim") return "selesai";
     return "selesai";
 }
+
+function sellerAdvanceOrder(orderId) {
+    const order = orders.find(o => o.id === orderId);
+    if (!order || order.status === "dibatalkan") return;
+    order.status = nextOrderStatus(order.status);
+    saveOrders();
+    renderDashOrderList();
+    renderDashboardStats();
+    renderDashboardTodo();
+    renderPrintResiList();
+}
+
+function sellerCancelOrder(orderId) {
+    const order = orders.find(o => o.id === orderId);
+    if (!order) return;
+    if (!confirm("Batalkan / proses retur pesanan #" + orderId + "?")) return;
+    order.status = "dibatalkan";
+    saveOrders();
+    renderDashOrderList();
+    renderDashboardStats();
+    renderDashboardTodo();
+}
+
+function renderDashOrderList() {
+    const wrap = document.getElementById("dashOrderList");
+    if (!wrap) return;
+    const filtered = activeOrderFilter === "semua" ? orders : orders.filter(o => o.status === activeOrderFilter);
+
+    if (!filtered.length) {
+        wrap.innerHTML = `<p class="dash-empty-text">Belum ada pesanan pada kategori ini.</p>`;
+        return;
+    }
+
+    const statusLabelSeller = { diproses: "🟡 Baru Diproses", dikirim: "🔵 Dikirim", selesai: "🟢 Selesai", dibatalkan: "🔴 Dibatalkan/Retur" };
+
+    wrap.innerHTML = filtered.map(order => `
+        <div class="dash-order-item">
+            <div class="dash-order-item-head">
+                <b>#${order.id}</b>
+                <span class="dash-order-status">${statusLabelSeller[order.status] || order.status}</span>
+            </div>
+            <p class="dash-order-item-buyer">👤 ${order.address?.name || "Pembeli"} — ${new Date(order.date).toLocaleDateString("id-ID")}</p>
+            <p class="dash-order-item-products">${order.items.slice(0, 2).map(i => i.name).join(", ")}${order.items.length > 2 ? ` +${order.items.length - 2} lainnya` : ""}</p>
+            <p class="dash-order-item-total">Total: <b>${rupiah(order.total)}</b></p>
+            <div class="dash-order-item-actions">
+                ${order.status === "diproses" ? `<button type="button" data-order-advance="${order.id}">📦 Tandai Dikirim</button>` : ""}
+                ${order.status === "dikirim" ? `<button type="button" data-order-advance="${order.id}">✅ Tandai Selesai</button>` : ""}
+                ${order.status !== "selesai" && order.status !== "dibatalkan" ? `<button type="button" class="dash-order-cancel-btn" data-order-cancel="${order.id}">✕ Batalkan/Retur</button>` : ""}
+            </div>
+        </div>
+    `).join("");
+}
+
+document.getElementById("dashOrderFilters")?.addEventListener("click", event => {
+    const btn = event.target.closest("[data-order-filter]");
+    if (!btn) return;
+    activeOrderFilter = btn.dataset.orderFilter;
+    document.querySelectorAll("[data-order-filter]").forEach(b => b.classList.toggle("active", b === btn));
+    renderDashOrderList();
+});
+
+document.getElementById("dashOrderList")?.addEventListener("click", event => {
+    const advBtn = event.target.closest("[data-order-advance]");
+    if (advBtn) { sellerAdvanceOrder(advBtn.dataset.orderAdvance); return; }
+    const cancelBtn = event.target.closest("[data-order-cancel]");
+    if (cancelBtn) { sellerCancelOrder(cancelBtn.dataset.orderCancel); return; }
+});
+
+function renderDashboardTodo() {
+    const wrap = document.getElementById("dashTodoList");
+    if (!wrap) return;
+    const newOrders = orders.filter(o => o.status === "diproses").length;
+    const shippingOrders = orders.filter(o => o.status === "dikirim").length;
+    const unreadChats = chatConversations.reduce((sum, c) => sum + (c.unread || 0), 0);
+
+    const todos = [
+        { icon: "🧾", text: `Pesanan baru menunggu diproses`, count: newOrders, tab: "pesanan" },
+        { icon: "🚚", text: `Pesanan dalam pengiriman`, count: shippingOrders, tab: "pesanan" },
+        { icon: "💬", text: `Pesan pembeli belum dibalas`, count: unreadChats, tab: "pelayanan" }
+    ];
+
+    wrap.innerHTML = todos.map(item => `
+        <button type="button" class="dash-todo-item" data-todo-tab="${item.tab}">
+            <span>${item.icon} ${item.text}</span>
+            <b class="${item.count > 0 ? "dash-todo-count-active" : ""}">${item.count}</b>
+        </button>
+    `).join("");
+}
+
+document.getElementById("dashTodoList")?.addEventListener("click", event => {
+    const btn = event.target.closest("[data-todo-tab]");
+    if (!btn) return;
+    document.querySelector(`[data-dash-tab="${btn.dataset.todoTab}"]`)?.click();
+});
+
+
+/* =========================================================
+   PENGIRIMAN (dashboard seller)
+   ========================================================= */
+
+function getShippingSettings() {
+    return JSON.parse(localStorage.getItem("mabstore_shipping_settings") || "null") || {
+        couriers: ["JNE", "J&T Express", "SiCepat"],
+        pickupAddress: ""
+    };
+}
+
+function renderShippingSettings() {
+    const settings = getShippingSettings();
+    document.querySelectorAll("#dashShippingCouriers input[type=checkbox]").forEach(cb => {
+        cb.checked = settings.couriers.includes(cb.value);
+    });
+    document.getElementById("dashPickupAddress").value = settings.pickupAddress || "";
+    renderPrintResiList();
+}
+
+document.getElementById("dashShippingForm")?.addEventListener("submit", event => {
+    event.preventDefault();
+    const couriers = Array.from(document.querySelectorAll("#dashShippingCouriers input:checked")).map(cb => cb.value);
+    const pickupAddress = document.getElementById("dashPickupAddress").value.trim();
+    localStorage.setItem("mabstore_shipping_settings", JSON.stringify({ couriers, pickupAddress }));
+    alert("Pengaturan pengiriman disimpan.");
+});
+
+function renderPrintResiList() {
+    const wrap = document.getElementById("dashPrintResiList");
+    if (!wrap) return;
+    const pending = orders.filter(o => o.status === "diproses");
+    wrap.innerHTML = pending.length
+        ? pending.map(o => `<div class="dash-print-resi-item"><input type="checkbox" checked data-resi-order="${o.id}"> #${o.id} — ${o.address?.name || "Pembeli"} (${o.items.length} produk)</div>`).join("")
+        : `<p class="dash-empty-text">Tidak ada pesanan yang menunggu resi.</p>`;
+}
+
+document.getElementById("dashPrintResiBtn")?.addEventListener("click", () => {
+    const checked = Array.from(document.querySelectorAll("[data-resi-order]:checked")).map(cb => cb.dataset.resiOrder);
+    const toPrint = orders.filter(o => checked.includes(String(o.id)));
+    if (!toPrint.length) { alert("Tidak ada resi yang dipilih."); return; }
+    const win = window.open("", "_blank");
+    win.document.write(`
+        <html><head><title>Cetak Resi</title><style>
+            body{font-family:sans-serif;padding:20px;} .resi{border:1px dashed #333;padding:14px;margin-bottom:14px;page-break-inside:avoid;}
+            .resi b{font-size:16px;}
+        </style></head><body>
+        ${toPrint.map(o => `
+            <div class="resi">
+                <p><b>MAB-Official Store</b> → <b>${o.address?.name || "Pembeli"}</b></p>
+                <p>No. Pesanan: #${o.id}</p>
+                <p>Alamat: ${o.address?.address || "-"}</p>
+                <p>Isi: ${o.items.map(i => `${i.name} x${i.quantity}`).join(", ")}</p>
+                <p>Total: ${rupiah(o.total)}</p>
+            </div>
+        `).join("")}
+        <script>window.print();<\/script>
+        </body></html>
+    `);
+    win.document.close();
+});
+
+
+/* =========================================================
+   PUSAT PROMOSI — voucher toko dinamis
+   ========================================================= */
+
+function getSellerVouchers() {
+    return JSON.parse(localStorage.getItem("mabstore_seller_vouchers") || "[]");
+}
+
+function saveSellerVouchers(list) {
+    localStorage.setItem("mabstore_seller_vouchers", JSON.stringify(list));
+}
+
+function renderVoucherList() {
+    const wrap = document.getElementById("dashVoucherList");
+    if (!wrap) return;
+    const builtin = [
+        { code: "MABHEMAT", type: "persen", value: 10, min: 0, builtin: true },
+        { code: "ONGKIRGRATIS", type: "ongkir", value: 0, min: 0, builtin: true },
+        { code: "MEMBERBARU", type: "nominal", value: 20000, min: 150000, builtin: true }
+    ];
+    const list = [...builtin, ...getSellerVouchers()];
+    const typeLabel = { persen: v => `Diskon ${v.value}%`, nominal: v => `Potongan ${rupiah(v.value)}`, ongkir: () => "Gratis Ongkir" };
+
+    wrap.innerHTML = list.map(v => `
+        <div class="dash-voucher-item">
+            <div>
+                <b>${v.code}</b> — ${typeLabel[v.type](v)}
+                ${v.min ? `<span class="dash-voucher-min"> (min. belanja ${rupiah(v.min)})</span>` : ""}
+                ${v.builtin ? `<span class="dash-voucher-tag">bawaan</span>` : ""}
+            </div>
+            ${!v.builtin ? `<button type="button" data-delete-voucher="${v.code}">🗑️</button>` : ""}
+        </div>
+    `).join("");
+}
+
+document.getElementById("dashVoucherType")?.addEventListener("change", event => {
+    document.getElementById("dashVoucherValueWrap").hidden = event.target.value === "ongkir";
+});
+
+document.getElementById("dashVoucherForm")?.addEventListener("submit", event => {
+    event.preventDefault();
+    const code = document.getElementById("dashVoucherCode").value.trim().toUpperCase();
+    const type = document.getElementById("dashVoucherType").value;
+    const value = Number(document.getElementById("dashVoucherValue").value) || 0;
+    const min = Number(document.getElementById("dashVoucherMin").value) || 0;
+    if (!code) return;
+
+    const list = getSellerVouchers();
+    if (list.some(v => v.code === code)) { alert("Kode voucher sudah dipakai."); return; }
+    list.push({ code, type, value, min });
+    saveSellerVouchers(list);
+    renderVoucherList();
+    event.target.reset();
+    document.getElementById("dashVoucherValueWrap").hidden = false;
+});
+
+document.getElementById("dashVoucherList")?.addEventListener("click", event => {
+    const btn = event.target.closest("[data-delete-voucher]");
+    if (!btn) return;
+    saveSellerVouchers(getSellerVouchers().filter(v => v.code !== btn.dataset.deleteVoucher));
+    renderVoucherList();
+});
+
+
+/* =========================================================
+   KEUANGAN — saldo, rekening bank, pencairan dana
+   ========================================================= */
+
+const PLATFORM_FEE_RATE = 0.025;
+
+function computeFinance() {
+    const completed = orders.filter(o => o.status === "selesai");
+    const grossRevenue = completed.reduce((sum, o) => sum + o.total, 0);
+    const netRevenue = Math.round(grossRevenue * (1 - PLATFORM_FEE_RATE));
+    const withdrawals = getWithdrawals();
+    const totalWithdrawn = withdrawals.reduce((sum, w) => sum + w.amount, 0);
+    const inShipping = orders.filter(o => o.status === "dikirim").reduce((sum, o) => sum + o.total, 0);
+    return {
+        available: Math.max(0, netRevenue - totalWithdrawn),
+        pending: Math.round(inShipping * (1 - PLATFORM_FEE_RATE)),
+        totalWithdrawn
+    };
+}
+
+function getWithdrawals() {
+    return JSON.parse(localStorage.getItem("mabstore_withdrawals") || "[]");
+}
+
+function saveWithdrawals(list) {
+    localStorage.setItem("mabstore_withdrawals", JSON.stringify(list));
+}
+
+function getBankAccount() {
+    return JSON.parse(localStorage.getItem("mabstore_bank_account") || "null") || { bank: "", number: "", holder: "" };
+}
+
+function renderFinance() {
+    const finance = computeFinance();
+    const grid = document.getElementById("dashFinanceStatGrid");
+    if (grid) {
+        grid.innerHTML = `
+            <div class="dash-stat-card"><span class="dash-stat-label">Saldo Tersedia</span><b class="dash-stat-value">${rupiah(finance.available)}</b></div>
+            <div class="dash-stat-card"><span class="dash-stat-label">Dalam Proses (Dikirim)</span><b class="dash-stat-value">${rupiah(finance.pending)}</b></div>
+            <div class="dash-stat-card"><span class="dash-stat-label">Total Sudah Dicairkan</span><b class="dash-stat-value">${rupiah(finance.totalWithdrawn)}</b></div>
+        `;
+    }
+    const bank = getBankAccount();
+    document.getElementById("dashBankName").value = bank.bank || "";
+    document.getElementById("dashBankNumber").value = bank.number || "";
+    document.getElementById("dashBankHolder").value = bank.holder || "";
+    renderWithdrawHistory();
+}
+
+document.getElementById("dashBankForm")?.addEventListener("submit", event => {
+    event.preventDefault();
+    localStorage.setItem("mabstore_bank_account", JSON.stringify({
+        bank: document.getElementById("dashBankName").value.trim(),
+        number: document.getElementById("dashBankNumber").value.trim(),
+        holder: document.getElementById("dashBankHolder").value.trim()
+    }));
+    alert("Rekening bank disimpan.");
+});
+
+document.getElementById("dashWithdrawForm")?.addEventListener("submit", event => {
+    event.preventDefault();
+    const amount = Number(document.getElementById("dashWithdrawAmount").value) || 0;
+    const finance = computeFinance();
+    const bank = getBankAccount();
+    if (!bank.number) { alert("Simpan rekening bank terlebih dahulu."); return; }
+    if (amount <= 0 || amount > finance.available) { alert("Jumlah penarikan melebihi saldo tersedia."); return; }
+
+    const list = getWithdrawals();
+    list.unshift({ id: "w" + Date.now(), amount, date: Date.now(), bank: bank.bank, status: "diproses" });
+    saveWithdrawals(list);
+    renderFinance();
+    event.target.reset();
+});
+
+function renderWithdrawHistory() {
+    const wrap = document.getElementById("dashWithdrawHistory");
+    if (!wrap) return;
+    const list = getWithdrawals();
+    wrap.innerHTML = list.length
+        ? list.map(w => `<div class="dash-withdraw-item"><span>${new Date(w.date).toLocaleDateString("id-ID")} — ${w.bank}</span><b>${rupiah(w.amount)}</b></div>`).join("")
+        : `<p class="dash-empty-text">Belum ada riwayat pencairan.</p>`;
+}
+
+
+/* =========================================================
+   PERKEMBANGAN PENJUAL
+   ========================================================= */
+
+function renderPerforma() {
+    const completed = orders.filter(o => o.status === "selesai").length;
+    const cancelled = orders.filter(o => o.status === "dibatalkan").length;
+    const totalOrders = orders.length || 1;
+    const completionRate = Math.round((completed / totalOrders) * 100);
+
+    const grid = document.getElementById("dashPerformaStatGrid");
+    if (grid) {
+        grid.innerHTML = `
+            <div class="dash-stat-card"><span class="dash-stat-label">Rating Toko</span><b class="dash-stat-value">4.9 ⭐</b></div>
+            <div class="dash-stat-card"><span class="dash-stat-label">Tingkat Penyelesaian Pesanan</span><b class="dash-stat-value">${completionRate}%</b></div>
+            <div class="dash-stat-card"><span class="dash-stat-label">Kecepatan Balas Chat</span><b class="dash-stat-value">&lt; 5 menit</b></div>
+            <div class="dash-stat-card"><span class="dash-stat-label">Poin Penalti</span><b class="dash-stat-value">0</b></div>
+        `;
+    }
+
+    const health = document.getElementById("dashPerformaHealth");
+    if (health) {
+        health.innerHTML = `
+            <div class="dash-performa-row"><span>Pesanan Dibatalkan/Retur</span><b>${cancelled} dari ${orders.length}</b></div>
+            <div class="dash-performa-row"><span>Status Toko</span><b style="color:#1c8a4a;">🟢 Toko Sehat — Sesuai Standar Layanan</b></div>
+        `;
+    }
+
+    const achievements = document.getElementById("dashPerformaAchievements");
+    if (achievements) {
+        achievements.innerHTML = `
+            <div class="dash-performa-badge">🏅 Respon Cepat</div>
+            <div class="dash-performa-badge">📦 Pengiriman Tepat Waktu</div>
+            <div class="dash-performa-badge">⭐ Rating Tinggi</div>
+        `;
+    }
+}
+
+
+/* =========================================================
+   PELAYANAN PEMBELI — dashboard chat seller (balas manual asli)
+   ========================================================= */
+
+let activeDashChatConvId = null;
+
+function renderDashChatUnreadBadge() {
+    const badge = document.getElementById("dashChatUnreadBadge");
+    if (!badge) return;
+    const unread = chatConversations.reduce((sum, c) => sum + (c.unread || 0), 0);
+    badge.hidden = unread === 0;
+    badge.textContent = unread;
+}
+
+function renderDashChatConvList() {
+    const wrap = document.getElementById("dashChatConvList");
+    if (!wrap) return;
+    if (!chatConversations.length) {
+        wrap.innerHTML = `<p class="dash-empty-text">Belum ada percakapan.</p>`;
+        return;
+    }
+    wrap.innerHTML = chatConversations.map(conv => {
+        const last = conv.messages[conv.messages.length - 1];
+        return `
+            <button type="button" class="dash-chat-conv-item${conv.id === activeDashChatConvId ? " active" : ""}" data-dash-conv-id="${conv.id}">
+                <span class="dash-chat-conv-avatar">${conv.avatar}</span>
+                <span class="dash-chat-conv-info">
+                    <b>${conv.storeName === "MAB-Official Store" ? "Pembeli (Percakapan Toko)" : conv.storeName}</b>
+                    <span>${last ? (last.text || "[media]").slice(0, 30) : "Belum ada pesan"}</span>
+                </span>
+                ${conv.unread ? `<span class="dash-chat-conv-badge">${conv.unread}</span>` : ""}
+            </button>
+        `;
+    }).join("");
+}
+
+function renderDashChatMessages() {
+    const conv = chatConversations.find(c => c.id === activeDashChatConvId);
+    const wrap = document.getElementById("dashChatMessages");
+    if (!wrap || !conv) return;
+    wrap.innerHTML = conv.messages.map(msg => {
+        if (msg.type === "system") return `<div class="chat-bubble-row system"><div class="chat-bubble">${escapeHtml(msg.text)}</div></div>`;
+        let inner = "";
+        if (msg.type === "text") inner = `<div>${escapeHtml(msg.text)}</div>`;
+        else if (msg.type === "image") inner = `<img class="chat-msg-image" src="${msg.mediaUrl}" alt="foto">`;
+        else if (msg.type === "video") inner = `<video class="chat-msg-video" src="${msg.mediaUrl}" controls></video>`;
+        else if (msg.type === "product") inner = `<div class="chat-product-card"><img src="${msg.product.image}" alt=""><div><b>${msg.product.name}</b><span>${rupiah(msg.product.price)}</span></div></div>${msg.text ? `<div style="margin-top:6px;">${escapeHtml(msg.text)}</div>` : ""}`;
+        // Dari sudut pandang dashboard seller: pesan "me" (pembeli) tampil di kiri, pesan "seller" (kita) tampil di kanan.
+        const rowClass = msg.from === "me" ? "seller-view-buyer" : "seller-view-mine";
+        return `<div class="chat-bubble-row ${rowClass}"><div class="chat-bubble">${inner}<time>${formatChatTime(msg.time)}</time></div></div>`;
+    }).join("");
+    wrap.scrollTop = wrap.scrollHeight;
+}
+
+function openDashConversation(convId) {
+    activeDashChatConvId = convId;
+    const conv = chatConversations.find(c => c.id === convId);
+    if (!conv) return;
+    conv.unread = 0;
+    saveChats();
+
+    document.getElementById("dashChatEmpty").hidden = true;
+    document.getElementById("dashChatActive").hidden = false;
+    document.getElementById("dashChatPeerName").textContent = "Pembeli";
+
+    document.querySelectorAll("#dashChatModeSwitch [data-chat-mode]").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.chatMode === (conv.adminMode || "asli"));
+    });
+
+    renderDashChatMessages();
+    renderDashChatConvList();
+    renderDashChatUnreadBadge();
+}
+
+document.getElementById("dashChatConvList")?.addEventListener("click", event => {
+    const btn = event.target.closest("[data-dash-conv-id]");
+    if (!btn) return;
+    openDashConversation(btn.dataset.dashConvId);
+});
+
+document.getElementById("dashChatModeSwitch")?.addEventListener("click", event => {
+    const btn = event.target.closest("[data-chat-mode]");
+    if (!btn || !activeDashChatConvId) return;
+    const conv = chatConversations.find(c => c.id === activeDashChatConvId);
+    if (!conv) return;
+    conv.adminMode = btn.dataset.chatMode;
+    saveChats();
+    document.querySelectorAll("#dashChatModeSwitch [data-chat-mode]").forEach(b => b.classList.toggle("active", b === btn));
+});
+
+document.getElementById("dashChatReplyForm")?.addEventListener("submit", event => {
+    event.preventDefault();
+    const input = document.getElementById("dashChatReplyInput");
+    const text = input.value.trim();
+    if (!text || !activeDashChatConvId) return;
+    appendMessage(activeDashChatConvId, { from: "seller", type: "text", text });
+    renderDashChatMessages();
+    input.value = "";
+});
 
 function renderOrderTracking(order) {
     const currentIndex = orderStatusSteps.indexOf(order.status === "diproses" ? "diproses" : order.status);
@@ -4640,6 +5085,10 @@ function updateAdminSwitchUI(conv) {
         if (nameEl) nameEl.textContent = "Admin AI — " + conv.storeName;
         if (avatarEl) avatarEl.textContent = "🤖";
         if (statusEl) statusEl.textContent = "Selalu online • dibantu AI";
+    } else if (conv.adminMode === "live") {
+        if (nameEl) nameEl.textContent = conv.storeName;
+        if (avatarEl) avatarEl.textContent = conv.avatar;
+        if (statusEl) statusEl.textContent = "Dibalas manual oleh penjual";
     } else {
         if (nameEl) nameEl.textContent = conv.storeName;
         if (avatarEl) avatarEl.textContent = conv.avatar;
@@ -4989,6 +5438,14 @@ function callExternalLLM(config, systemPrompt, userMessage) {
 function replyForUserMessage(convId, userMsg) {
     const conv = chatConversations.find(c => c.id === convId);
     if (!conv) return;
+    if (conv.adminMode === "live") {
+        // Mode balas manual: tidak ada auto-reply, menunggu penjual asli membalas dari Dashboard > Pelayanan Pembeli.
+        conv.unread = (conv.unread || 0) + 1;
+        saveChats();
+        renderDashChatConvList();
+        renderDashChatUnreadBadge();
+        return;
+    }
     if (conv.adminMode === "ai") {
         let text = userMsg.text || "";
         if (userMsg.type === "product") text = `Tanya tentang produk ${userMsg.product.name}. ${userMsg.text || ""}`;
@@ -5410,11 +5867,19 @@ function renderGalleryList(gallery) {
 
 function renderDashboardAll() {
     renderDashboardStats();
+    renderDashboardTodo();
     renderDashboardSalesChart();
     renderDashboardTopProducts();
     renderDashboardTrafficChart();
     renderDashboardAdsForm();
     renderDashboardAdsList();
+    renderDashOrderList();
+    renderShippingSettings();
+    renderVoucherList();
+    renderFinance();
+    renderPerforma();
+    renderDashChatConvList();
+    renderDashChatUnreadBadge();
 
     document.getElementById("dashStoreName").value = sellerStoreProfile.name;
     document.getElementById("dashStoreDesc").value = sellerStoreProfile.desc;
