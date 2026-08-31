@@ -14,21 +14,27 @@ const products = [
     {
         id: 1,
         name: "Smartphone Pro Max",
+        nameEn: "Smartphone Pro Max",
+        descId: "Smartphone flagship dengan performa kencang, kamera jernih, dan desain premium untuk aktivitas harianmu.",
+        descEn: "A flagship smartphone with fast performance, a sharp camera, and a premium design for your everyday activities.",
         category: "Elektronik",
         icon: "📱",
         price: 2999000,
         oldPrice: 3499000,
         rating: 4.9,
         sold: 120,
-        image: "https://images.pexels.com/photos/12882840/pexels-photo-12882840.jpeg?auto=compress&cs=tinysrgb&w=800",
+        image: "https://images.pexels.com/photos/215579/pexels-photo-215579.jpeg?auto=compress&cs=tinysrgb&w=800",
         flash: true,
-        keywords: "smartphone hp ponsel android elektronik",
+        keywords: "smartphone hp ponsel android elektronik phone",
         variants: { Warna: ["Hitam", "Putih", "Biru"], Tipe: ["128GB", "256GB"] }
     },
 
     {
         id: 2,
         name: "Wireless Headphone",
+        nameEn: "Wireless Headphone",
+        descId: "Headphone nirkabel dengan suara jernih dan bass mantap, nyaman dipakai lama untuk musik maupun kerja.",
+        descEn: "A wireless headphone with crisp sound and punchy bass, comfortable for long listening or work sessions.",
         category: "Elektronik",
         icon: "🎧",
         price: 399000,
@@ -44,6 +50,9 @@ const products = [
     {
         id: 3,
         name: "Smartwatch Series 5",
+        nameEn: "Smartwatch Series 5",
+        descId: "Jam tangan pintar untuk memantau kesehatan dan notifikasi harian langsung dari pergelangan tanganmu.",
+        descEn: "A smartwatch for tracking your health and daily notifications right from your wrist.",
         category: "Elektronik",
         icon: "⌚",
         price: 549000,
@@ -52,13 +61,16 @@ const products = [
         sold: 64,
         image: "https://images.pexels.com/photos/14691505/pexels-photo-14691505.jpeg?auto=compress&cs=tinysrgb&w=800",
         flash: true,
-        keywords: "smartwatch jam tangan elektronik",
+        keywords: "smartwatch jam tangan elektronik watch",
         variants: { Warna: ["Hitam", "Silver"], Ukuran: ["40mm", "44mm"] }
     },
 
     {
         id: 4,
         name: "Tas Backpack Premium",
+        nameEn: "Premium Backpack",
+        descId: "Tas ransel premium dengan banyak kompartemen, cocok untuk kerja, sekolah, maupun jalan-jalan.",
+        descEn: "A premium backpack with multiple compartments, perfect for work, school, or travel.",
         category: "Aksesoris",
         icon: "🎒",
         price: 249000,
@@ -67,13 +79,16 @@ const products = [
         sold: 210,
         image: "https://images.pexels.com/photos/11726029/pexels-photo-11726029.jpeg?auto=compress&cs=tinysrgb&w=800",
         flash: true,
-        keywords: "tas backpack fashion aksesoris sekolah",
+        keywords: "tas backpack fashion aksesoris sekolah bag",
         variants: { Warna: ["Hitam", "Navy", "Abu-abu"] }
     },
 
     {
         id: 5,
         name: "Sneakers Casual",
+        nameEn: "Casual Sneakers",
+        descId: "Sepatu sneakers kasual yang ringan dan nyaman, cocok dipakai untuk gaya harian maupun olahraga ringan.",
+        descEn: "Lightweight and comfortable casual sneakers, great for everyday style or light workouts.",
         category: "Olahraga",
         icon: "👟",
         price: 329000,
@@ -82,13 +97,16 @@ const products = [
         sold: 98,
         image: "https://images.pexels.com/photos/797637/pexels-photo-797637.jpeg?auto=compress&cs=tinysrgb&w=800",
         flash: false,
-        keywords: "sneakers sepatu olahraga fashion",
+        keywords: "sneakers sepatu olahraga fashion shoes",
         variants: { Warna: ["Hitam", "Putih"], Ukuran: ["39", "40", "41", "42", "43"] }
     },
 
     {
         id: 6,
         name: "Laptop Slim",
+        nameEn: "Slim Laptop",
+        descId: "Laptop tipis dan ringan dengan performa mumpuni untuk kerja, kuliah, maupun hiburan sehari-hari.",
+        descEn: "A thin and light laptop with solid performance for work, study, or everyday entertainment.",
         category: "Elektronik",
         icon: "💻",
         price: 7999000,
@@ -97,13 +115,16 @@ const products = [
         sold: 41,
         image: "https://images.pexels.com/photos/3584974/pexels-photo-3584974.jpeg?auto=compress&cs=tinysrgb&w=800",
         flash: false,
-        keywords: "laptop komputer notebook elektronik",
+        keywords: "laptop komputer notebook elektronik computer",
         variants: { Warna: ["Silver", "Space Gray"], Tipe: ["8GB/256GB", "16GB/512GB"] }
     },
 
     {
         id: 7,
         name: "T-Shirt Premium",
+        nameEn: "Premium T-Shirt",
+        descId: "Kaos premium berbahan katun combed yang lembut, adem, dan nyaman dipakai sepanjang hari.",
+        descEn: "A premium t-shirt made of soft combed cotton, breathable and comfortable to wear all day.",
         category: "Fashion",
         icon: "👕",
         price: 129000,
@@ -112,13 +133,16 @@ const products = [
         sold: 340,
         image: "https://images.pexels.com/photos/12039633/pexels-photo-12039633.jpeg?auto=compress&cs=tinysrgb&w=800",
         flash: false,
-        keywords: "kaos tshirt pakaian fashion",
+        keywords: "kaos tshirt pakaian fashion shirt",
         variants: { Warna: ["Hitam", "Putih", "Merah"], Ukuran: ["S", "M", "L", "XL"] }
     },
 
     {
         id: 8,
         name: "Kursi Minimalis",
+        nameEn: "Minimalist Chair",
+        descId: "Kursi bergaya minimalis dengan konstruksi kokoh, cocok untuk ruang kerja maupun ruang tamu modern.",
+        descEn: "A minimalist-style chair with sturdy construction, great for a home office or modern living room.",
         category: "Rumah",
         icon: "🪑",
         price: 499000,
@@ -127,13 +151,16 @@ const products = [
         sold: 56,
         image: "https://images.pexels.com/photos/21852582/pexels-photo-21852582.jpeg?auto=compress&cs=tinysrgb&w=800",
         flash: false,
-        keywords: "kursi furniture rumah minimalis",
+        keywords: "kursi furniture rumah minimalis chair",
         variants: { Warna: ["Natural", "Hitam"] }
     },
 
     {
         id: 9,
         name: "Kamera Mirrorless",
+        nameEn: "Mirrorless Camera",
+        descId: "Kamera mirrorless dengan hasil foto tajam dan warna alami, andalan untuk hobi fotografi maupun konten kreator.",
+        descEn: "A mirrorless camera with sharp photos and natural colors, a great pick for photography hobbyists and content creators.",
         category: "Elektronik",
         icon: "📷",
         price: 1299000,
@@ -142,13 +169,16 @@ const products = [
         sold: 72,
         image: "https://images.pexels.com/photos/15945023/pexels-photo-15945023.jpeg?auto=compress&cs=tinysrgb&w=800",
         flash: false,
-        keywords: "kamera fotografi mirrorless elektronik",
+        keywords: "kamera fotografi mirrorless elektronik camera",
         variants: { Warna: ["Hitam"], Tipe: ["Body Only", "Kit Lens"] }
     },
 
     {
         id: 10,
         name: "Parfum Premium",
+        nameEn: "Premium Perfume",
+        descId: "Parfum dengan aroma tahan lama dan karakter wangi yang elegan, cocok dipakai untuk aktivitas sehari-hari.",
+        descEn: "A perfume with long-lasting, elegant scent character, perfect for everyday wear.",
         category: "Kecantikan",
         icon: "🌸",
         price: 279000,
@@ -157,13 +187,16 @@ const products = [
         sold: 188,
         image: "https://images.pexels.com/photos/16089870/pexels-photo-16089870.jpeg?auto=compress&cs=tinysrgb&w=800",
         flash: false,
-        keywords: "parfum fragrance kecantikan",
+        keywords: "parfum fragrance kecantikan perfume",
         variants: { Tipe: ["30ml", "50ml", "100ml"] }
     },
 
     {
         id: 11,
         name: "Mug Keramik",
+        nameEn: "Ceramic Mug",
+        descId: "Mug keramik berkualitas dengan desain simpel, pas untuk menikmati kopi atau teh favoritmu setiap hari.",
+        descEn: "A quality ceramic mug with a simple design, perfect for enjoying your favorite coffee or tea every day.",
         category: "Rumah",
         icon: "☕",
         price: 89000,
@@ -172,13 +205,16 @@ const products = [
         sold: 415,
         image: "https://images.pexels.com/photos/4109750/pexels-photo-4109750.jpeg?auto=compress&cs=tinysrgb&w=800",
         flash: false,
-        keywords: "mug gelas keramik rumah dapur",
+        keywords: "mug gelas keramik rumah dapur cup",
         variants: { Warna: ["Putih", "Hitam", "Biru Tua"] }
     },
 
     {
         id: 12,
         name: "Keyboard Mechanical",
+        nameEn: "Mechanical Keyboard",
+        descId: "Keyboard mechanical dengan respons ketikan yang presisi dan tahan lama, favorit para gamer dan pengetik cepat.",
+        descEn: "A mechanical keyboard with precise, durable keystroke response, a favorite among gamers and fast typists.",
         category: "Gaming",
         icon: "⌨️",
         price: 459000,
@@ -266,6 +302,10 @@ let wishlist = [];
 let selectedProduct = null;
 let detailQuantity = 1;
 let selectedVariants = {};
+
+let currentLang = localStorage.getItem("mabstore_lang") || "id";
+let usdRate = Number(localStorage.getItem("mabstore_usd_rate")) || 15800;
+let usdRateFetchedAt = Number(localStorage.getItem("mabstore_usd_rate_time")) || 0;
 
 
 /* =========================================================
@@ -429,6 +469,19 @@ function saveWishlist() {
 
 function rupiah(number) {
 
+    if (currentLang === "en") {
+        const usdValue = number / usdRate;
+        return new Intl.NumberFormat(
+            "en-US",
+            {
+                style: "currency",
+                currency: "USD",
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }
+        ).format(usdValue);
+    }
+
     return new Intl.NumberFormat(
         "id-ID",
         {
@@ -438,6 +491,201 @@ function rupiah(number) {
         }
     ).format(number);
 
+}
+
+
+/* =========================================================
+   BAHASA & KURS MATA UANG (ID/EN — IDR/USD)
+   ========================================================= */
+
+async function fetchExchangeRate(force = false) {
+    const oneHour = 60 * 60 * 1000;
+    if (!force && Date.now() - usdRateFetchedAt < oneHour) return;
+
+    try {
+        const res = await fetch("https://open.er-api.com/v6/latest/USD");
+        const data = await res.json();
+        if (data && data.rates && data.rates.IDR) {
+            usdRate = data.rates.IDR;
+            usdRateFetchedAt = Date.now();
+            localStorage.setItem("mabstore_usd_rate", String(usdRate));
+            localStorage.setItem("mabstore_usd_rate_time", String(usdRateFetchedAt));
+            if (currentLang === "en") refreshCurrentView();
+        }
+    } catch (error) {
+        /* gagal fetch kurs — tetap pakai kurs cache/default, tidak mengganggu pengalaman pengguna */
+    }
+}
+
+
+/* =========================================================
+   AUTO-TRANSLATE (untuk produk baru — tidak perlu isi nameEn/descEn manual)
+   ========================================================= */
+
+let translationCache = JSON.parse(localStorage.getItem("mabstore_translation_cache") || "{}");
+const translationPending = new Set();
+
+function saveTranslationCache() {
+    try {
+        localStorage.setItem("mabstore_translation_cache", JSON.stringify(translationCache));
+    } catch (error) {
+        /* storage penuh — abaikan, cache di memori tetap jalan untuk sesi ini */
+    }
+}
+
+async function fetchAutoTranslation(text) {
+    try {
+        const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=id|en`);
+        const data = await res.json();
+        const translated = data && data.responseData && data.responseData.translatedText;
+        if (translated && translated.toLowerCase() !== "invalid" && !translated.startsWith("QUERY LENGTH")) {
+            return translated;
+        }
+    } catch (error) {
+        /* gagal terjemahkan — pakai teks asli sebagai fallback, tidak mengganggu pengalaman pengguna */
+    }
+    return text;
+}
+
+function ensureAutoTranslated(text) {
+    if (!text || translationCache[text] || translationPending.has(text)) return;
+    translationPending.add(text);
+
+    fetchAutoTranslation(text).then(translated => {
+        translationCache[text] = translated;
+        translationPending.delete(text);
+        saveTranslationCache();
+        if (currentLang === "en") refreshCurrentView();
+    });
+}
+
+/* Kembalikan terjemahan Indonesia→Inggris: pakai cache jika sudah ada,
+   kalau belum, mulai proses terjemahan di latar belakang (hasilnya akan
+   muncul otomatis begitu selesai) dan untuk sementara tampilkan teks asli. */
+function autoText(text) {
+    if (currentLang !== "en" || !text) return text;
+    if (translationCache[text] !== undefined) return translationCache[text];
+    ensureAutoTranslated(text);
+    return text;
+}
+
+const categoryLabels = {
+    id: { Elektronik: "Elektronik", Fashion: "Fashion", Rumah: "Rumah", Kecantikan: "Kecantikan", Gaming: "Gaming", Olahraga: "Olahraga", Buku: "Buku", Aksesoris: "Aksesoris" },
+    en: { Elektronik: "Electronics", Fashion: "Fashion", Rumah: "Home", Kecantikan: "Beauty", Gaming: "Gaming", Olahraga: "Sports", Buku: "Books", Aksesoris: "Accessories" }
+};
+
+function categoryLabel(cat) {
+    if (!cat) return cat;
+    const known = categoryLabels[currentLang] && categoryLabels[currentLang][cat];
+    if (known) return known;
+    /* kategori baru yang belum ada di kamus tetap otomatis diterjemahkan */
+    return autoText(cat);
+}
+
+function productName(product) {
+    if (!product) return "";
+    if (currentLang !== "en") return product.name;
+    return product.nameEn || autoText(product.name);
+}
+
+function productDesc(product) {
+    if (!product) return "";
+    const idText = product.descId || product.name;
+    if (currentLang !== "en") return idText;
+    return product.descEn || autoText(idText);
+}
+
+function findProductById(id) {
+    return products.find(p => p.id === id);
+}
+
+function productNameById(id, fallback) {
+    const product = findProductById(id);
+    return product ? productName(product) : (currentLang === "en" ? autoText(fallback || "") : (fallback || ""));
+}
+
+const colorLabels = {
+    Hitam: "Black", Putih: "White", Biru: "Blue", Merah: "Red", Silver: "Silver",
+    Navy: "Navy", "Abu-abu": "Grey", Natural: "Natural", "Biru Tua": "Dark Blue"
+};
+
+function variantValueLabel(value) {
+    if (currentLang !== "en") return value;
+    if (colorLabels[value]) return colorLabels[value];
+    /* nilai varian baru (warna/tipe baru) ikut otomatis diterjemahkan */
+    return autoText(value);
+}
+
+const variantKeyLabels = {
+    Warna: { id: "Warna", en: "Color" },
+    Tipe: { id: "Tipe", en: "Type" },
+    Ukuran: { id: "Ukuran", en: "Size" }
+};
+
+function variantKeyLabel(key) {
+    return (variantKeyLabels[key] && variantKeyLabels[key][currentLang]) || key;
+}
+
+/* Kamus untuk teks yang di-generate lewat JS (bukan teks statis di HTML) */
+const t_dict = {
+    addToCart: { id: "+ Keranjang", en: "+ Cart" },
+    buyNow: { id: "⚡ Beli Sekarang", en: "⚡ Buy Now" },
+    sold: { id: "Terjual", en: "Sold" },
+    soldPercent: { id: "terjual", en: "sold" },
+    reviewsSuffix: { id: "ulasan", en: "reviews" },
+    inStockShip: { id: "✓ Stok tersedia \u00a0•\u00a0 Siap dikirim", en: "✓ In stock \u00a0•\u00a0 Ready to ship" },
+    seeDetail: { id: "Lihat Detail", en: "View Detail" },
+    hideDetail: { id: "Sembunyikan Detail", en: "Hide Detail" },
+    updateStatus: { id: "Perbarui Status (Simulasi)", en: "Update Status (Simulation)" },
+    buyAgain: { id: "Beli Lagi", en: "Buy Again" },
+    items: { id: "barang", en: "items" },
+    total: { id: "Total", en: "Total" },
+    orderNoMatch: { id: "Tidak ada pesanan dengan status ini.", en: "No orders with this status." },
+    noSimilarProducts: { id: "Belum ada produk serupa lainnya.", en: "No similar products yet." },
+    noResultsFilter: { id: "Tidak ada produk yang cocok dengan filter ini.", en: "No products match this filter." },
+    productsFound: { id: "produk ditemukan", en: "products found" },
+    following: { id: "✓ Mengikuti", en: "✓ Following" },
+    followStore: { id: "+ Ikuti Toko", en: "+ Follow Store" },
+    payment: { id: "Pembayaran", en: "Payment" },
+    voucherLabel: { id: "Voucher", en: "Voucher" },
+    tracking: { id: { dibuat: "Pesanan Dibuat", diproses: "Diproses", dikirim: "Dikirim", selesai: "Selesai" }, en: { dibuat: "Order Placed", diproses: "Processing", dikirim: "Shipped", selesai: "Completed" } },
+    orderStatus: { id: { diproses: "Diproses", dikirim: "Dikirim", selesai: "Selesai" }, en: { diproses: "Processing", dikirim: "Shipped", selesai: "Completed" } },
+    specLabels: {
+        id: { Merek: "Merek", Kategori: "Kategori", Bahan: "Bahan", Kondisi: "Kondisi", "Berat Satuan": "Berat Satuan", "Min. Pemesanan": "Min. Pemesanan", Etalase: "Etalase", Garansi: "Garansi", SKU: "SKU", "Dikirim Dari": "Dikirim Dari" },
+        en: { Merek: "Brand", Kategori: "Category", Bahan: "Material", Kondisi: "Condition", "Berat Satuan": "Unit Weight", "Min. Pemesanan": "Min. Order", Etalase: "Showcase", Garansi: "Warranty", SKU: "SKU", "Dikirim Dari": "Shipped From" }
+    },
+    specValues: {
+        Baru: "New",
+        "Garansi Resmi 1 Tahun": "1-Year Official Warranty",
+        "Garansi Kepuasan 7 Hari": "7-Day Satisfaction Warranty",
+        "1 Buah": "1 Piece",
+        "Jakarta Selatan": "South Jakarta",
+        "MAB-Store": "MAB-Store",
+        Pilihan: "Choice",
+        "Plastik & Logam": "Plastic & Metal",
+        "Katun Combed": "Combed Cotton",
+        "Kayu & Keramik": "Wood & Ceramic",
+        "Kaca & Cairan Parfum": "Glass & Perfume Liquid",
+        "Plastik ABS & Logam": "ABS Plastic & Metal",
+        "Kanvas & Karet": "Canvas & Rubber",
+        Kertas: "Paper",
+        "Kanvas & Kulit Sintetis": "Canvas & Synthetic Leather",
+        "Campuran Berkualitas": "Quality Blend"
+    }
+};
+
+function t(key) {
+    const entry = t_dict[key];
+    if (!entry) return key;
+    return entry[currentLang] !== undefined ? entry[currentLang] : entry.id;
+}
+
+function specValueLabel(value) {
+    if (currentLang !== "en") return value;
+    if (t_dict.specValues[value]) return t_dict.specValues[value];
+    if (value.endsWith(" Pilihan")) return `${categoryLabel(value.replace(" Pilihan", ""))} Choice`;
+    /* nilai spesifikasi baru yang belum ada di kamus tetap otomatis diterjemahkan */
+    return autoText(value);
 }
 
 
@@ -483,7 +731,7 @@ function createProductCard(product) {
         <article class="product-card" data-product-id="${product.id}">
             <div class="product-image">
                 ${product.image
-                    ? `<img class="product-photo" src="${product.image}" alt="${product.name}" loading="lazy">`
+                    ? `<img class="product-photo" src="${product.image}" alt="${productName(product)}" loading="lazy">`
                     : `<div class="product-placeholder">${product.icon}</div>`}
                 <button class="wishlist-button ${liked ? "active" : ""}" data-wishlist-id="${product.id}" type="button" aria-label="Wishlist">
                     ${liked ? "♥" : "♡"}
@@ -492,20 +740,20 @@ function createProductCard(product) {
                 ${product.flash && discount ? `<span class="flash-discount">-${discount}%</span>` : ""}
             </div>
             <div class="product-info">
-                <h3>${product.name}</h3>
+                <h3>${productName(product)}</h3>
                 <div class="price">${rupiah(product.price)}</div>
                 ${product.oldPrice > 0 ? `<div class="old-price">${rupiah(product.oldPrice)}</div>` : `<div class="old-price" style="visibility:hidden">Rp0</div>`}
                 <div class="product-bottom">
                     <span>⭐ ${product.rating}</span>
-                    <span>Terjual ${product.sold}</span>
+                    <span>${t("sold")} ${product.sold}</span>
                 </div>
                 ${product.flash ? `
                     <div class="flash-stock">
                         <div class="flash-stock-bar"><div class="flash-stock-progress" style="width:${stockPercent}%"></div></div>
-                        <div class="flash-stock-text">${stockPercent}% terjual</div>
+                        <div class="flash-stock-text">${stockPercent}% ${t("soldPercent")}</div>
                     </div>` : ""}
                 <button class="add-cart" data-cart-id="${product.id}" type="button">
-                    ${product.flash ? "⚡ Beli Sekarang" : "+ Keranjang"}
+                    ${product.flash ? t("buyNow") : t("addToCart")}
                 </button>
             </div>
         </article>
@@ -527,7 +775,11 @@ function matchesSearch(product) {
 
         ${product.name}
 
+        ${product.nameEn || translationCache[product.name] || ""}
+
         ${product.category}
+
+        ${categoryLabel(product.category)}
 
         ${product.keywords}
 
@@ -1387,7 +1639,7 @@ function addToCart(
 
 
     showToast(
-        `${product.name} ditambahkan ke keranjang 🛒`
+        currentLang === "en" ? `${productName(product)} added to cart 🛒` : `${productName(product)} ditambahkan ke keranjang 🛒`
     );
 
 }
@@ -1600,7 +1852,7 @@ function updateCart() {
 
                     <img
                         src="${item.image}"
-                        alt="${item.name}"
+                        alt="${productNameById(item.id, item.name)}"
                     >
 
                 </div>
@@ -1609,7 +1861,7 @@ function updateCart() {
                 <div class="cart-product-details">
 
                     <strong>
-                        ${item.name}
+                        ${productNameById(item.id, item.name)}
                     </strong>
 
                     ${item.variantLabel ? `<span class="cart-item-variant">${item.variantLabel}</span>` : ""}
@@ -1893,7 +2145,7 @@ function toggleWishlist(
 
 
         showToast(
-            `${product.name} dihapus dari wishlist.`
+            currentLang === "en" ? `${productName(product)} removed from wishlist.` : `${productName(product)} dihapus dari wishlist.`
         );
 
     }
@@ -1906,7 +2158,7 @@ function toggleWishlist(
 
 
         showToast(
-            `${product.name} masuk wishlist ❤️`
+            currentLang === "en" ? `${productName(product)} added to wishlist ❤️` : `${productName(product)} masuk wishlist ❤️`
         );
 
     }
@@ -1958,16 +2210,16 @@ function renderWishlist() {
 
     wishlistItems.innerHTML = items.map(product => `
         <article class="wishlist-row">
-            <button class="wishlist-row-image" data-wishlist-product="${product.id}" type="button" aria-label="Lihat ${product.name}">
-                <img src="${product.image}" alt="${product.name}">
+            <button class="wishlist-row-image" data-wishlist-product="${product.id}" type="button" aria-label="${currentLang === "en" ? "View" : "Lihat"} ${productName(product)}">
+                <img src="${product.image}" alt="${productName(product)}">
             </button>
             <div class="wishlist-row-info">
-                <h3>${product.name}</h3>
-                <div class="wishlist-row-meta">⭐ ${product.rating} · ${product.sold} terjual</div>
+                <h3>${productName(product)}</h3>
+                <div class="wishlist-row-meta">⭐ ${product.rating} · ${product.sold} ${t("soldPercent")}</div>
                 <strong>${rupiah(product.price)}</strong>
                 <div class="wishlist-row-actions">
-                    <button class="wishlist-cart-btn" data-wishlist-cart="${product.id}" type="button">🛒 Keranjang</button>
-                    <button class="wishlist-remove-btn" data-wishlist-remove="${product.id}" type="button">Hapus</button>
+                    <button class="wishlist-cart-btn" data-wishlist-cart="${product.id}" type="button">🛒 ${currentLang === "en" ? "Cart" : "Keranjang"}</button>
+                    <button class="wishlist-remove-btn" data-wishlist-remove="${product.id}" type="button">${currentLang === "en" ? "Remove" : "Hapus"}</button>
                 </div>
             </div>
         </article>`).join("");
@@ -2042,11 +2294,11 @@ function renderProductGallery(product) {
 
     const gallery = getProductGallery(product);
     mainImage.src = gallery[0];
-    mainImage.alt = product.name;
+    mainImage.alt = productName(product);
 
     thumbs.innerHTML = gallery.map((src, index) => `
         <button type="button" class="pd-thumb${index === 0 ? " active" : ""}" data-thumb-src="${src}">
-            <img src="${src}" alt="${product.name} ${index + 1}">
+            <img src="${src}" alt="${productName(product)} ${index + 1}">
         </button>
     `).join("");
 }
@@ -2095,22 +2347,23 @@ const categoryMaterials = {
 function buildProductSpecs(product) {
     return [
         { label: "Merek", value: "MAB-Store" },
-        { label: "Kategori", value: product.category },
-        { label: "Bahan", value: categoryMaterials[product.category] || "Campuran Berkualitas" },
-        { label: "Kondisi", value: "Baru" },
+        { label: "Kategori", value: categoryLabel(product.category) },
+        { label: "Bahan", value: specValueLabel(categoryMaterials[product.category] || "Campuran Berkualitas") },
+        { label: "Kondisi", value: specValueLabel("Baru") },
         { label: "Berat Satuan", value: categoryWeights[product.category] || "300 gr" },
-        { label: "Min. Pemesanan", value: "1 Buah" },
-        { label: "Etalase", value: `${product.category} Pilihan` },
-        { label: "Garansi", value: ["Elektronik", "Gaming"].includes(product.category) ? "Garansi Resmi 1 Tahun" : "Garansi Kepuasan 7 Hari" },
+        { label: "Min. Pemesanan", value: specValueLabel("1 Buah") },
+        { label: "Etalase", value: specValueLabel(`${product.category} Pilihan`) },
+        { label: "Garansi", value: specValueLabel(["Elektronik", "Gaming"].includes(product.category) ? "Garansi Resmi 1 Tahun" : "Garansi Kepuasan 7 Hari") },
         { label: "SKU", value: `MAB-${String(product.id).padStart(4, "0")}` },
-        { label: "Dikirim Dari", value: "Jakarta Selatan" }
+        { label: "Dikirim Dari", value: specValueLabel("Jakarta Selatan") }
     ];
 }
 
 function renderProductSpecs(product) {
     if (!pdSpecsTable) return;
+    const labels = t_dict.specLabels[currentLang] || t_dict.specLabels.id;
     pdSpecsTable.innerHTML = buildProductSpecs(product)
-        .map(row => `<tr><th>${row.label}</th><td>${row.value}</td></tr>`)
+        .map(row => `<tr><th>${labels[row.label] || row.label}</th><td>${row.value}</td></tr>`)
         .join("");
 }
 
@@ -2146,7 +2399,7 @@ function renderProductVariants(product) {
     section.hidden = false;
     box.innerHTML = keys.map(key => `
         <div class="pd-variant-group">
-            <span class="pd-variant-label">${key}: <b data-variant-selected="${key}">${variants[key][0]}</b></span>
+            <span class="pd-variant-label">${variantKeyLabel(key)}: <b data-variant-selected="${key}">${variantValueLabel(variants[key][0])}</b></span>
             <div class="pd-variant-options">
                 ${variants[key].map(opt => `
                     <button
@@ -2154,7 +2407,7 @@ function renderProductVariants(product) {
                         class="pd-variant-option${opt === variants[key][0] ? " active" : ""}"
                         data-variant-key="${key}"
                         data-variant-value="${opt}"
-                    >${opt}</button>
+                    >${variantValueLabel(opt)}</button>
                 `).join("")}
             </div>
         </div>
@@ -2169,18 +2422,24 @@ function renderProductVariants(product) {
 const productPromos = [
     {
         code: "MABHEMAT",
-        title: "Diskon 10% Belanja",
-        description: "Potongan 10%, maksimal Rp100.000. Berlaku untuk semua produk."
+        title: { id: "Diskon 10% Belanja", en: "10% Shopping Discount" },
+        description: () => currentLang === "en"
+            ? `10% off, up to ${rupiah(100000)}. Valid for all products.`
+            : `Potongan 10%, maksimal ${rupiah(100000)}. Berlaku untuk semua produk.`
     },
     {
         code: "ONGKIRGRATIS",
-        title: "Gratis Ongkos Kirim",
-        description: "Bebas biaya pengiriman untuk semua metode pengiriman."
+        title: { id: "Gratis Ongkos Kirim", en: "Free Shipping" },
+        description: () => currentLang === "en"
+            ? "Free shipping cost for all delivery methods."
+            : "Bebas biaya pengiriman untuk semua metode pengiriman."
     },
     {
         code: "MEMBERBARU",
-        title: "Diskon Rp20.000",
-        description: "Potongan langsung Rp20.000 untuk minimal belanja Rp150.000."
+        title: { id: `Diskon ${rupiah(20000)}`, en: `${rupiah(20000)} Discount` },
+        description: () => currentLang === "en"
+            ? `Instant discount of ${rupiah(20000)} for a minimum purchase of ${rupiah(150000)}.`
+            : `Potongan langsung ${rupiah(20000)} untuk minimal belanja ${rupiah(150000)}.`
     }
 ];
 
@@ -2192,8 +2451,8 @@ function renderPromoList() {
         <div class="pd-promo-item">
             <div class="pd-promo-icon">🎟️</div>
             <div class="pd-promo-text">
-                <b>${promo.title}</b>
-                <span>${promo.description}</span>
+                <b>${typeof promo.title === "function" ? promo.title() : (promo.title[currentLang] || promo.title.id)}</b>
+                <span>${promo.description()}</span>
             </div>
             <button type="button" class="pd-promo-copy" data-copy-voucher="${promo.code}">
                 ${promo.code}
@@ -2203,7 +2462,10 @@ function renderPromoList() {
 }
 
 function copyVoucherCode(code) {
-    const finish = () => addNotification("Kode Voucher Disalin 🎟️", `Kode ${code} siap dipakai saat checkout.`);
+    const finish = () => addNotification(
+        currentLang === "en" ? "Voucher Code Copied 🎟️" : "Kode Voucher Disalin 🎟️",
+        currentLang === "en" ? `Code ${code} is ready to use at checkout.` : `Kode ${code} siap dipakai saat checkout.`
+    );
 
     if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(code).then(finish).catch(() => fallbackCopy(code, finish));
@@ -2283,9 +2545,9 @@ function showProductDetail(product, updateUrl = true) {
 
     renderProductGallery(product);
 
-    set("detailProductName", product.name);
-    set("detailRating", `${product.rating} • ${product.sold} terjual`);
-    set("detailCategory", product.category);
+    set("detailProductName", productName(product));
+    set("detailRating", `${product.rating} • ${product.sold} ${t("soldPercent")}`);
+    set("detailCategory", categoryLabel(product.category));
     set("detailProductPrice", rupiah(product.price));
     set("detailOldPrice", product.oldPrice > product.price ? rupiah(product.oldPrice) : "");
 
@@ -2296,7 +2558,7 @@ function showProductDetail(product, updateUrl = true) {
         pdDiscountBadge.textContent = discount ? `-${discount}%` : "";
     }
 
-    set("detailProductDescription", `${product.name} merupakan produk pilihan kategori ${product.category}. Nikmati harga bersahabat, kualitas terbaik, dan pengalaman belanja yang mudah di MAB-Store.`);
+    set("detailProductDescription", productDesc(product));
     set("detailRatingBox", `${product.rating}/5`);
     set("detailSoldBox", `${product.sold}+`);
     set("detailQuantity", "1");
@@ -2306,14 +2568,16 @@ function showProductDetail(product, updateUrl = true) {
         [document.getElementById("detailWishlistButton"), document.getElementById("detailWishlistFloat")].forEach(btn => {
             if (!btn) return;
             btn.classList.toggle("active", liked);
-            if (btn.id === "detailWishlistButton") btn.textContent = liked ? "♥ Tersimpan di Wishlist" : "♡ Simpan ke Wishlist";
+            if (btn.id === "detailWishlistButton") btn.textContent = liked
+                ? (currentLang === "en" ? "♥ Saved to Wishlist" : "♥ Tersimpan di Wishlist")
+                : (currentLang === "en" ? "♡ Save to Wishlist" : "♡ Simpan ke Wishlist");
             else btn.textContent = liked ? "♥" : "♡";
         });
     };
     updateWishlistButtons();
 
-    if (pdBreadcrumbCategory) pdBreadcrumbCategory.textContent = product.category;
-    if (pdBreadcrumbName) pdBreadcrumbName.textContent = product.name;
+    if (pdBreadcrumbCategory) pdBreadcrumbCategory.textContent = categoryLabel(product.category);
+    if (pdBreadcrumbName) pdBreadcrumbName.textContent = productName(product);
 
     renderProductSpecs(product);
     renderRelatedProducts(product);
@@ -2844,7 +3108,7 @@ function renderCheckout(){
     if(!checkoutItems)return;
     const subtotal=getCartSubtotal(), qty=cart.reduce((sum,item)=>sum+item.quantity,0), shippingCost=getShippingCost();
     if(checkoutProductCount)checkoutProductCount.textContent=`${qty} produk`;
-    checkoutItems.innerHTML=cart.map(item=>`<div class="checkout-item"><div class="checkout-item-image"><img src="${item.image}" alt="${item.name}"></div><div><h3>${item.name}</h3>${item.variantLabel ? `<span class="checkout-item-variant">${item.variantLabel}</span>` : ""}<p>${rupiah(item.price)} × ${item.quantity}</p></div><strong>${rupiah(item.price*item.quantity)}</strong></div>`).join("");
+    checkoutItems.innerHTML=cart.map(item=>`<div class="checkout-item"><div class="checkout-item-image"><img src="${item.image}" alt="${productNameById(item.id, item.name)}"></div><div><h3>${productNameById(item.id, item.name)}</h3>${item.variantLabel ? `<span class="checkout-item-variant">${item.variantLabel}</span>` : ""}<p>${rupiah(item.price)} × ${item.quantity}</p></div><strong>${rupiah(item.price*item.quantity)}</strong></div>`).join("");
     if(summarySubtotal)summarySubtotal.textContent=rupiah(subtotal); if(summaryShipping)summaryShipping.textContent=checkoutFreeShipping ? "Rp0 (Gratis Ongkir)" : rupiah(shippingCost); if(summaryDiscount)summaryDiscount.textContent=`-${rupiah(checkoutDiscount)}`; if(summaryTotal)summaryTotal.textContent=rupiah(Math.max(0,subtotal+shippingCost-checkoutDiscount));
 }
 function openCheckout(){
@@ -2906,7 +3170,10 @@ if (placeOrderButton) {
                 status: "diproses"
             });
 
-            addNotification("Pesanan Dibuat 🎉", `Pesanan ${orderCode} berhasil dibuat, total ${rupiah(total)}.`);
+            addNotification(
+                currentLang === "en" ? "Order Created 🎉" : "Pesanan Dibuat 🎉",
+                currentLang === "en" ? `Order ${orderCode} created successfully, total ${rupiah(total)}.` : `Pesanan ${orderCode} berhasil dibuat, total ${rupiah(total)}.`
+            );
 
             const success = document.createElement("div");
             success.className = "order-success";
@@ -2957,12 +3224,14 @@ if (voucherButton) {
         () => {
 
             voucherButton.textContent =
-                "Voucher Berhasil Diklaim ✓";
+                currentLang === "en" ? "Voucher Claimed ✓" : "Voucher Berhasil Diklaim ✓";
 
 
             addNotification(
-                "Voucher Diklaim 🎟️",
-                "Voucher MAB-Store berhasil diklaim. Cek halaman produk untuk kode promo lainnya."
+                currentLang === "en" ? "Voucher Claimed 🎟️" : "Voucher Diklaim 🎟️",
+                currentLang === "en"
+                    ? "MAB-Store voucher successfully claimed. Check product pages for more promo codes."
+                    : "Voucher MAB-Store berhasil diklaim. Cek halaman produk untuk kode promo lainnya."
             );
 
         }
@@ -3548,7 +3817,7 @@ function nextOrderStatus(status) {
 
 function renderOrderTracking(order) {
     const currentIndex = orderStatusSteps.indexOf(order.status === "diproses" ? "diproses" : order.status);
-    const stepLabels = { dibuat: "Pesanan Dibuat", diproses: "Diproses", dikirim: "Dikirim", selesai: "Selesai" };
+    const stepLabels = t_dict.tracking[currentLang] || t_dict.tracking.id;
 
     return `
         <div class="order-tracking">
@@ -3567,6 +3836,7 @@ function renderOrders() {
     const empty = document.getElementById("ordersEmpty");
     if (!list || !empty) return;
 
+    const statusLabels = t_dict.orderStatus[currentLang] || t_dict.orderStatus.id;
     const filtered = activeOrderFilter === "semua" ? orders : orders.filter(o => o.status === activeOrderFilter);
 
     if (!orders.length) {
@@ -3582,44 +3852,44 @@ function renderOrders() {
             <div class="order-card-header">
                 <div>
                     <b>${order.code}</b>
-                    <span>${new Date(order.date).toLocaleString("id-ID")}</span>
+                    <span>${new Date(order.date).toLocaleString(currentLang === "en" ? "en-US" : "id-ID")}</span>
                 </div>
-                <span class="order-status-badge status-${order.status}">${orderStatusLabels[order.status] || order.status}</span>
+                <span class="order-status-badge status-${order.status}">${statusLabels[order.status] || order.status}</span>
             </div>
 
             <div class="order-card-items">
                 ${order.items.slice(0, 3).map(item => `
-                    <img src="${item.image}" alt="${item.name}">
+                    <img src="${item.image}" alt="${productNameById(item.id, item.name)}">
                 `).join("")}
                 ${order.items.length > 3 ? `<span class="order-more-items">+${order.items.length - 3}</span>` : ""}
             </div>
 
-            <p class="order-card-summary">${order.items.reduce((sum, i) => sum + i.quantity, 0)} barang &nbsp;•&nbsp; Total <b>${rupiah(order.total)}</b></p>
+            <p class="order-card-summary">${order.items.reduce((sum, i) => sum + i.quantity, 0)} ${t("items")} &nbsp;•&nbsp; ${t("total")} <b>${rupiah(order.total)}</b></p>
 
             ${renderOrderTracking(order)}
 
             <div class="order-card-actions">
-                <button type="button" class="order-toggle-detail" data-order-toggle="${order.code}">Lihat Detail</button>
-                ${order.status !== "selesai" ? `<button type="button" class="order-simulate-button" data-order-advance="${order.code}">Perbarui Status (Simulasi)</button>` : ""}
-                <button type="button" class="order-buy-again" data-order-buyagain="${order.code}">Beli Lagi</button>
+                <button type="button" class="order-toggle-detail" data-order-toggle="${order.code}">${t("seeDetail")}</button>
+                ${order.status !== "selesai" ? `<button type="button" class="order-simulate-button" data-order-advance="${order.code}">${t("updateStatus")}</button>` : ""}
+                <button type="button" class="order-buy-again" data-order-buyagain="${order.code}">${t("buyAgain")}</button>
             </div>
 
             <div class="order-detail-panel" data-order-detail="${order.code}" hidden>
                 ${order.items.map(item => `
                     <div class="order-detail-item">
-                        <img src="${item.image}" alt="${item.name}">
+                        <img src="${item.image}" alt="${productNameById(item.id, item.name)}">
                         <div>
-                            <b>${item.name}</b>
+                            <b>${productNameById(item.id, item.name)}</b>
                             ${item.variantLabel ? `<span>${item.variantLabel}</span>` : ""}
                             <span>${rupiah(item.price)} × ${item.quantity}</span>
                         </div>
                     </div>
                 `).join("")}
                 <p class="order-detail-address">📍 ${order.address?.name || "-"} — ${order.address?.address || "-"}</p>
-                <p class="order-detail-payment">💳 Pembayaran: ${order.payment}${order.voucher ? ` &nbsp;•&nbsp; 🎟️ Voucher: ${order.voucher}` : ""}</p>
+                <p class="order-detail-payment">💳 ${t("payment")}: ${order.payment}${order.voucher ? ` &nbsp;•&nbsp; 🎟️ ${t("voucherLabel")}: ${order.voucher}` : ""}</p>
             </div>
         </div>
-    `).join("") : `<p class="no-reviews">Tidak ada pesanan dengan status ini.</p>`;
+    `).join("") : `<p class="no-reviews">${t("orderNoMatch")}</p>`;
 }
 
 function showOrdersPage(updateUrl = true) {
@@ -3663,7 +3933,7 @@ document.addEventListener("click", event => {
         const panel = document.querySelector(`[data-order-detail="${toggleBtn.dataset.orderToggle}"]`);
         if (panel) {
             panel.hidden = !panel.hidden;
-            toggleBtn.textContent = panel.hidden ? "Lihat Detail" : "Sembunyikan Detail";
+            toggleBtn.textContent = panel.hidden ? t("seeDetail") : t("hideDetail");
         }
         return;
     }
@@ -3675,7 +3945,12 @@ document.addEventListener("click", event => {
             order.status = nextOrderStatus(order.status);
             saveOrders();
             renderOrders();
-            addNotification("Update Pesanan 📦", `Pesanan ${order.code} sekarang berstatus "${orderStatusLabels[order.status]}".`);
+            addNotification(
+                currentLang === "en" ? "Order Update 📦" : "Update Pesanan 📦",
+                currentLang === "en"
+                    ? `Order ${order.code} is now "${(t_dict.orderStatus.en)[order.status]}".`
+                    : `Pesanan ${order.code} sekarang berstatus "${(t_dict.orderStatus.id)[order.status]}".`
+            );
         }
         return;
     }
@@ -3715,7 +3990,7 @@ function renderStorePage() {
 
 function updateStoreFollowButton() {
     if (!storeFollowButton) return;
-    storeFollowButton.textContent = followingStore ? "✓ Mengikuti" : "+ Ikuti Toko";
+    storeFollowButton.textContent = followingStore ? t("following") : t("followStore");
     storeFollowButton.classList.toggle("following", followingStore);
 
     const followers = document.getElementById("storeFollowers");
@@ -3746,7 +4021,10 @@ if (storeFollowButton) {
         followingStore = !followingStore;
         localStorage.setItem("mabstore_following", followingStore ? "1" : "0");
         updateStoreFollowButton();
-        if (followingStore) addNotification("Mengikuti Toko 🏬", "Kamu akan mendapat info promo terbaru dari MAB-Official Store.");
+        if (followingStore) addNotification(
+            currentLang === "en" ? "Following Store 🏬" : "Mengikuti Toko 🏬",
+            currentLang === "en" ? "You'll get the latest promo updates from MAB-Official Store." : "Kamu akan mendapat info promo terbaru dari MAB-Official Store."
+        );
     });
 }
 
@@ -3767,8 +4045,9 @@ function setupAdvancedSearchCategories() {
     const box = document.getElementById("advSearchCategories");
     if (!box) return;
     const categories = [...new Set(products.map(p => p.category))];
+    const checkedValues = [...box.querySelectorAll(".adv-category-check:checked")].map(c => c.value);
     box.innerHTML = categories.map(cat => `
-        <label><input type="checkbox" value="${cat}" class="adv-category-check"> ${cat}</label>
+        <label><input type="checkbox" value="${cat}" class="adv-category-check" ${checkedValues.includes(cat) ? "checked" : ""}> ${categoryLabel(cat)}</label>
     `).join("");
 }
 
@@ -3795,8 +4074,8 @@ function runAdvancedSearch() {
 
     const resultsBox = document.getElementById("advSearchResults");
     const countLabel = document.getElementById("advSearchCount");
-    if (countLabel) countLabel.textContent = `${results.length} produk ditemukan`;
-    if (resultsBox) resultsBox.innerHTML = results.length ? results.map(createProductCard).join("") : `<p class="no-reviews">Tidak ada produk yang cocok dengan filter ini.</p>`;
+    if (countLabel) countLabel.textContent = `${results.length} ${t("productsFound")}`;
+    if (resultsBox) resultsBox.innerHTML = results.length ? results.map(createProductCard).join("") : `<p class="no-reviews">${t("noResultsFilter")}</p>`;
 }
 
 function showSearchPage(prefillKeyword = "", updateUrl = true) {
@@ -3854,8 +4133,336 @@ if (advSearchReset) {
 
 
 /* =========================================================
-   INITIALIZATION
+   TERJEMAHAN TEKS STATIS (TreeWalker, tanpa perlu ubah HTML)
    ========================================================= */
+
+const idToEnDictionary = {
+    "Jadi Seller": "Become a Seller",
+    "Bantuan": "Help",
+    "Toko MAB-Store": "MAB-Store Shop",
+    "Menu": "Menu",
+    "Notifikasi": "Notifications",
+    "Masuk": "Login",
+    "Keluar": "Logout",
+    "Hapus semua": "Clear all",
+    "SELAMAT DATANG DI MAB-STORE": "WELCOME TO MAB-STORE",
+    "Belanja Mudah.": "Easy Shopping.",
+    "Harga Bersahabat.": "Friendly Prices.",
+    "Temukan berbagai produk pilihan\n                        dengan harga terbaik.": "Discover a variety of curated products at the best prices.",
+    "Belanja Sekarang": "Shop Now",
+    "Kategori": "Category",
+    "Elektronik": "Electronics",
+    "Rumah": "Home",
+    "Kecantikan": "Beauty",
+    "Olahraga": "Sports",
+    "Buku": "Books",
+    "Aksesoris": "Accessories",
+    "Lihat Semua →": "See All →",
+    "Voucher MAB-Store": "MAB-Store Voucher",
+    "Hemat lebih banyak pada pembelian berikutnya.": "Save more on your next purchase.",
+    "Klaim Voucher": "Claim Voucher",
+    "Produk Untukmu": "Products For You",
+    "Terbaru": "Newest",
+    "Terlaris": "Best Selling",
+    "Harga Terendah": "Lowest Price",
+    "⭐ Rating Tertinggi": "⭐ Highest Rating",
+    "💎 Termahal": "💎 Most Expensive",
+    "← Kembali ke Beranda": "← Back to Home",
+    "KATEGORI MAB-STORE": "MAB-STORE CATEGORY",
+    "Temukan produk pilihan\n                            dalam kategori ini.": "Find selected products in this category.",
+    "Produk": "Products",
+    "← Kembali": "← Back",
+    "Beranda": "Home",
+    "Pengiriman Cepat": "Fast Shipping",
+    "Dari gudang MAB-Store": "From MAB-Store warehouse",
+    "Pembayaran Aman": "Secure Payment",
+    "Berbagai metode": "Various methods",
+    "Garansi 7 Hari": "7-Day Warranty",
+    "Barang tidak sesuai": "If item doesn't match",
+    "✓ Produk Pilihan": "✓ Featured Product",
+    "✓ Stok tersedia \u00a0•\u00a0 Siap dikirim": "✓ In stock \u00a0•\u00a0 Ready to ship",
+    "🎟️ Voucher & Promo": "🎟️ Vouchers & Promos",
+    "Pilih Varian": "Select Variant",
+    "Jumlah": "Quantity",
+    "🛒 Tambah ke Keranjang": "🛒 Add to Cart",
+    "♡ Simpan ke Wishlist": "♡ Save to Wishlist",
+    "⭐ 4.9 \u00a0•\u00a0 98% Ulasan Positif \u00a0•\u00a0 Jakarta Selatan": "⭐ 4.9 \u00a0•\u00a0 98% Positive Reviews \u00a0•\u00a0 South Jakarta",
+    "🏬 Kunjungi Toko": "🏬 Visit Store",
+    "💬 Chat": "💬 Chat",
+    "Deskripsi": "Description",
+    "Spesifikasi": "Specifications",
+    "Ulasan": "Reviews",
+    "⭐ Rating": "⭐ Rating",
+    "🛍 Terjual": "🛍 Sold",
+    "🔒 Aman": "🔒 Safe",
+    "Transaksi": "Transaction",
+    "Rating & Ulasan Pembeli": "Buyer Ratings & Reviews",
+    "(0 ulasan)": "(0 reviews)",
+    "Bagikan pendapatmu tentang produk ini": "Share your thoughts about this product",
+    "📷 Tambah Foto / Video": "📷 Add Photo / Video",
+    "Kirim Ulasan": "Submit Review",
+    "Produk Serupa": "Similar Products",
+    "Pesanan Saya": "My Orders",
+    "Semua": "All",
+    "Diproses": "Processing",
+    "Dikirim": "Shipped",
+    "Selesai": "Completed",
+    "🧾 Kamu belum memiliki pesanan.": "🧾 You don't have any orders yet.",
+    "Mulai Belanja": "Start Shopping",
+    "Pengikut \u00a0•\u00a0 Jakarta Selatan": "Followers \u00a0•\u00a0 South Jakarta",
+    "Bergabung sejak 2021 \u00a0•\u00a0 Respon cepat \u00a0•\u00a0 98% Ulasan Positif": "Joined since 2021 \u00a0•\u00a0 Fast response \u00a0•\u00a0 98% Positive Reviews",
+    "+ Ikuti Toko": "+ Follow Store",
+    "Rating Toko": "Store Rating",
+    "Respon Chat": "Chat Response",
+    "Waktu Balas": "Response Time",
+    "Semua Produk Toko": "All Store Products",
+    "Pencarian & Filter Lanjutan": "Advanced Search & Filter",
+    "Kata Kunci": "Keyword",
+    "Rentang Harga": "Price Range",
+    "Rating Minimum": "Minimum Rating",
+    "Semua Rating": "All Ratings",
+    "4.5 ke atas": "4.5 and above",
+    "4.0 ke atas": "4.0 and above",
+    "3.0 ke atas": "3.0 and above",
+    "Urutkan": "Sort By",
+    "Relevansi": "Relevance",
+    "Harga Tertinggi": "Highest Price",
+    "Rating Tertinggi": "Highest Rating",
+    "Reset Filter": "Reset Filter",
+    "← Kembali ke Keranjang": "← Back to Cart",
+    "1 Keranjang": "1 Cart",
+    "2 Checkout": "2 Checkout",
+    "3 Selesai": "3 Done",
+    "Checkout": "Checkout",
+    "Periksa kembali alamat, pengiriman, dan pembayaran sebelum membuat pesanan.": "Double-check your address, shipping, and payment before placing your order.",
+    "Alamat Pengiriman": "Shipping Address",
+    "Pesanan akan dikirim ke alamat berikut.": "Your order will be shipped to the address below.",
+    "Ubah": "Change",
+    "Batal": "Cancel",
+    "Simpan Alamat": "Save Address",
+    "Produk yang Dibeli": "Items Purchased",
+    "Pengiriman": "Shipping",
+    "Pilih layanan pengiriman yang kamu inginkan.": "Choose your preferred shipping service.",
+    "Reguler": "Regular",
+    "2–4 hari kerja": "2–4 business days",
+    "Express": "Express",
+    "1–2 hari kerja": "1–2 business days",
+    "Same Day": "Same Day",
+    "Tiba hari ini": "Arrives today",
+    "Voucher": "Voucher",
+    "Gunakan voucher untuk mendapatkan potongan harga.": "Use a voucher to get a discount.",
+    "Pakai": "Apply",
+    "Metode Pembayaran": "Payment Method",
+    "Pilih metode pembayaran yang tersedia.": "Choose an available payment method.",
+    "Scan dari aplikasi pembayaran": "Scan from your payment app",
+    "Transfer Bank": "Bank Transfer",
+    "Virtual Account bank pilihan": "Your chosen bank's virtual account",
+    "Bayar saat barang diterima": "Pay when item is received",
+    "Ringkasan Belanja": "Order Summary",
+    "Total Produk": "Item Total",
+    "Diskon Voucher": "Voucher Discount",
+    "Total Pembayaran": "Total Payment",
+    "Buat Pesanan": "Place Order",
+    "🔒 Transaksi aman & data pembayaran terlindungi.": "🔒 Secure transaction & protected payment data.",
+    "Wishlist Saya": "My Wishlist",
+    "Belum ada produk di wishlist.": "No products in wishlist yet.",
+    "Lanjut Belanja →": "Continue Shopping →",
+    "Keranjang Saya": "My Cart",
+    "Keranjang masih kosong.": "Your cart is empty.",
+    "Total:": "Total:",
+    "Marketplace sederhana untuk belajar\n                    membangun aplikasi e-commerce.": "A simple marketplace for learning to build e-commerce apps.",
+    "Layanan": "Services",
+    "Pembayaran": "Payment",
+    "Tentang": "About",
+    "Tentang MAB-Store": "About MAB-Store",
+    "Karier": "Careers",
+    "Kontak": "Contact",
+    "Daftar": "Register",
+    "Pembeli": "Buyer",
+    "Penjual": "Seller"
+};
+
+const idToEnPlaceholders = {
+    "Cari produk di MAB-Store...": "Search products on MAB-Store...",
+    "Nama kamu": "Your name",
+    "Tulis ulasan kamu di sini...": "Write your review here...",
+    "Cari produk...": "Search products...",
+    "Nama Penerima": "Recipient Name",
+    "Nomor HP": "Phone Number",
+    "Alamat lengkap (jalan, kecamatan, kota, kode pos)": "Full address (street, district, city, postal code)",
+    "Masukkan kode voucher, contoh: MABHEMAT": "Enter voucher code, e.g. MABHEMAT",
+    "Email": "Email",
+    "Kata Sandi": "Password",
+    "Nama Lengkap": "Full Name"
+};
+
+const enToIdDictionary = Object.fromEntries(Object.entries(idToEnDictionary).map(([id, en]) => [en, id]));
+const enToIdPlaceholders = Object.fromEntries(Object.entries(idToEnPlaceholders).map(([id, en]) => [en, id]));
+
+function translateStaticText(lang) {
+    const dict = lang === "en" ? idToEnDictionary : enToIdDictionary;
+    const placeholderDict = lang === "en" ? idToEnPlaceholders : enToIdPlaceholders;
+
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+    const nodes = [];
+    let node;
+    while ((node = walker.nextNode())) nodes.push(node);
+
+    nodes.forEach(textNode => {
+        const trimmed = textNode.nodeValue.trim();
+        if (!trimmed) return;
+        if (dict[trimmed] !== undefined) {
+            textNode.nodeValue = textNode.nodeValue.replace(trimmed, dict[trimmed]);
+        }
+    });
+
+    document.querySelectorAll("input[placeholder], textarea[placeholder]").forEach(el => {
+        const current = el.getAttribute("placeholder");
+        if (placeholderDict[current] !== undefined) el.setAttribute("placeholder", placeholderDict[current]);
+    });
+
+    document.querySelectorAll("option").forEach(opt => {
+        const trimmed = opt.textContent.trim();
+        if (dict[trimmed] !== undefined) opt.textContent = dict[trimmed];
+    });
+}
+
+function updateShippingLabels() {
+    const reg = document.getElementById("shipCostReguler");
+    const exp = document.getElementById("shipCostExpress");
+    const same = document.getElementById("shipCostSameDay");
+    if (reg) reg.textContent = rupiah(15000);
+    if (exp) exp.textContent = rupiah(25000);
+    if (same) same.textContent = rupiah(35000);
+}
+
+function refreshCurrentView() {
+    renderFlashSale();
+    renderHomeProducts();
+    updateCart();
+    renderWishlist();
+    updateShippingLabels();
+    setupAdvancedSearchCategories();
+
+    if (categoryPage && !categoryPage.hidden && activeCategory) renderCategoryProducts();
+    if (productPage && !productPage.hidden && selectedProduct) showProductDetail(selectedProduct, false);
+    if (checkoutPage && !checkoutPage.hidden) renderCheckout();
+    if (ordersPage && !ordersPage.hidden) renderOrders();
+    if (storePage && !storePage.hidden) renderStorePage();
+    if (searchPage && !searchPage.hidden) runAdvancedSearch();
+}
+
+function applyLanguage(lang) {
+    currentLang = lang;
+    localStorage.setItem("mabstore_lang", lang);
+
+    translateStaticText(lang);
+    updateLangToggleButton();
+    refreshCurrentView();
+}
+
+function updateLangToggleButton() {
+    const btn = document.getElementById("langToggleButton");
+    if (!btn) return;
+    btn.textContent = currentLang === "en" ? "🇬🇧 EN" : "🇮🇩 ID";
+    btn.title = currentLang === "en" ? "Switch to Indonesian" : "Ganti ke Bahasa Inggris";
+}
+
+const langToggleButton = document.getElementById("langToggleButton");
+if (langToggleButton) {
+    langToggleButton.addEventListener("click", () => {
+        applyLanguage(currentLang === "en" ? "id" : "en");
+    });
+}
+
+
+/* =========================================================
+   HAMBURGER MENU (mobile)
+   ========================================================= */
+
+const hamburgerButton = document.getElementById("hamburgerButton");
+const mobileMenu = document.getElementById("mobileMenu");
+const mobileMenuBackdrop = document.getElementById("mobileMenuBackdrop");
+const closeMobileMenuButton = document.getElementById("closeMobileMenuButton");
+const mobileMenuCategories = document.getElementById("mobileMenuCategories");
+const mobileSellerButton = document.getElementById("mobileSellerButton");
+const mobileHelpButton = document.getElementById("mobileHelpButton");
+const mobileLangButton = document.getElementById("mobileLangButton");
+
+function renderMobileMenuCategories() {
+    if (!mobileMenuCategories) return;
+    const categories = [...new Set(products.map(p => p.category))];
+    mobileMenuCategories.innerHTML = categories.map(cat => `
+        <button type="button" data-mobile-category="${cat}">${categoryLabel(cat)}</button>
+    `).join("");
+}
+
+function updateMobileLangLabel() {
+    const label = document.getElementById("mobileLangLabel");
+    if (label) label.textContent = currentLang === "en" ? "Language: English" : "Bahasa: Indonesia";
+}
+
+function openMobileMenu() {
+    renderMobileMenuCategories();
+    updateMobileLangLabel();
+    if (mobileMenu) mobileMenu.hidden = false;
+    if (mobileMenuBackdrop) mobileMenuBackdrop.hidden = false;
+    document.body.classList.add("modal-open");
+}
+
+function closeMobileMenu() {
+    if (mobileMenu) mobileMenu.hidden = true;
+    if (mobileMenuBackdrop) mobileMenuBackdrop.hidden = true;
+    document.body.classList.remove("modal-open");
+}
+
+if (hamburgerButton) hamburgerButton.addEventListener("click", openMobileMenu);
+if (closeMobileMenuButton) closeMobileMenuButton.addEventListener("click", closeMobileMenu);
+if (mobileMenuBackdrop) mobileMenuBackdrop.addEventListener("click", closeMobileMenu);
+
+if (mobileSellerButton) {
+    mobileSellerButton.addEventListener("click", () => {
+        closeMobileMenu();
+        document.getElementById("sellerButton")?.click();
+    });
+}
+
+if (mobileHelpButton) {
+    mobileHelpButton.addEventListener("click", () => {
+        closeMobileMenu();
+        showToast(currentLang === "en" ? "Help center coming soon 🙌" : "Pusat bantuan segera hadir 🙌");
+    });
+}
+
+if (mobileLangButton) {
+    mobileLangButton.addEventListener("click", () => {
+        applyLanguage(currentLang === "en" ? "id" : "en");
+        updateMobileLangLabel();
+    });
+}
+
+document.addEventListener("click", event => {
+    const navBtn = event.target.closest("[data-mobile-nav]");
+    if (navBtn) {
+        closeMobileMenu();
+        const target = navBtn.dataset.mobileNav;
+        if (target === "home") showHome();
+        else if (target === "orders") showOrdersPage();
+        else if (target === "wishlist") openWishlist();
+        else if (target === "search") showSearchPage();
+        else if (target === "store") showStorePage();
+        return;
+    }
+
+    const catBtn = event.target.closest("[data-mobile-category]");
+    if (catBtn) {
+        closeMobileMenu();
+        showCategory(catBtn.dataset.mobileCategory);
+    }
+});
+
+
+
 
 loadStorage();
 
@@ -3867,6 +4474,9 @@ updateCart();
 updateWishlistCount();
 renderWishlist();
 renderNotifications();
+
+applyLanguage(currentLang);
+fetchExchangeRate();
 
 loadCategoryFromURL();
 
