@@ -5363,8 +5363,8 @@ function saveAiLlmConfig(config) {
 }
 
 const AI_PROVIDER_DEFAULTS = {
-    gemini: { label: "Google Gemini", defaultModel: "gemini-2.0-flash" },
-    anthropic: { label: "Anthropic Claude", defaultModel: "claude-3-5-haiku-20241022" },
+    gemini: { label: "Google Gemini", defaultModel: "gemini-2.5-flash" },
+    anthropic: { label: "Anthropic Claude", defaultModel: "claude-haiku-4-5-20251001" },
     openai: { label: "OpenAI ChatGPT", defaultModel: "gpt-4o-mini" },
     deepseek: { label: "DeepSeek", defaultModel: "deepseek-chat" },
     custom: { label: "Lainnya (OpenAI-compatible)", defaultModel: "" }
