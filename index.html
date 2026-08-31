@@ -43,7 +43,7 @@
                 <span>|</span>
                 Notifikasi
                 <span>|</span>
-                Bahasa Indonesia
+                <button id="langToggleButton" type="button" class="lang-toggle-button">🇮🇩 ID</button>
             </div>
 
         </div>
@@ -58,6 +58,17 @@
     <header class="navbar">
 
         <div class="container navbar-content">
+
+            <button
+                class="hamburger-button"
+                id="hamburgerButton"
+                type="button"
+                aria-label="Buka menu"
+            >
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
 
             <button
                 class="logo-button"
@@ -154,6 +165,41 @@
         </div>
 
     </header>
+
+
+    <!-- =====================================================
+         MOBILE MENU (hamburger)
+    ====================================================== -->
+
+    <div class="mobile-menu-backdrop" id="mobileMenuBackdrop" hidden></div>
+
+    <aside class="mobile-menu" id="mobileMenu" hidden>
+
+        <div class="mobile-menu-header">
+            <span class="mobile-menu-title">Menu</span>
+            <button type="button" id="closeMobileMenuButton" aria-label="Tutup menu">✕</button>
+        </div>
+
+        <div class="mobile-menu-section">
+            <button type="button" class="mobile-menu-link" data-mobile-nav="home">🏠 <span>Beranda</span></button>
+            <button type="button" class="mobile-menu-link" data-mobile-nav="orders">📦 <span>Pesanan Saya</span></button>
+            <button type="button" class="mobile-menu-link" data-mobile-nav="wishlist">♡ <span>Wishlist Saya</span></button>
+            <button type="button" class="mobile-menu-link" data-mobile-nav="search">⚙️ <span>Pencarian &amp; Filter Lanjutan</span></button>
+            <button type="button" class="mobile-menu-link" data-mobile-nav="store">🏬 <span>Toko MAB-Store</span></button>
+        </div>
+
+        <div class="mobile-menu-section">
+            <p class="mobile-menu-label">Kategori</p>
+            <div class="mobile-menu-categories" id="mobileMenuCategories"></div>
+        </div>
+
+        <div class="mobile-menu-section">
+            <button type="button" class="mobile-menu-link" id="mobileSellerButton">🏪 <span>Jadi Seller</span></button>
+            <button type="button" class="mobile-menu-link" id="mobileHelpButton">❓ <span>Bantuan</span></button>
+            <button type="button" class="mobile-menu-link" id="mobileLangButton">🌐 <span id="mobileLangLabel">Bahasa: Indonesia</span></button>
+        </div>
+
+    </aside>
 
 
     <!-- =====================================================
@@ -1282,9 +1328,9 @@
                     <div class="checkout-card"><div class="checkout-card-head"><div><span class="checkout-number">2</span><div><h2>Produk yang Dibeli</h2><p id="checkoutProductCount">0 produk</p></div></div></div><div id="checkoutItems" class="checkout-items"></div></div>
                     <div class="checkout-card"><div class="checkout-card-head"><div><span class="checkout-number">3</span><div><h2>Pengiriman</h2><p>Pilih layanan pengiriman yang kamu inginkan.</p></div></div></div>
                         <div class="shipping-options">
-                            <label class="shipping-option selected"><input type="radio" name="shipping" value="15000" data-label="Reguler" checked><span><b>Reguler</b><small>2–4 hari kerja</small></span><strong>Rp15.000</strong></label>
-                            <label class="shipping-option"><input type="radio" name="shipping" value="25000" data-label="Express"><span><b>Express</b><small>1–2 hari kerja</small></span><strong>Rp25.000</strong></label>
-                            <label class="shipping-option"><input type="radio" name="shipping" value="35000" data-label="Same Day"><span><b>Same Day</b><small>Tiba hari ini</small></span><strong>Rp35.000</strong></label>
+                            <label class="shipping-option selected"><input type="radio" name="shipping" value="15000" data-label="Reguler" checked><span><b>Reguler</b><small>2–4 hari kerja</small></span><strong id="shipCostReguler">Rp15.000</strong></label>
+                            <label class="shipping-option"><input type="radio" name="shipping" value="25000" data-label="Express"><span><b>Express</b><small>1–2 hari kerja</small></span><strong id="shipCostExpress">Rp25.000</strong></label>
+                            <label class="shipping-option"><input type="radio" name="shipping" value="35000" data-label="Same Day"><span><b>Same Day</b><small>Tiba hari ini</small></span><strong id="shipCostSameDay">Rp35.000</strong></label>
                         </div>
                     </div>
                     <div class="checkout-card"><div class="checkout-card-head"><div><span class="checkout-number">4</span><div><h2>Voucher</h2><p>Gunakan voucher untuk mendapatkan potongan harga.</p></div></div></div>
