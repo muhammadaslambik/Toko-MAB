@@ -1817,6 +1817,42 @@
                 <div id="dashAdsList" class="dash-ads-list"></div>
             </div>
 
+            <div class="dash-card">
+                <div class="dash-card-header"><b>📊 Analisa Market Toko</b></div>
+                <p class="dash-card-subtitle">Performa berdasarkan data penjualan &amp; trafik toko sendiri (bukan data kompetitor).</p>
+                <div id="dashMarketAnalysis" class="dash-market-analysis"></div>
+            </div>
+
+            <div class="dash-card">
+                <div class="dash-card-header"><b>🔥 Google Trends</b></div>
+                <p class="dash-card-subtitle">Cek minat pencarian sebuah kata kunci produk secara real-time dari Google Trends.</p>
+                <form id="dashTrendsForm" class="dash-trends-form">
+                    <input type="text" id="dashTrendsKeyword" placeholder="Contoh: sepatu lari, skincare, powerbank...">
+                    <select id="dashTrendsGeo">
+                        <option value="ID" selected>Indonesia</option>
+                        <option value="US">Amerika Serikat</option>
+                        <option value="GB">Inggris</option>
+                        <option value="SA">Arab Saudi</option>
+                        <option value="CN">China</option>
+                        <option value="JP">Jepang</option>
+                        <option value="ES">Spanyol</option>
+                        <option value="MY">Malaysia</option>
+                        <option value="NZ">New Zealand</option>
+                        <option value="AU">Australia</option>
+                        <option value="">Seluruh Dunia</option>
+                    </select>
+                    <button type="submit">🔎 Lihat Tren</button>
+                </form>
+                <div id="dashTrendsWidget" class="dash-trends-widget"></div>
+            </div>
+
+            <div class="dash-card">
+                <div class="dash-card-header"><b>🤖 Strategi Iklan Otomatis (AI)</b></div>
+                <p class="dash-card-subtitle">AI membaca data produk &amp; penjualan tokomu untuk menyusun rekomendasi strategi iklan. Butuh Admin AI aktif di tab "Admin AI (LLM)".</p>
+                <button type="button" id="dashAiAdStrategyBtn">✨ Buat Rekomendasi Strategi Iklan</button>
+                <div id="dashAiAdStrategyResult" class="dash-ai-ad-strategy-result" hidden></div>
+            </div>
+
         </div>
 
         <!-- EDIT TOKO -->
