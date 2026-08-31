@@ -2821,6 +2821,7 @@ img.review-media-item { cursor: pointer; }
 
 .mobile-menu-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 200; }
 .mobile-menu { position: fixed; top: 0; left: 0; bottom: 0; width: 82%; max-width: 320px; background: #fff; z-index: 201; box-shadow: 4px 0 24px rgba(0,0,0,.2); overflow-y: auto; display: flex; flex-direction: column; }
+.mobile-menu[hidden], .mobile-menu-backdrop[hidden] { display: none !important; }
 .mobile-menu-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; border-bottom: 1px solid var(--border); }
 .mobile-menu-title { font-weight: 900; font-size: 16px; }
 .mobile-menu-header button { background: transparent; font-size: 18px; color: var(--muted); }
