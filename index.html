@@ -2029,6 +2029,14 @@
                 untuk <b>uji coba pribadi</b> (kamu login &amp; chat dari perangkat yang sama tempat key ini disimpan).
                 Untuk fitur AI beneran yang aktif bagi <b>semua pembeli</b> di berbagai perangkat, key wajib disimpan di server/backend
                 terpisah — bukan di file website ini — supaya key tidak bisa dicuri lewat "View Source". Jangan bagikan API key ke siapa pun.
+                <br><br>
+                🔒 <b>Agar API key tidak bocor ke GitHub:</b>
+                <ul class="ai-llm-security-list">
+                    <li>Jangan pernah menempelkan API key langsung di kode (index.html/script.js) — isi hanya lewat form ini.</li>
+                    <li>Jangan commit/push file yang berisi key (misalnya hasil export localStorage) ke repository publik.</li>
+                    <li>Key yang disimpan lewat form ini disamarkan (encoding ringan) sebelum ditulis ke localStorage — bukan enkripsi penuh, tapi mencegah key terbaca polos oleh siapa pun yang sekadar melihat sekilas.</li>
+                    <li>Kalau curiga key pernah bocor/ter-commit, segera <b>cabut (revoke) dan buat key baru</b> dari dashboard provider (Google AI Studio/Anthropic/OpenAI/dst).</li>
+                </ul>
             </div>
 
             <div class="dash-card">
@@ -2061,9 +2069,15 @@
                         </div>
                     </label>
 
+                    <label>Prompt / Instruksi Khusus untuk AI (opsional)
+                        <textarea id="dashAiCustomPrompt" rows="4" placeholder="Contoh: Gunakan gaya bahasa santai dan ramah, selalu tawarkan produk best-seller, akhiri balasan dengan emoji 😊. Jangan pernah janjikan diskon yang tidak ada."></textarea>
+                        <span class="dash-ai-prompt-hint">Instruksi ini akan digabung dengan data produk asli, supaya AI tetap akurat sekaligus mengikuti gaya bicara yang kamu mau.</span>
+                    </label>
+
                     <div class="dash-ai-actions">
                         <button type="button" id="dashAiTestBtn">🔌 Tes Koneksi</button>
                         <button type="submit" id="dashAiSaveBtn">💾 Simpan</button>
+                        <button type="button" id="dashAiDeleteKeyBtn" class="dash-ai-delete-btn">🗑️ Hapus API Key dari Perangkat Ini</button>
                     </div>
 
                     <div id="dashAiTestResult" class="dash-ai-test-result" hidden></div>
