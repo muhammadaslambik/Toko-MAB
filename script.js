@@ -5312,7 +5312,7 @@ function simulateAIReply(convId, userText) {
     const llmConfig = getAiLlmConfig();
     if (llmConfig && llmConfig.enabled && llmConfig.apiKey) {
         const product = resolveAIContextProduct(conv, userText || "");
-        const systemPrompt = buildProductSystemPrompt(product, conv.storeName);
+        const systemPrompt = buildProductSystemPrompt(product, conv.storeName, llmConfig.customPrompt);
         callExternalLLM(llmConfig, systemPrompt, userText || "(pembeli mengirim lampiran)")
             .then(text => finish(text && text.trim() ? text.trim() : generateAIReply(userText, conv)))
             .catch(err => {
@@ -5335,6 +5335,33 @@ function simulateAIReply(convId, userText) {
 
 const AI_LLM_STORAGE_KEY = "mabstore_ai_llm_config";
 
+// Penyamaran ringan (BUKAN enkripsi sungguhan) supaya API key tidak tersimpan polos
+// di localStorage. Siapa pun yang paham JS tetap bisa membalikkannya dari kode ini —
+// tujuannya hanya mencegah key terbaca sekilas mata, bukan proteksi terhadap penyerang serius.
+function obfuscateKey(str) {
+    if (!str) return "";
+    try {
+        return btoa(unescape(encodeURIComponent(str)).split("").map(c => String.fromCharCode(c.charCodeAt(0) ^ 42)).join(""));
+    } catch (e) { return str; }
+}
+function deobfuscateKey(str) {
+    if (!str) return "";
+    try {
+        return decodeURIComponent(escape(atob(str).split("").map(c => String.fromCharCode(c.charCodeAt(0) ^ 42)).join("")));
+    } catch (e) { return str; }
+}
+
+function getAiLlmConfig() {
+    const raw = JSON.parse(localStorage.getItem(AI_LLM_STORAGE_KEY) || "null");
+    if (raw && raw.apiKey) raw.apiKey = deobfuscateKey(raw.apiKey);
+    return raw;
+}
+
+function saveAiLlmConfig(config) {
+    const toStore = { ...config, apiKey: obfuscateKey(config.apiKey || "") };
+    localStorage.setItem(AI_LLM_STORAGE_KEY, JSON.stringify(toStore));
+}
+
 const AI_PROVIDER_DEFAULTS = {
     gemini: { label: "Google Gemini", defaultModel: "gemini-2.0-flash" },
     anthropic: { label: "Anthropic Claude", defaultModel: "claude-3-5-haiku-20241022" },
@@ -5343,15 +5370,7 @@ const AI_PROVIDER_DEFAULTS = {
     custom: { label: "Lainnya (OpenAI-compatible)", defaultModel: "" }
 };
 
-function getAiLlmConfig() {
-    return JSON.parse(localStorage.getItem(AI_LLM_STORAGE_KEY) || "null");
-}
-
-function saveAiLlmConfig(config) {
-    localStorage.setItem(AI_LLM_STORAGE_KEY, JSON.stringify(config));
-}
-
-function buildProductSystemPrompt(product, storeName) {
+function buildProductSystemPrompt(product, storeName, customPrompt) {
     let prompt = `Kamu adalah Admin AI toko "${storeName}" di marketplace MAB-Store. Jawab pertanyaan pembeli dengan sopan, ramah, singkat-padat, dan berbahasa Indonesia. Hanya gunakan informasi produk yang diberikan di bawah ini — jangan mengarang spesifikasi yang tidak disebutkan.`;
 
     if (product) {
@@ -5364,6 +5383,10 @@ function buildProductSystemPrompt(product, storeName) {
 - Varian tersedia: ${describeVariants(product)}`;
     } else {
         prompt += `\n\nBelum ada produk spesifik yang ditandai dalam percakapan ini. Jika pembeli bertanya tentang produk tertentu, minta mereka menyebut nama produknya atau memakai tombol tag produk (🏷️).`;
+    }
+
+    if (customPrompt && customPrompt.trim()) {
+        prompt += `\n\nInstruksi tambahan dari pemilik toko (ikuti selama tidak bertentangan dengan data produk asli di atas dan tidak menyesatkan pembeli):\n${customPrompt.trim()}`;
     }
 
     return prompt;
@@ -5944,7 +5967,7 @@ document.getElementById("dashAiAdStrategyBtn")?.addEventListener("click", async 
     const totalRevenue = orders.reduce((s, o) => s + (o.total || 0), 0);
     const activeAdsCount = sellerAds.filter(a => a.status === "aktif").length;
 
-    const systemPrompt = `Kamu adalah konsultan strategi iklan untuk toko online "MAB-Official Store". Berikan rekomendasi strategi iklan yang ringkas (maksimal 6 poin), praktis, dan bisa langsung dieksekusi, dalam Bahasa Indonesia. Fokus pada: produk mana yang sebaiknya diiklankan, alokasi anggaran, dan target audiens.`;
+    const systemPrompt = `Kamu adalah konsultan strategi iklan untuk toko online "MAB-Official Store". Berikan rekomendasi strategi iklan yang ringkas (maksimal 6 poin), praktis, dan bisa langsung dieksekusi, dalam Bahasa Indonesia. Fokus pada: produk mana yang sebaiknya diiklankan, alokasi anggaran, dan target audiens.${config.customPrompt ? `\n\nGaya/preferensi toko dari pemilik: ${config.customPrompt}` : ""}`;
     const userMessage = `Data toko:\nTotal pendapatan: ${rupiah(totalRevenue)}\nJumlah iklan aktif saat ini: ${activeAdsCount}\nProduk terlaris:\n${topProducts}\n\nBuatkan rekomendasi strategi iklan.`;
 
     try {
@@ -6020,12 +6043,13 @@ function renderDashboardAll() {
 }
 
 function renderAiLlmSettings() {
-    const config = getAiLlmConfig() || { provider: "gemini", model: "", apiKey: "", customUrl: "", enabled: false };
+    const config = getAiLlmConfig() || { provider: "gemini", model: "", apiKey: "", customUrl: "", customPrompt: "", enabled: false };
 
     document.getElementById("dashAiProvider").value = config.provider || "gemini";
     document.getElementById("dashAiModel").value = config.model || "";
     document.getElementById("dashAiApiKey").value = config.apiKey || "";
     document.getElementById("dashAiCustomUrl").value = config.customUrl || "";
+    document.getElementById("dashAiCustomPrompt").value = config.customPrompt || "";
     document.getElementById("dashAiEnableToggle").checked = !!config.enabled;
     document.getElementById("dashAiCustomUrlWrap").hidden = config.provider !== "custom";
     document.getElementById("dashAiModel").placeholder = "Otomatis: " + (AI_PROVIDER_DEFAULTS[config.provider || "gemini"].defaultModel || "(isi manual)");
@@ -6065,6 +6089,7 @@ function readAiLlmFormValues() {
         model: document.getElementById("dashAiModel").value.trim(),
         apiKey: document.getElementById("dashAiApiKey").value.trim(),
         customUrl: document.getElementById("dashAiCustomUrl").value.trim(),
+        customPrompt: document.getElementById("dashAiCustomPrompt").value.trim(),
         enabled: document.getElementById("dashAiEnableToggle").checked
     };
 }
@@ -6088,6 +6113,15 @@ document.getElementById("dashAiTestBtn")?.addEventListener("click", () => {
             resultBox.className = "dash-ai-test-result error";
             resultBox.textContent = "❌ Gagal terhubung: " + err.message + " — periksa API key, model, atau kemungkinan provider memblokir panggilan langsung dari browser (CORS).";
         });
+});
+
+document.getElementById("dashAiDeleteKeyBtn")?.addEventListener("click", () => {
+    if (!confirm("Hapus API key dari perangkat ini? Admin AI eksternal akan nonaktif sampai key diisi ulang.")) return;
+    localStorage.removeItem(AI_LLM_STORAGE_KEY);
+    document.getElementById("dashAiApiKey").value = "";
+    document.getElementById("dashAiCustomPrompt").value = "";
+    renderAiLlmSettings();
+    showToast("API key sudah dihapus dari perangkat ini 🗑️");
 });
 
 document.getElementById("dashAiLlmForm")?.addEventListener("submit", event => {
