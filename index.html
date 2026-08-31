@@ -1592,6 +1592,7 @@
                 <div class="chat-admin-switch" id="chatAdminSwitch">
                     <span class="chat-admin-switch-label">Bicara dengan:</span>
                     <div class="chat-admin-switch-buttons">
+                        <button type="button" class="chat-admin-btn" data-admin-mode="live">🧑‍💼 Balas Manual</button>
                         <button type="button" class="chat-admin-btn active" data-admin-mode="asli">👤 Admin Asli</button>
                         <button type="button" class="chat-admin-btn" data-admin-mode="ai">🤖 Admin AI</button>
                     </div>
@@ -1655,35 +1656,140 @@
         </div>
 
         <div class="dashboard-tabs" id="dashboardTabs">
-            <button type="button" class="dashboard-tab active" data-dash-tab="analitik">📊 Analitik</button>
+            <button type="button" class="dashboard-tab active" data-dash-tab="beranda">🏠 Beranda</button>
+            <button type="button" class="dashboard-tab" data-dash-tab="produk">📦 Produk</button>
+            <button type="button" class="dashboard-tab" data-dash-tab="pesanan">🧾 Pesanan</button>
+            <button type="button" class="dashboard-tab" data-dash-tab="pengiriman">🚚 Pengiriman</button>
+            <button type="button" class="dashboard-tab" data-dash-tab="promosi">🎟️ Pusat Promosi</button>
             <button type="button" class="dashboard-tab" data-dash-tab="iklan">📢 Iklan</button>
-            <button type="button" class="dashboard-tab" data-dash-tab="toko">🏬 Edit Toko</button>
-            <button type="button" class="dashboard-tab" data-dash-tab="produk">🖼️ Foto &amp; Video Produk</button>
-            <button type="button" class="dashboard-tab" data-dash-tab="banner">🎨 Banner</button>
+            <button type="button" class="dashboard-tab" data-dash-tab="keuangan">💰 Keuangan</button>
+            <button type="button" class="dashboard-tab" data-dash-tab="analitik">📊 Data / Bisnis Saya</button>
+            <button type="button" class="dashboard-tab" data-dash-tab="toko">🏬 Toko</button>
+            <button type="button" class="dashboard-tab" data-dash-tab="pelayanan">💬 Pelayanan Pembeli<span id="dashChatUnreadBadge" class="dash-tab-badge" hidden>0</span></button>
+            <button type="button" class="dashboard-tab" data-dash-tab="performa">🌱 Perkembangan Penjual</button>
             <button type="button" class="dashboard-tab" data-dash-tab="ai-llm">🔑 Admin AI (LLM)</button>
         </div>
 
-        <!-- ANALITIK -->
-        <div class="dashboard-panel" data-dash-panel="analitik">
+        <!-- BERANDA -->
+        <div class="dashboard-panel" data-dash-panel="beranda">
 
             <div class="dash-stat-grid" id="dashStatGrid"></div>
 
+            <div class="dash-card dash-todo-card">
+                <div class="dash-card-header"><b>✅ Hal yang Perlu Diselesaikan</b></div>
+                <div id="dashTodoList" class="dash-todo-list"></div>
+            </div>
+
+            <div class="dash-card">
+                <div class="dash-card-header"><b>Penjualan 7 Hari Terakhir</b></div>
+                <div id="dashSalesChart" class="dash-bar-chart"></div>
+            </div>
+
+        </div>
+
+        <!-- DATA / BISNIS SAYA -->
+        <div class="dashboard-panel" data-dash-panel="analitik" hidden>
+
             <div class="dash-chart-row">
-                <div class="dash-card">
-                    <div class="dash-card-header">
-                        <b>Penjualan 7 Hari Terakhir</b>
-                    </div>
-                    <div id="dashSalesChart" class="dash-bar-chart"></div>
-                </div>
                 <div class="dash-card">
                     <div class="dash-card-header"><b>Produk Terlaris</b></div>
                     <div id="dashTopProducts" class="dash-top-products"></div>
                 </div>
+                <div class="dash-card">
+                    <div class="dash-card-header"><b>Trafik Toko (30 Hari)</b></div>
+                    <div id="dashTrafficChart" class="dash-line-chart"></div>
+                </div>
             </div>
 
             <div class="dash-card">
-                <div class="dash-card-header"><b>Trafik Toko (30 Hari)</b></div>
-                <div id="dashTrafficChart" class="dash-line-chart"></div>
+                <div class="dash-card-header"><b>Ringkasan Bisnis</b></div>
+                <div id="dashBusinessSummary" class="dash-business-summary"></div>
+            </div>
+
+        </div>
+
+        <!-- PESANAN -->
+        <div class="dashboard-panel" data-dash-panel="pesanan" hidden>
+
+            <div class="dash-card">
+                <div class="dash-card-header"><b>Daftar Pesanan</b></div>
+
+                <div class="dash-order-filters" id="dashOrderFilters">
+                    <button type="button" class="dash-order-filter active" data-order-filter="semua">Semua</button>
+                    <button type="button" class="dash-order-filter" data-order-filter="diproses">Baru Diproses</button>
+                    <button type="button" class="dash-order-filter" data-order-filter="dikirim">Dikirim</button>
+                    <button type="button" class="dash-order-filter" data-order-filter="selesai">Selesai</button>
+                    <button type="button" class="dash-order-filter" data-order-filter="dibatalkan">Dibatalkan / Retur</button>
+                </div>
+
+                <div id="dashOrderList" class="dash-order-list"></div>
+            </div>
+
+        </div>
+
+        <!-- PENGIRIMAN -->
+        <div class="dashboard-panel" data-dash-panel="pengiriman" hidden>
+
+            <div class="dash-card">
+                <div class="dash-card-header"><b>Jasa Kirim Aktif</b></div>
+                <form id="dashShippingForm" class="dash-shipping-form">
+                    <div class="dash-shipping-couriers" id="dashShippingCouriers">
+                        <label><input type="checkbox" value="JNE" checked> JNE</label>
+                        <label><input type="checkbox" value="J&T Express" checked> J&amp;T Express</label>
+                        <label><input type="checkbox" value="SiCepat" checked> SiCepat</label>
+                        <label><input type="checkbox" value="GoSend"> GoSend (Instan)</label>
+                        <label><input type="checkbox" value="GrabExpress"> GrabExpress (Instan)</label>
+                        <label><input type="checkbox" value="AnterAja"> AnterAja</label>
+                    </div>
+
+                    <label>Alamat Pengambilan Barang (Gudang/Toko)
+                        <textarea id="dashPickupAddress" rows="2" placeholder="Alamat lengkap untuk dijemput kurir..."></textarea>
+                    </label>
+
+                    <button type="submit">💾 Simpan Pengaturan Pengiriman</button>
+                </form>
+            </div>
+
+            <div class="dash-card">
+                <div class="dash-card-header">
+                    <b>Cetak Resi Massal</b>
+                    <span class="dash-card-subtitle">Pesanan berstatus "Diproses" siap dicetak resinya</span>
+                </div>
+                <div id="dashPrintResiList" class="dash-print-resi-list"></div>
+                <button type="button" id="dashPrintResiBtn" class="dash-print-resi-btn">🖨️ Cetak Semua Resi</button>
+            </div>
+
+        </div>
+
+        <!-- PUSAT PROMOSI -->
+        <div class="dashboard-panel" data-dash-panel="promosi" hidden>
+
+            <div class="dash-card">
+                <div class="dash-card-header"><b>Buat Voucher Toko</b></div>
+                <form id="dashVoucherForm" class="dash-voucher-form">
+                    <label>Kode Voucher
+                        <input type="text" id="dashVoucherCode" placeholder="Contoh: DISKON10" required style="text-transform:uppercase;">
+                    </label>
+                    <label>Jenis Diskon
+                        <select id="dashVoucherType">
+                            <option value="persen">Persentase (%)</option>
+                            <option value="nominal">Potongan Nominal (Rp)</option>
+                            <option value="ongkir">Gratis Ongkir</option>
+                        </select>
+                    </label>
+                    <label id="dashVoucherValueWrap">Nilai Diskon
+                        <input type="number" id="dashVoucherValue" min="1" placeholder="Contoh: 10 (untuk 10%) atau 20000">
+                    </label>
+                    <label>Minimal Belanja (Rp)
+                        <input type="number" id="dashVoucherMin" min="0" value="0">
+                    </label>
+                    <button type="submit">🎟️ Buat Voucher</button>
+                </form>
+            </div>
+
+            <div class="dash-card">
+                <div class="dash-card-header"><b>Voucher Aktif</b></div>
+                <div id="dashVoucherList" class="dash-voucher-list"></div>
             </div>
 
         </div>
@@ -1733,6 +1839,61 @@
                     <button type="submit">💾 Simpan Perubahan</button>
                 </form>
             </div>
+
+            <div class="dash-card">
+                <div class="dash-card-header"><b>Banner Beranda (Dekorasi Toko)</b></div>
+                <div class="dash-banner-editor">
+                    <div class="dash-banner-preview" id="dashBannerPreview"></div>
+                    <label>Judul Banner
+                        <input type="text" id="dashBannerTitle">
+                    </label>
+                    <label>Subjudul Banner
+                        <input type="text" id="dashBannerSubtitle">
+                    </label>
+                    <label>Warna Latar (hex)
+                        <input type="color" id="dashBannerColor" value="#0f3d2e">
+                    </label>
+                    <button type="button" id="dashBannerSave">💾 Simpan Banner</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- KEUANGAN -->
+        <div class="dashboard-panel" data-dash-panel="keuangan" hidden>
+
+            <div class="dash-stat-grid" id="dashFinanceStatGrid"></div>
+
+            <div class="dash-card">
+                <div class="dash-card-header"><b>Rekening Bank Terdaftar</b></div>
+                <form id="dashBankForm" class="dash-bank-form">
+                    <label>Nama Bank
+                        <input type="text" id="dashBankName" placeholder="Contoh: BCA">
+                    </label>
+                    <label>Nomor Rekening
+                        <input type="text" id="dashBankNumber" placeholder="Contoh: 1234567890">
+                    </label>
+                    <label>Atas Nama
+                        <input type="text" id="dashBankHolder" placeholder="Nama sesuai buku tabungan">
+                    </label>
+                    <button type="submit">💾 Simpan Rekening</button>
+                </form>
+            </div>
+
+            <div class="dash-card">
+                <div class="dash-card-header"><b>Tarik Dana</b></div>
+                <form id="dashWithdrawForm" class="dash-withdraw-form">
+                    <label>Jumlah Penarikan (Rp)
+                        <input type="number" id="dashWithdrawAmount" min="1" placeholder="Masukkan nominal...">
+                    </label>
+                    <button type="submit">🏦 Ajukan Pencairan</button>
+                </form>
+            </div>
+
+            <div class="dash-card">
+                <div class="dash-card-header"><b>Riwayat Pencairan</b></div>
+                <div id="dashWithdrawHistory" class="dash-withdraw-history"></div>
+            </div>
+
         </div>
 
         <!-- FOTO & VIDEO PRODUK -->
@@ -1769,24 +1930,57 @@
             </div>
         </div>
 
-        <!-- BANNER -->
-        <div class="dashboard-panel" data-dash-panel="banner" hidden>
-            <div class="dash-card">
-                <div class="dash-card-header"><b>Banner Beranda</b></div>
-                <div class="dash-banner-editor">
-                    <div class="dash-banner-preview" id="dashBannerPreview"></div>
-                    <label>Judul Banner
-                        <input type="text" id="dashBannerTitle">
-                    </label>
-                    <label>Subjudul Banner
-                        <input type="text" id="dashBannerSubtitle">
-                    </label>
-                    <label>Warna Latar (hex)
-                        <input type="color" id="dashBannerColor" value="#0f3d2e">
-                    </label>
-                    <button type="button" id="dashBannerSave">💾 Simpan Banner</button>
+        <!-- PELAYANAN PEMBELI / CHAT -->
+        <div class="dashboard-panel" data-dash-panel="pelayanan" hidden>
+            <div class="dash-card dash-service-card">
+                <div class="dash-card-header">
+                    <b>Pesan Masuk dari Pembeli</b>
+                    <span class="dash-card-subtitle">Balas langsung sebagai MAB-Official Store</span>
+                </div>
+
+                <div class="dash-chat-layout">
+                    <div class="dash-chat-conv-list" id="dashChatConvList"></div>
+
+                    <div class="dash-chat-thread" id="dashChatThreadWrap">
+                        <div class="dash-chat-empty" id="dashChatEmpty">Pilih percakapan di sebelah kiri untuk mulai membalas.</div>
+
+                        <div class="dash-chat-active" id="dashChatActive" hidden>
+                            <div class="dash-chat-thread-header">
+                                <b id="dashChatPeerName">Pembeli</b>
+                                <div class="dash-chat-mode-switch" id="dashChatModeSwitch">
+                                    <button type="button" class="dash-chat-mode-btn" data-chat-mode="live">🧑‍💼 Balas Manual</button>
+                                    <button type="button" class="dash-chat-mode-btn" data-chat-mode="asli">🤖 Simulasi Otomatis</button>
+                                    <button type="button" class="dash-chat-mode-btn" data-chat-mode="ai">✨ Admin AI</button>
+                                </div>
+                            </div>
+
+                            <div class="dash-chat-messages" id="dashChatMessages"></div>
+
+                            <form id="dashChatReplyForm" class="dash-chat-reply-form">
+                                <input type="text" id="dashChatReplyInput" placeholder="Ketik balasan sebagai penjual...">
+                                <button type="submit">Kirim</button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
+        </div>
+
+        <!-- PERKEMBANGAN PENJUAL -->
+        <div class="dashboard-panel" data-dash-panel="performa" hidden>
+
+            <div class="dash-stat-grid" id="dashPerformaStatGrid"></div>
+
+            <div class="dash-card">
+                <div class="dash-card-header"><b>Kesehatan Toko</b></div>
+                <div id="dashPerformaHealth" class="dash-performa-health"></div>
+            </div>
+
+            <div class="dash-card">
+                <div class="dash-card-header"><b>Pencapaian</b></div>
+                <div id="dashPerformaAchievements" class="dash-performa-achievements"></div>
+            </div>
+
         </div>
 
         <!-- ADMIN AI / LLM API KEY -->
