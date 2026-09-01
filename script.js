@@ -307,6 +307,27 @@ let currentLang = localStorage.getItem("mabstore_lang") || "id";
 let usdRate = Number(localStorage.getItem("mabstore_usd_rate")) || 15800;
 let usdRateFetchedAt = Number(localStorage.getItem("mabstore_usd_rate_time")) || 0;
 
+/* --- Tahap 4: locale (bahasa + mata uang) --- */
+const LOCALE_OPTIONS = [
+    { key: "sa", label: "Arab Saudi", lang: "ar", currency: "SAR", numLocale: "ar-SA" },
+    { key: "au", label: "Australia", lang: "en", currency: "AUD", numLocale: "en-AU" },
+    { key: "cn", label: "China", lang: "zh", currency: "CNY", numLocale: "zh-CN" },
+    { key: "gb", label: "English (UK)", lang: "en", currency: "GBP", numLocale: "en-GB" },
+    { key: "us", label: "English (US)", lang: "en", currency: "USD", numLocale: "en-US" },
+    { key: "id", label: "Indonesia", lang: "id", currency: "IDR", numLocale: "id-ID" },
+    { key: "jp", label: "Jepang", lang: "ja", currency: "JPY", numLocale: "ja-JP" },
+    { key: "my", label: "Malaysia", lang: "ms", currency: "MYR", numLocale: "ms-MY" },
+    { key: "nz", label: "New Zealand", lang: "en", currency: "NZD", numLocale: "en-NZ" },
+    { key: "es", label: "Spanyol", lang: "es", currency: "EUR", numLocale: "es-ES" }
+];
+const AUTO_TRANSLATE_LANGS = ["ar", "zh", "ja", "ms", "es"];
+
+let currentLocaleKey = localStorage.getItem("mabstore_locale_key") || "id";
+let currentCurrency = localStorage.getItem("mabstore_currency") || "IDR";
+let currentNumLocale = localStorage.getItem("mabstore_num_locale") || "id-ID";
+let uiTranslateLang = AUTO_TRANSLATE_LANGS.includes(localStorage.getItem("mabstore_translate_lang")) ? localStorage.getItem("mabstore_translate_lang") : null;
+let exchangeRates = JSON.parse(localStorage.getItem("mabstore_rates") || "null") || { IDR: 15800, USD: 1, GBP: 0.79, SAR: 3.75, CNY: 7.1, JPY: 149, EUR: 0.92, MYR: 4.4, NZD: 1.65, AUD: 1.52 };
+
 
 /* =========================================================
    DOM
@@ -469,27 +490,30 @@ function saveWishlist() {
 
 function rupiah(number) {
 
-    if (currentLang === "en") {
-        const usdValue = number / usdRate;
-        return new Intl.NumberFormat(
-            "en-US",
-            {
-                style: "currency",
-                currency: "USD",
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            }
-        ).format(usdValue);
+    const currency = currentCurrency || "IDR";
+    const zeroDecimal = currency === "IDR" || currency === "JPY";
+
+    let amount = number;
+    if (currency !== "IDR") {
+        const idrRate = exchangeRates.IDR || usdRate || 15800;
+        const targetRate = exchangeRates[currency];
+        if (targetRate) amount = (number / idrRate) * targetRate;
     }
 
-    return new Intl.NumberFormat(
-        "id-ID",
-        {
-            style: "currency",
-            currency: "IDR",
-            maximumFractionDigits: 0
-        }
-    ).format(number);
+    try {
+        return new Intl.NumberFormat(
+            currentNumLocale || "id-ID",
+            {
+                style: "currency",
+                currency,
+                minimumFractionDigits: zeroDecimal ? 0 : 2,
+                maximumFractionDigits: zeroDecimal ? 0 : 2
+            }
+        ).format(amount);
+    } catch (error) {
+        /* locale/currency tidak dikenali browser — fallback aman ke rupiah */
+        return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(number);
+    }
 
 }
 
@@ -506,11 +530,13 @@ async function fetchExchangeRate(force = false) {
         const res = await fetch("https://open.er-api.com/v6/latest/USD");
         const data = await res.json();
         if (data && data.rates && data.rates.IDR) {
+            exchangeRates = data.rates;
             usdRate = data.rates.IDR;
             usdRateFetchedAt = Date.now();
+            localStorage.setItem("mabstore_rates", JSON.stringify(exchangeRates));
             localStorage.setItem("mabstore_usd_rate", String(usdRate));
             localStorage.setItem("mabstore_usd_rate_time", String(usdRateFetchedAt));
-            if (currentLang === "en") refreshCurrentView();
+            if (currentCurrency !== "IDR") refreshCurrentView();
         }
     } catch (error) {
         /* gagal fetch kurs — tetap pakai kurs cache/default, tidak mengganggu pengalaman pengguna */
@@ -533,9 +559,12 @@ function saveTranslationCache() {
     }
 }
 
-async function fetchAutoTranslation(text) {
+const MYMEMORY_LANG_MAP = { zh: "zh-CN" };
+
+async function fetchAutoTranslation(text, targetLang = "en") {
+    const mmLang = MYMEMORY_LANG_MAP[targetLang] || targetLang;
     try {
-        const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=id|en`);
+        const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=id|${mmLang}`);
         const data = await res.json();
         const translated = data && data.responseData && data.responseData.translatedText;
         if (translated && translated.toLowerCase() !== "invalid" && !translated.startsWith("QUERY LENGTH")) {
@@ -567,6 +596,143 @@ function autoText(text) {
     if (translationCache[text] !== undefined) return translationCache[text];
     ensureAutoTranslated(text);
     return text;
+}
+
+
+/* =========================================================
+   TAHAP 4: AUTO-TRANSLATE SELURUH HALAMAN
+   (untuk bahasa selain Indonesia/Inggris: Arab, China, Jepang, Malaysia, Spanyol)
+   Sumber teks selalu Bahasa Indonesia (currentLang dipaksa "id" di balik layar),
+   lalu setiap node teks yang terlihat diterjemahkan otomatis via MyMemory API
+   dan disimpan di cache lokal supaya kunjungan berikutnya instan/tanpa kuota.
+   ========================================================= */
+
+let i18nCache = JSON.parse(localStorage.getItem("mabstore_i18n_cache") || "{}");
+const i18nPending = new Set();
+const i18nGlobalQueue = [];
+let i18nQueueRunning = false;
+let i18nObserver = null;
+let i18nDebounceTimer = null;
+let translatedNodeLog = [];
+
+function saveI18nCache() {
+    try { localStorage.setItem("mabstore_i18n_cache", JSON.stringify(i18nCache)); } catch (error) { /* storage penuh, cache memori tetap jalan */ }
+}
+
+function shouldSkipI18nText(trimmed) {
+    if (!trimmed || trimmed.length < 2) return true;
+    if (!/[A-Za-zÀ-ÖØ-öø-ÿ]/.test(trimmed)) return true; // murni angka/simbol/emoji/harga -> lewati
+    return false;
+}
+
+async function runI18nQueue(targetLang) {
+    while (i18nGlobalQueue.length) {
+        const item = i18nGlobalQueue.shift();
+        let translated = item.trimmed;
+        try {
+            translated = await fetchAutoTranslation(item.trimmed, targetLang);
+        } catch (error) { /* fallback ke teks asli */ }
+
+        i18nCache[item.cacheKey] = translated;
+        i18nPending.delete(item.cacheKey);
+
+        if (item.node && item.node.isConnected) {
+            if (item.node.__i18nOriginal === undefined) item.node.__i18nOriginal = item.node.nodeValue;
+            item.node.nodeValue = item.node.nodeValue.replace(item.trimmed, translated);
+            translatedNodeLog.push(item.node);
+        } else if (item.el && item.el.isConnected) {
+            if (item.el.dataset.i18nOriginalPlaceholder === undefined) item.el.dataset.i18nOriginalPlaceholder = item.el.getAttribute("placeholder") || "";
+            item.el.setAttribute("placeholder", translated);
+            translatedNodeLog.push(item.el);
+        }
+
+        await new Promise(resolve => setTimeout(resolve, 180)); // jaga kecepatan permintaan agar tidak melebihi batas gratis MyMemory
+    }
+    saveI18nCache();
+    i18nQueueRunning = false;
+}
+
+function queueI18nItem(item) {
+    i18nGlobalQueue.push(item);
+    if (!i18nQueueRunning) {
+        i18nQueueRunning = true;
+        runI18nQueue(uiTranslateLang);
+    }
+}
+
+function walkAndTranslate(root, targetLang) {
+    if (!targetLang) return;
+
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+        acceptNode(node) {
+            const parentTag = node.parentElement ? node.parentElement.tagName : "";
+            if (parentTag === "SCRIPT" || parentTag === "STYLE") return NodeFilter.FILTER_REJECT;
+            return NodeFilter.FILTER_ACCEPT;
+        }
+    });
+
+    let node;
+    while ((node = walker.nextNode())) {
+        const trimmed = node.nodeValue.trim();
+        if (shouldSkipI18nText(trimmed)) continue;
+
+        const cacheKey = targetLang + "|" + trimmed;
+        if (i18nCache[cacheKey] !== undefined) {
+            if (i18nCache[cacheKey] !== trimmed) {
+                if (node.__i18nOriginal === undefined) node.__i18nOriginal = node.nodeValue;
+                node.nodeValue = node.nodeValue.replace(trimmed, i18nCache[cacheKey]);
+                translatedNodeLog.push(node);
+            }
+        } else if (!i18nPending.has(cacheKey)) {
+            i18nPending.add(cacheKey);
+            queueI18nItem({ node, trimmed, cacheKey });
+        }
+    }
+
+    document.querySelectorAll("input[placeholder], textarea[placeholder]").forEach(el => {
+        const trimmed = el.getAttribute("placeholder");
+        if (shouldSkipI18nText(trimmed)) return;
+        const cacheKey = targetLang + "|" + trimmed;
+        if (i18nCache[cacheKey] !== undefined) {
+            if (i18nCache[cacheKey] !== trimmed) {
+                if (el.dataset.i18nOriginalPlaceholder === undefined) el.dataset.i18nOriginalPlaceholder = trimmed;
+                el.setAttribute("placeholder", i18nCache[cacheKey]);
+                translatedNodeLog.push(el);
+            }
+        } else if (!i18nPending.has(cacheKey)) {
+            i18nPending.add(cacheKey);
+            queueI18nItem({ el, trimmed, cacheKey });
+        }
+    });
+}
+
+function revertAllTranslatedNodes() {
+    translatedNodeLog.forEach(item => {
+        if (!item.isConnected) return;
+        if (item.nodeType === 3 && item.__i18nOriginal !== undefined) {
+            item.nodeValue = item.__i18nOriginal;
+        } else if (item.dataset && item.dataset.i18nOriginalPlaceholder !== undefined) {
+            item.setAttribute("placeholder", item.dataset.i18nOriginalPlaceholder);
+        }
+    });
+    translatedNodeLog = [];
+}
+
+function scheduleI18nWalk() {
+    if (!uiTranslateLang) return;
+    clearTimeout(i18nDebounceTimer);
+    i18nDebounceTimer = setTimeout(() => walkAndTranslate(document.body, uiTranslateLang), 220);
+}
+
+function startI18nObserver() {
+    if (i18nObserver) return;
+    i18nObserver = new MutationObserver(() => scheduleI18nWalk());
+    i18nObserver.observe(document.body, { childList: true, subtree: true, characterData: true });
+}
+
+function stopI18nObserver() {
+    if (i18nObserver) { i18nObserver.disconnect(); i18nObserver = null; }
+    clearTimeout(i18nDebounceTimer);
 }
 
 const categoryLabels = {
@@ -4804,28 +4970,93 @@ function refreshCurrentView() {
     if (searchPage && !searchPage.hidden) runAdvancedSearch();
 }
 
-function applyLanguage(lang) {
-    currentLang = lang;
-    localStorage.setItem("mabstore_lang", lang);
+function applyLocale(key) {
+    const locale = LOCALE_OPTIONS.find(o => o.key === key) || LOCALE_OPTIONS.find(o => o.key === "id");
 
-    translateStaticText(lang);
+    currentLocaleKey = locale.key;
+    currentCurrency = locale.currency;
+    currentNumLocale = locale.numLocale;
+    localStorage.setItem("mabstore_locale_key", locale.key);
+    localStorage.setItem("mabstore_currency", currentCurrency);
+    localStorage.setItem("mabstore_num_locale", currentNumLocale);
+
+    const newLang = locale.lang === "en" ? "en" : "id";
+    const newTranslateLang = AUTO_TRANSLATE_LANGS.includes(locale.lang) ? locale.lang : null;
+
+    if (uiTranslateLang && uiTranslateLang !== newTranslateLang) {
+        revertAllTranslatedNodes();
+        stopI18nObserver();
+    }
+    uiTranslateLang = newTranslateLang;
+    localStorage.setItem("mabstore_translate_lang", uiTranslateLang || "");
+
+    currentLang = newLang;
+    localStorage.setItem("mabstore_lang", newLang);
+
+    translateStaticText(newLang);
     updateLangToggleButton();
+    updateMobileLangLabel();
+    renderLocaleDropdown();
+    fetchExchangeRate(true);
     refreshCurrentView();
+
+    if (uiTranslateLang) {
+        startI18nObserver();
+        walkAndTranslate(document.body, uiTranslateLang);
+        showToast("🌐 Menerjemahkan halaman... (mungkin butuh beberapa detik)");
+    }
+}
+
+// Dipertahankan untuk kompatibilitas — dipakai saat load awal & sebagai alias sederhana id/en.
+function applyLanguage(lang) {
+    const fallbackKey = lang === "en" ? "us" : "id";
+    applyLocale(currentLocaleKey && LOCALE_OPTIONS.some(o => o.key === currentLocaleKey) ? currentLocaleKey : fallbackKey);
 }
 
 function updateLangToggleButton() {
     const btn = document.getElementById("langToggleButton");
     if (!btn) return;
-    btn.textContent = currentLang === "en" ? "🇬🇧 EN" : "🇮🇩 ID";
-    btn.title = currentLang === "en" ? "Switch to Indonesian" : "Ganti ke Bahasa Inggris";
+    const locale = LOCALE_OPTIONS.find(o => o.key === currentLocaleKey);
+    btn.title = locale ? `${locale.label} (${locale.currency})` : "Pilih bahasa & mata uang";
 }
 
+function renderLocaleDropdown() {
+    const dropdown = document.getElementById("localeDropdown");
+    if (!dropdown) return;
+    const sorted = [...LOCALE_OPTIONS].sort((a, b) => a.label.localeCompare(b.label));
+    dropdown.innerHTML = sorted.map(o => `
+        <button type="button" class="locale-option${o.key === currentLocaleKey ? " active" : ""}" data-locale-key="${o.key}">
+            <span>${o.label}</span>
+            <span class="locale-option-currency">${o.currency}</span>
+        </button>
+    `).join("");
+}
+
+const localeSwitcher = document.getElementById("localeSwitcher");
 const langToggleButton = document.getElementById("langToggleButton");
+const localeDropdown = document.getElementById("localeDropdown");
+
 if (langToggleButton) {
-    langToggleButton.addEventListener("click", () => {
-        applyLanguage(currentLang === "en" ? "id" : "en");
+    langToggleButton.addEventListener("click", event => {
+        event.stopPropagation();
+        localeDropdown.hidden = !localeDropdown.hidden;
     });
 }
+
+if (localeDropdown) {
+    localeDropdown.addEventListener("click", event => {
+        const btn = event.target.closest("[data-locale-key]");
+        if (!btn) return;
+        applyLocale(btn.dataset.localeKey);
+        localeDropdown.hidden = true;
+    });
+}
+
+document.addEventListener("click", event => {
+    if (localeDropdown && !localeDropdown.hidden && !localeSwitcher.contains(event.target)) {
+        localeDropdown.hidden = true;
+    }
+});
 
 
 /* =========================================================
@@ -4851,7 +5082,8 @@ function renderMobileMenuCategories() {
 
 function updateMobileLangLabel() {
     const label = document.getElementById("mobileLangLabel");
-    if (label) label.textContent = currentLang === "en" ? "Language: English" : "Bahasa: Indonesia";
+    const locale = LOCALE_OPTIONS.find(o => o.key === currentLocaleKey);
+    if (label) label.textContent = locale ? `Bahasa: ${locale.label} (${locale.currency})` : "Bahasa: Indonesia";
 }
 
 function openMobileMenu() {
@@ -4888,8 +5120,9 @@ if (mobileHelpButton) {
 
 if (mobileLangButton) {
     mobileLangButton.addEventListener("click", () => {
-        applyLanguage(currentLang === "en" ? "id" : "en");
-        updateMobileLangLabel();
+        closeMobileMenu();
+        document.getElementById("localeDropdown").hidden = false;
+        document.getElementById("localeSwitcher").scrollIntoView({ behavior: "smooth", block: "center" });
     });
 }
 
