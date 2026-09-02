@@ -320,12 +320,10 @@ const LOCALE_OPTIONS = [
     { key: "nz", label: "New Zealand", lang: "en", currency: "NZD", numLocale: "en-NZ" },
     { key: "es", label: "Spanyol", lang: "es", currency: "EUR", numLocale: "es-ES" }
 ];
-const AUTO_TRANSLATE_LANGS = ["ar", "zh", "ja", "ms", "es"];
 
 let currentLocaleKey = localStorage.getItem("mabstore_locale_key") || "id";
 let currentCurrency = localStorage.getItem("mabstore_currency") || "IDR";
 let currentNumLocale = localStorage.getItem("mabstore_num_locale") || "id-ID";
-let uiTranslateLang = AUTO_TRANSLATE_LANGS.includes(localStorage.getItem("mabstore_translate_lang")) ? localStorage.getItem("mabstore_translate_lang") : null;
 let exchangeRates = JSON.parse(localStorage.getItem("mabstore_rates") || "null") || { IDR: 15800, USD: 1, GBP: 0.79, SAR: 3.75, CNY: 7.1, JPY: 149, EUR: 0.92, MYR: 4.4, NZD: 1.65, AUD: 1.52 };
 
 
@@ -576,189 +574,76 @@ async function fetchAutoTranslation(text, targetLang = "en") {
     return text;
 }
 
-function ensureAutoTranslated(text) {
-    if (!text || translationCache[text] || translationPending.has(text)) return;
-    translationPending.add(text);
+function ensureAutoTranslated(text, lang) {
+    const targetLang = lang || currentLang;
+    if (!text || targetLang === "id") return;
+    const cacheKey = targetLang + "|" + text;
+    if (translationCache[cacheKey] !== undefined || translationPending.has(cacheKey)) return;
+    translationPending.add(cacheKey);
 
-    fetchAutoTranslation(text).then(translated => {
-        translationCache[text] = translated;
-        translationPending.delete(text);
+    fetchAutoTranslation(text, targetLang).then(translated => {
+        translationCache[cacheKey] = translated;
+        translationPending.delete(cacheKey);
         saveTranslationCache();
-        if (currentLang === "en") refreshCurrentView();
+        if (currentLang === targetLang) refreshCurrentView();
     });
 }
 
-/* Kembalikan terjemahan Indonesia→Inggris: pakai cache jika sudah ada,
-   kalau belum, mulai proses terjemahan di latar belakang (hasilnya akan
-   muncul otomatis begitu selesai) dan untuk sementara tampilkan teks asli. */
-function autoText(text) {
-    if (currentLang !== "en" || !text) return text;
-    if (translationCache[text] !== undefined) return translationCache[text];
-    ensureAutoTranslated(text);
+/* Terjemahan pihak ketiga (MyMemory) — HANYA dipakai untuk judul & deskripsi produk
+   (lihat productName/productDesc), dan hanya untuk produk yang sedang benar-benar
+   ditampilkan. Hasilnya di-cache per bahasa supaya tidak berulang kali memanggil API. */
+function autoText(text, lang) {
+    const targetLang = lang || currentLang;
+    if (targetLang === "id" || !text) return text;
+    const cacheKey = targetLang + "|" + text;
+    if (translationCache[cacheKey] !== undefined) return translationCache[cacheKey];
+    ensureAutoTranslated(text, targetLang);
     return text;
 }
 
 
-/* =========================================================
-   TAHAP 4: AUTO-TRANSLATE SELURUH HALAMAN
-   (untuk bahasa selain Indonesia/Inggris: Arab, China, Jepang, Malaysia, Spanyol)
-   Sumber teks selalu Bahasa Indonesia (currentLang dipaksa "id" di balik layar),
-   lalu setiap node teks yang terlihat diterjemahkan otomatis via MyMemory API
-   dan disimpan di cache lokal supaya kunjungan berikutnya instan/tanpa kuota.
-   ========================================================= */
-
-let i18nCache = JSON.parse(localStorage.getItem("mabstore_i18n_cache") || "{}");
-const i18nPending = new Set();
-const i18nGlobalQueue = [];
-let i18nQueueRunning = false;
-let i18nObserver = null;
-let i18nDebounceTimer = null;
-let translatedNodeLog = [];
-
-function saveI18nCache() {
-    try { localStorage.setItem("mabstore_i18n_cache", JSON.stringify(i18nCache)); } catch (error) { /* storage penuh, cache memori tetap jalan */ }
-}
-
-function shouldSkipI18nText(trimmed) {
-    if (!trimmed || trimmed.length < 2) return true;
-    if (!/[A-Za-zÀ-ÖØ-öø-ÿ]/.test(trimmed)) return true; // murni angka/simbol/emoji/harga -> lewati
-    return false;
-}
-
-async function runI18nQueue(targetLang) {
-    while (i18nGlobalQueue.length) {
-        const item = i18nGlobalQueue.shift();
-        let translated = item.trimmed;
-        try {
-            translated = await fetchAutoTranslation(item.trimmed, targetLang);
-        } catch (error) { /* fallback ke teks asli */ }
-
-        i18nCache[item.cacheKey] = translated;
-        i18nPending.delete(item.cacheKey);
-
-        if (item.node && item.node.isConnected) {
-            if (item.node.__i18nOriginal === undefined) item.node.__i18nOriginal = item.node.nodeValue;
-            item.node.nodeValue = item.node.nodeValue.replace(item.trimmed, translated);
-            translatedNodeLog.push(item.node);
-        } else if (item.el && item.el.isConnected) {
-            if (item.el.dataset.i18nOriginalPlaceholder === undefined) item.el.dataset.i18nOriginalPlaceholder = item.el.getAttribute("placeholder") || "";
-            item.el.setAttribute("placeholder", translated);
-            translatedNodeLog.push(item.el);
-        }
-
-        await new Promise(resolve => setTimeout(resolve, 180)); // jaga kecepatan permintaan agar tidak melebihi batas gratis MyMemory
-    }
-    saveI18nCache();
-    i18nQueueRunning = false;
-}
-
-function queueI18nItem(item) {
-    i18nGlobalQueue.push(item);
-    if (!i18nQueueRunning) {
-        i18nQueueRunning = true;
-        runI18nQueue(uiTranslateLang);
-    }
-}
-
-function walkAndTranslate(root, targetLang) {
-    if (!targetLang) return;
-
-    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
-        acceptNode(node) {
-            const parentTag = node.parentElement ? node.parentElement.tagName : "";
-            if (parentTag === "SCRIPT" || parentTag === "STYLE") return NodeFilter.FILTER_REJECT;
-            return NodeFilter.FILTER_ACCEPT;
-        }
-    });
-
-    let node;
-    while ((node = walker.nextNode())) {
-        const trimmed = node.nodeValue.trim();
-        if (shouldSkipI18nText(trimmed)) continue;
-
-        const cacheKey = targetLang + "|" + trimmed;
-        if (i18nCache[cacheKey] !== undefined) {
-            if (i18nCache[cacheKey] !== trimmed) {
-                if (node.__i18nOriginal === undefined) node.__i18nOriginal = node.nodeValue;
-                node.nodeValue = node.nodeValue.replace(trimmed, i18nCache[cacheKey]);
-                translatedNodeLog.push(node);
-            }
-        } else if (!i18nPending.has(cacheKey)) {
-            i18nPending.add(cacheKey);
-            queueI18nItem({ node, trimmed, cacheKey });
-        }
-    }
-
-    document.querySelectorAll("input[placeholder], textarea[placeholder]").forEach(el => {
-        const trimmed = el.getAttribute("placeholder");
-        if (shouldSkipI18nText(trimmed)) return;
-        const cacheKey = targetLang + "|" + trimmed;
-        if (i18nCache[cacheKey] !== undefined) {
-            if (i18nCache[cacheKey] !== trimmed) {
-                if (el.dataset.i18nOriginalPlaceholder === undefined) el.dataset.i18nOriginalPlaceholder = trimmed;
-                el.setAttribute("placeholder", i18nCache[cacheKey]);
-                translatedNodeLog.push(el);
-            }
-        } else if (!i18nPending.has(cacheKey)) {
-            i18nPending.add(cacheKey);
-            queueI18nItem({ el, trimmed, cacheKey });
-        }
-    });
-}
-
-function revertAllTranslatedNodes() {
-    translatedNodeLog.forEach(item => {
-        if (!item.isConnected) return;
-        if (item.nodeType === 3 && item.__i18nOriginal !== undefined) {
-            item.nodeValue = item.__i18nOriginal;
-        } else if (item.dataset && item.dataset.i18nOriginalPlaceholder !== undefined) {
-            item.setAttribute("placeholder", item.dataset.i18nOriginalPlaceholder);
-        }
-    });
-    translatedNodeLog = [];
-}
-
-function scheduleI18nWalk() {
-    if (!uiTranslateLang) return;
-    clearTimeout(i18nDebounceTimer);
-    i18nDebounceTimer = setTimeout(() => walkAndTranslate(document.body, uiTranslateLang), 220);
-}
-
-function startI18nObserver() {
-    if (i18nObserver) return;
-    i18nObserver = new MutationObserver(() => scheduleI18nWalk());
-    i18nObserver.observe(document.body, { childList: true, subtree: true, characterData: true });
-}
-
-function stopI18nObserver() {
-    if (i18nObserver) { i18nObserver.disconnect(); i18nObserver = null; }
-    clearTimeout(i18nDebounceTimer);
-}
+/* Catatan: mesin auto-translate seluruh halaman (MutationObserver) sudah dihapus.
+   Sekarang navigasi/tombol memakai kamus terjemahan instan (lihat staticDict di
+   bagian TERJEMAHAN TEKS STATIS), dan hanya judul/deskripsi produk yang memakai
+   terjemahan pihak ketiga (autoText/ensureAutoTranslated), dipanggil satu per satu
+   saat produk itu benar-benar ditampilkan — bukan untuk seluruh halaman sekaligus. */
 
 const categoryLabels = {
     id: { Elektronik: "Elektronik", Fashion: "Fashion", Rumah: "Rumah", Kecantikan: "Kecantikan", Gaming: "Gaming", Olahraga: "Olahraga", Buku: "Buku", Aksesoris: "Aksesoris" },
-    en: { Elektronik: "Electronics", Fashion: "Fashion", Rumah: "Home", Kecantikan: "Beauty", Gaming: "Gaming", Olahraga: "Sports", Buku: "Books", Aksesoris: "Accessories" }
+    en: { Elektronik: "Electronics", Fashion: "Fashion", Rumah: "Home", Kecantikan: "Beauty", Gaming: "Gaming", Olahraga: "Sports", Buku: "Books", Aksesoris: "Accessories" },
+    ar: { Elektronik: "الإلكترونيات", Fashion: "الموضة", Rumah: "المنزل", Kecantikan: "الجمال", Gaming: "الألعاب", Olahraga: "الرياضة", Buku: "الكتب", Aksesoris: "الإكسسوارات" },
+    zh: { Elektronik: "电子产品", Fashion: "时尚", Rumah: "家居", Kecantikan: "美妆", Gaming: "游戏", Olahraga: "运动", Buku: "图书", Aksesoris: "配饰" },
+    ja: { Elektronik: "電化製品", Fashion: "ファッション", Rumah: "ホーム", Kecantikan: "美容", Gaming: "ゲーム", Olahraga: "スポーツ", Buku: "本", Aksesoris: "アクセサリー" },
+    ms: { Elektronik: "Elektronik", Fashion: "Fesyen", Rumah: "Rumah", Kecantikan: "Kecantikan", Gaming: "Gaming", Olahraga: "Sukan", Buku: "Buku", Aksesoris: "Aksesori" },
+    es: { Elektronik: "Electrónica", Fashion: "Moda", Rumah: "Hogar", Kecantikan: "Belleza", Gaming: "Videojuegos", Olahraga: "Deportes", Buku: "Libros", Aksesoris: "Accesorios" }
 };
 
 function categoryLabel(cat) {
     if (!cat) return cat;
     const known = categoryLabels[currentLang] && categoryLabels[currentLang][cat];
     if (known) return known;
+    if (currentLang === "id") return cat;
     /* kategori baru yang belum ada di kamus tetap otomatis diterjemahkan */
     return autoText(cat);
 }
 
+// Judul & deskripsi produk: kamus manual (nameEn/descEn) dipakai kalau ada (instan, khusus
+// Inggris), selain itu memakai auto-translate PIHAK KETIGA — tapi hanya terpanggil saat
+// produk ini sendiri sedang dirender (dipanggil dari kartu/detail produk), bukan proaktif
+// untuk seluruh katalog.
 function productName(product) {
     if (!product) return "";
-    if (currentLang !== "en") return product.name;
-    return product.nameEn || autoText(product.name);
+    if (currentLang === "id") return product.name;
+    if (currentLang === "en" && product.nameEn) return product.nameEn;
+    return autoText(product.name);
 }
 
 function productDesc(product) {
     if (!product) return "";
     const idText = product.descId || product.name;
-    if (currentLang !== "en") return idText;
-    return product.descEn || autoText(idText);
+    if (currentLang === "id") return idText;
+    if (currentLang === "en" && product.descEn) return product.descEn;
+    return autoText(idText);
 }
 
 function findProductById(id) {
@@ -767,7 +652,7 @@ function findProductById(id) {
 
 function productNameById(id, fallback) {
     const product = findProductById(id);
-    return product ? productName(product) : (currentLang === "en" ? autoText(fallback || "") : (fallback || ""));
+    return product ? productName(product) : (currentLang === "id" ? (fallback || "") : autoText(fallback || ""));
 }
 
 const colorLabels = {
@@ -776,16 +661,16 @@ const colorLabels = {
 };
 
 function variantValueLabel(value) {
-    if (currentLang !== "en") return value;
-    if (colorLabels[value]) return colorLabels[value];
+    if (currentLang === "id") return value;
+    if (currentLang === "en" && colorLabels[value]) return colorLabels[value];
     /* nilai varian baru (warna/tipe baru) ikut otomatis diterjemahkan */
     return autoText(value);
 }
 
 const variantKeyLabels = {
-    Warna: { id: "Warna", en: "Color" },
-    Tipe: { id: "Tipe", en: "Type" },
-    Ukuran: { id: "Ukuran", en: "Size" }
+    Warna: { id: "Warna", en: "Color", ar: "اللون", zh: "颜色", ja: "色", ms: "Warna", es: "Color" },
+    Tipe: { id: "Tipe", en: "Type", ar: "النوع", zh: "类型", ja: "タイプ", ms: "Jenis", es: "Tipo" },
+    Ukuran: { id: "Ukuran", en: "Size", ar: "المقاس", zh: "尺寸", ja: "サイズ", ms: "Saiz", es: "Talla" }
 };
 
 function variantKeyLabel(key) {
@@ -794,49 +679,102 @@ function variantKeyLabel(key) {
 
 /* Kamus untuk teks yang di-generate lewat JS (bukan teks statis di HTML) */
 const t_dict = {
-    addToCart: { id: "+ Keranjang", en: "+ Cart" },
-    buyNow: { id: "⚡ Beli Sekarang", en: "⚡ Buy Now" },
-    sold: { id: "Terjual", en: "Sold" },
-    soldPercent: { id: "terjual", en: "sold" },
-    reviewsSuffix: { id: "ulasan", en: "reviews" },
-    inStockShip: { id: "✓ Stok tersedia \u00a0•\u00a0 Siap dikirim", en: "✓ In stock \u00a0•\u00a0 Ready to ship" },
-    seeDetail: { id: "Lihat Detail", en: "View Detail" },
-    hideDetail: { id: "Sembunyikan Detail", en: "Hide Detail" },
-    updateStatus: { id: "Perbarui Status (Simulasi)", en: "Update Status (Simulation)" },
-    buyAgain: { id: "Beli Lagi", en: "Buy Again" },
-    items: { id: "barang", en: "items" },
-    total: { id: "Total", en: "Total" },
-    orderNoMatch: { id: "Tidak ada pesanan dengan status ini.", en: "No orders with this status." },
-    noSimilarProducts: { id: "Belum ada produk serupa lainnya.", en: "No similar products yet." },
-    noResultsFilter: { id: "Tidak ada produk yang cocok dengan filter ini.", en: "No products match this filter." },
-    productsFound: { id: "produk ditemukan", en: "products found" },
-    following: { id: "✓ Mengikuti", en: "✓ Following" },
-    followStore: { id: "+ Ikuti Toko", en: "+ Follow Store" },
-    payment: { id: "Pembayaran", en: "Payment" },
-    voucherLabel: { id: "Voucher", en: "Voucher" },
-    tracking: { id: { dibuat: "Pesanan Dibuat", diproses: "Diproses", dikirim: "Dikirim", selesai: "Selesai" }, en: { dibuat: "Order Placed", diproses: "Processing", dikirim: "Shipped", selesai: "Completed" } },
-    orderStatus: { id: { diproses: "Diproses", dikirim: "Dikirim", selesai: "Selesai" }, en: { diproses: "Processing", dikirim: "Shipped", selesai: "Completed" } },
+    addToCart: { id: "+ Keranjang", en: "+ Cart", ar: "+ السلة", zh: "+ 购物车", ja: "+ カート", ms: "+ Troli", es: "+ Carrito" },
+    buyNow: { id: "⚡ Beli Sekarang", en: "⚡ Buy Now", ar: "⚡ اشترِ الآن", zh: "⚡ 立即购买", ja: "⚡ 今すぐ購入", ms: "⚡ Beli Sekarang", es: "⚡ Comprar ahora" },
+    sold: { id: "Terjual", en: "Sold", ar: "تم البيع", zh: "已售", ja: "販売済み", ms: "Terjual", es: "Vendido" },
+    soldPercent: { id: "terjual", en: "sold", ar: "تم بيعه", zh: "已售", ja: "販売済み", ms: "terjual", es: "vendidos" },
+    reviewsSuffix: { id: "ulasan", en: "reviews", ar: "تقييم", zh: "条评价", ja: "件のレビュー", ms: "ulasan", es: "reseñas" },
+    inStockShip: { id: "✓ Stok tersedia \u00a0•\u00a0 Siap dikirim", en: "✓ In stock \u00a0•\u00a0 Ready to ship", ar: "✓ متوفر في المخزون \u00a0•\u00a0 جاهز للشحن", zh: "✓ 现货 \u00a0•\u00a0 可立即发货", ja: "✓ 在庫あり \u00a0•\u00a0 発送準備完了", ms: "✓ Stok tersedia \u00a0•\u00a0 Sedia dihantar", es: "✓ En stock \u00a0•\u00a0 Listo para enviar" },
+    seeDetail: { id: "Lihat Detail", en: "View Detail", ar: "عرض التفاصيل", zh: "查看详情", ja: "詳細を見る", ms: "Lihat Butiran", es: "Ver detalle" },
+    hideDetail: { id: "Sembunyikan Detail", en: "Hide Detail", ar: "إخفاء التفاصيل", zh: "隐藏详情", ja: "詳細を隠す", ms: "Sembunyikan Butiran", es: "Ocultar detalle" },
+    updateStatus: { id: "Perbarui Status (Simulasi)", en: "Update Status (Simulation)", ar: "تحديث الحالة (محاكاة)", zh: "更新状态（模拟）", ja: "ステータス更新（シミュレーション）", ms: "Kemas Kini Status (Simulasi)", es: "Actualizar estado (simulación)" },
+    buyAgain: { id: "Beli Lagi", en: "Buy Again", ar: "اشترِ مرة أخرى", zh: "再次购买", ja: "再購入", ms: "Beli Lagi", es: "Comprar de nuevo" },
+    items: { id: "barang", en: "items", ar: "عناصر", zh: "件商品", ja: "点", ms: "barang", es: "artículos" },
+    total: { id: "Total", en: "Total", ar: "الإجمالي", zh: "总计", ja: "合計", ms: "Jumlah", es: "Total" },
+    orderNoMatch: { id: "Tidak ada pesanan dengan status ini.", en: "No orders with this status.", ar: "لا توجد طلبات بهذه الحالة.", zh: "没有此状态的订单。", ja: "このステータスの注文はありません。", ms: "Tiada pesanan dengan status ini.", es: "No hay pedidos con este estado." },
+    noSimilarProducts: { id: "Belum ada produk serupa lainnya.", en: "No similar products yet.", ar: "لا توجد منتجات مشابهة بعد.", zh: "暂无相似商品。", ja: "類似商品はまだありません。", ms: "Belum ada produk serupa lagi.", es: "Aún no hay productos similares." },
+    noResultsFilter: { id: "Tidak ada produk yang cocok dengan filter ini.", en: "No products match this filter.", ar: "لا توجد منتجات تطابق هذا الفلتر.", zh: "没有符合此筛选条件的商品。", ja: "このフィルターに一致する商品はありません。", ms: "Tiada produk yang sepadan dengan penapis ini.", es: "Ningún producto coincide con este filtro." },
+    productsFound: { id: "produk ditemukan", en: "products found", ar: "منتج تم العثور عليه", zh: "件商品", ja: "件の商品が見つかりました", ms: "produk ditemui", es: "productos encontrados" },
+    following: { id: "✓ Mengikuti", en: "✓ Following", ar: "✓ متابَع", zh: "✓ 已关注", ja: "✓ フォロー中", ms: "✓ Mengikuti", es: "✓ Siguiendo" },
+    followStore: { id: "+ Ikuti Toko", en: "+ Follow Store", ar: "+ متابعة المتجر", zh: "+ 关注店铺", ja: "+ ショップをフォロー", ms: "+ Ikuti Kedai", es: "+ Seguir tienda" },
+    payment: { id: "Pembayaran", en: "Payment", ar: "الدفع", zh: "支付", ja: "支払い", ms: "Pembayaran", es: "Pago" },
+    voucherLabel: { id: "Voucher", en: "Voucher", ar: "قسيمة", zh: "优惠券", ja: "クーポン", ms: "Baucar", es: "Cupón" },
+    tracking: {
+        id: { dibuat: "Pesanan Dibuat", diproses: "Diproses", dikirim: "Dikirim", selesai: "Selesai" },
+        en: { dibuat: "Order Placed", diproses: "Processing", dikirim: "Shipped", selesai: "Completed" },
+        ar: { dibuat: "تم إنشاء الطلب", diproses: "قيد المعالجة", dikirim: "تم الشحن", selesai: "مكتمل" },
+        zh: { dibuat: "订单已创建", diproses: "处理中", dikirim: "已发货", selesai: "已完成" },
+        ja: { dibuat: "注文完了", diproses: "処理中", dikirim: "発送済み", selesai: "完了" },
+        ms: { dibuat: "Pesanan Dibuat", diproses: "Sedang Diproses", dikirim: "Dihantar", selesai: "Selesai" },
+        es: { dibuat: "Pedido realizado", diproses: "En proceso", dikirim: "Enviado", selesai: "Completado" }
+    },
+    orderStatus: {
+        id: { diproses: "Diproses", dikirim: "Dikirim", selesai: "Selesai" },
+        en: { diproses: "Processing", dikirim: "Shipped", selesai: "Completed" },
+        ar: { diproses: "قيد المعالجة", dikirim: "تم الشحن", selesai: "مكتمل" },
+        zh: { diproses: "处理中", dikirim: "已发货", selesai: "已完成" },
+        ja: { diproses: "処理中", dikirim: "発送済み", selesai: "完了" },
+        ms: { diproses: "Sedang Diproses", dikirim: "Dihantar", selesai: "Selesai" },
+        es: { diproses: "En proceso", dikirim: "Enviado", selesai: "Completado" }
+    },
     specLabels: {
         id: { Merek: "Merek", Kategori: "Kategori", Bahan: "Bahan", Kondisi: "Kondisi", "Berat Satuan": "Berat Satuan", "Min. Pemesanan": "Min. Pemesanan", Etalase: "Etalase", Garansi: "Garansi", SKU: "SKU", "Dikirim Dari": "Dikirim Dari" },
-        en: { Merek: "Brand", Kategori: "Category", Bahan: "Material", Kondisi: "Condition", "Berat Satuan": "Unit Weight", "Min. Pemesanan": "Min. Order", Etalase: "Showcase", Garansi: "Warranty", SKU: "SKU", "Dikirim Dari": "Shipped From" }
+        en: { Merek: "Brand", Kategori: "Category", Bahan: "Material", Kondisi: "Condition", "Berat Satuan": "Unit Weight", "Min. Pemesanan": "Min. Order", Etalase: "Showcase", Garansi: "Warranty", SKU: "SKU", "Dikirim Dari": "Shipped From" },
+        ar: { Merek: "العلامة التجارية", Kategori: "الفئة", Bahan: "المادة", Kondisi: "الحالة", "Berat Satuan": "وزن الوحدة", "Min. Pemesanan": "الحد الأدنى للطلب", Etalase: "الواجهة", Garansi: "الضمان", SKU: "SKU", "Dikirim Dari": "يُشحن من" },
+        zh: { Merek: "品牌", Kategori: "分类", Bahan: "材质", Kondisi: "成色", "Berat Satuan": "单件重量", "Min. Pemesanan": "最低起订量", Etalase: "展示柜", Garansi: "保修", SKU: "SKU", "Dikirim Dari": "发货地" },
+        ja: { Merek: "ブランド", Kategori: "カテゴリー", Bahan: "素材", Kondisi: "状態", "Berat Satuan": "単位重量", "Min. Pemesanan": "最小注文数", Etalase: "ショーケース", Garansi: "保証", SKU: "SKU", "Dikirim Dari": "発送元" },
+        ms: { Merek: "Jenama", Kategori: "Kategori", Bahan: "Bahan", Kondisi: "Keadaan", "Berat Satuan": "Berat Unit", "Min. Pemesanan": "Pesanan Minimum", Etalase: "Etalase", Garansi: "Waranti", SKU: "SKU", "Dikirim Dari": "Dihantar Dari" },
+        es: { Merek: "Marca", Kategori: "Categoría", Bahan: "Material", Kondisi: "Condición", "Berat Satuan": "Peso unitario", "Min. Pemesanan": "Pedido mínimo", Etalase: "Vitrina", Garansi: "Garantía", SKU: "SKU", "Dikirim Dari": "Enviado desde" }
     },
     specValues: {
-        Baru: "New",
-        "Garansi Resmi 1 Tahun": "1-Year Official Warranty",
-        "Garansi Kepuasan 7 Hari": "7-Day Satisfaction Warranty",
-        "1 Buah": "1 Piece",
-        "Jakarta Selatan": "South Jakarta",
-        "MAB-Store": "MAB-Store",
-        Pilihan: "Choice",
-        "Plastik & Logam": "Plastic & Metal",
-        "Katun Combed": "Combed Cotton",
-        "Kayu & Keramik": "Wood & Ceramic",
-        "Kaca & Cairan Parfum": "Glass & Perfume Liquid",
-        "Plastik ABS & Logam": "ABS Plastic & Metal",
-        "Kanvas & Karet": "Canvas & Rubber",
-        Kertas: "Paper",
-        "Kanvas & Kulit Sintetis": "Canvas & Synthetic Leather",
-        "Campuran Berkualitas": "Quality Blend"
+        en: {
+            Baru: "New", "Garansi Resmi 1 Tahun": "1-Year Official Warranty", "Garansi Kepuasan 7 Hari": "7-Day Satisfaction Warranty",
+            "1 Buah": "1 Piece", "Jakarta Selatan": "South Jakarta", "MAB-Store": "MAB-Store", Pilihan: "Choice",
+            "Plastik & Logam": "Plastic & Metal", "Katun Combed": "Combed Cotton", "Kayu & Keramik": "Wood & Ceramic",
+            "Kaca & Cairan Parfum": "Glass & Perfume Liquid", "Plastik ABS & Logam": "ABS Plastic & Metal",
+            "Kanvas & Karet": "Canvas & Rubber", Kertas: "Paper", "Kanvas & Kulit Sintetis": "Canvas & Synthetic Leather",
+            "Campuran Berkualitas": "Quality Blend"
+        },
+        ar: {
+            Baru: "جديد", "Garansi Resmi 1 Tahun": "ضمان رسمي لمدة سنة", "Garansi Kepuasan 7 Hari": "ضمان الرضا 7 أيام",
+            "1 Buah": "قطعة واحدة", "Jakarta Selatan": "جاكرتا الجنوبية", "MAB-Store": "MAB-Store", Pilihan: "مختار",
+            "Plastik & Logam": "بلاستيك ومعدن", "Katun Combed": "قطن مصقول", "Kayu & Keramik": "خشب وسيراميك",
+            "Kaca & Cairan Parfum": "زجاج وسائل عطر", "Plastik ABS & Logam": "بلاستيك ABS ومعدن",
+            "Kanvas & Karet": "قماش ومطاط", Kertas: "ورق", "Kanvas & Kulit Sintetis": "قماش وجلد صناعي",
+            "Campuran Berkualitas": "مزيج عالي الجودة"
+        },
+        zh: {
+            Baru: "全新", "Garansi Resmi 1 Tahun": "官方保修1年", "Garansi Kepuasan 7 Hari": "7天满意保证",
+            "1 Buah": "1件", "Jakarta Selatan": "南雅加达", "MAB-Store": "MAB-Store", Pilihan: "精选",
+            "Plastik & Logam": "塑料与金属", "Katun Combed": "精梳棉", "Kayu & Keramik": "木材与陶瓷",
+            "Kaca & Cairan Parfum": "玻璃与香水液", "Plastik ABS & Logam": "ABS塑料与金属",
+            "Kanvas & Karet": "帆布与橡胶", Kertas: "纸张", "Kanvas & Kulit Sintetis": "帆布与合成革",
+            "Campuran Berkualitas": "优质混纺"
+        },
+        ja: {
+            Baru: "新品", "Garansi Resmi 1 Tahun": "1年間正規保証", "Garansi Kepuasan 7 Hari": "7日間満足保証",
+            "1 Buah": "1個", "Jakarta Selatan": "南ジャカルタ", "MAB-Store": "MAB-Store", Pilihan: "おすすめ",
+            "Plastik & Logam": "プラスチック＆金属", "Katun Combed": "コーマ糸コットン", "Kayu & Keramik": "木材＆セラミック",
+            "Kaca & Cairan Parfum": "ガラス＆香水液", "Plastik ABS & Logam": "ABS樹脂＆金属",
+            "Kanvas & Karet": "キャンバス＆ラバー", Kertas: "紙", "Kanvas & Kulit Sintetis": "キャンバス＆合成皮革",
+            "Campuran Berkualitas": "高品質混紡"
+        },
+        ms: {
+            Baru: "Baharu", "Garansi Resmi 1 Tahun": "Waranti Rasmi 1 Tahun", "Garansi Kepuasan 7 Hari": "Jaminan Kepuasan 7 Hari",
+            "1 Buah": "1 Biji", "Jakarta Selatan": "Jakarta Selatan", "MAB-Store": "MAB-Store", Pilihan: "Pilihan",
+            "Plastik & Logam": "Plastik & Logam", "Katun Combed": "Kapas Combed", "Kayu & Keramik": "Kayu & Seramik",
+            "Kaca & Cairan Parfum": "Kaca & Cecair Minyak Wangi", "Plastik ABS & Logam": "Plastik ABS & Logam",
+            "Kanvas & Karet": "Kanvas & Getah", Kertas: "Kertas", "Kanvas & Kulit Sintetis": "Kanvas & Kulit Sintetik",
+            "Campuran Berkualitas": "Campuran Berkualiti"
+        },
+        es: {
+            Baru: "Nuevo", "Garansi Resmi 1 Tahun": "Garantía oficial de 1 año", "Garansi Kepuasan 7 Hari": "Garantía de satisfacción de 7 días",
+            "1 Buah": "1 unidad", "Jakarta Selatan": "Yakarta del Sur", "MAB-Store": "MAB-Store", Pilihan: "Selección",
+            "Plastik & Logam": "Plástico y metal", "Katun Combed": "Algodón peinado", "Kayu & Keramik": "Madera y cerámica",
+            "Kaca & Cairan Parfum": "Vidrio y líquido de perfume", "Plastik ABS & Logam": "Plástico ABS y metal",
+            "Kanvas & Karet": "Lona y caucho", Kertas: "Papel", "Kanvas & Kulit Sintetis": "Lona y cuero sintético",
+            "Campuran Berkualitas": "Mezcla de calidad"
+        }
     }
 };
 
@@ -847,9 +785,10 @@ function t(key) {
 }
 
 function specValueLabel(value) {
-    if (currentLang !== "en") return value;
-    if (t_dict.specValues[value]) return t_dict.specValues[value];
-    if (value.endsWith(" Pilihan")) return `${categoryLabel(value.replace(" Pilihan", ""))} Choice`;
+    if (currentLang === "id") return value;
+    const dict = t_dict.specValues[currentLang];
+    if (dict && dict[value]) return dict[value];
+    if (currentLang === "en" && value.endsWith(" Pilihan")) return `${categoryLabel(value.replace(" Pilihan", ""))} Choice`;
     /* nilai spesifikasi baru yang belum ada di kamus tetap otomatis diterjemahkan */
     return autoText(value);
 }
@@ -4754,196 +4693,342 @@ if (advSearchReset) {
    TERJEMAHAN TEKS STATIS (TreeWalker, tanpa perlu ubah HTML)
    ========================================================= */
 
-const idToEnDictionary = {
-    "Jadi Seller": "Become a Seller",
-    "Bantuan": "Help",
-    "Toko MAB-Store": "MAB-Store Shop",
-    "Menu": "Menu",
-    "Notifikasi": "Notifications",
-    "Masuk": "Login",
-    "Keluar": "Logout",
-    "Hapus semua": "Clear all",
-    "SELAMAT DATANG DI MAB-STORE": "WELCOME TO MAB-STORE",
-    "Belanja Mudah.": "Easy Shopping.",
-    "Harga Bersahabat.": "Friendly Prices.",
-    "Temukan berbagai produk pilihan\n                        dengan harga terbaik.": "Discover a variety of curated products at the best prices.",
-    "Belanja Sekarang": "Shop Now",
-    "Kategori": "Category",
-    "Elektronik": "Electronics",
-    "Rumah": "Home",
-    "Kecantikan": "Beauty",
-    "Olahraga": "Sports",
-    "Buku": "Books",
-    "Aksesoris": "Accessories",
-    "Lihat Semua →": "See All →",
-    "Voucher MAB-Store": "MAB-Store Voucher",
-    "Hemat lebih banyak pada pembelian berikutnya.": "Save more on your next purchase.",
-    "Klaim Voucher": "Claim Voucher",
-    "Produk Untukmu": "Products For You",
-    "Terbaru": "Newest",
-    "Terlaris": "Best Selling",
-    "Harga Terendah": "Lowest Price",
-    "⭐ Rating Tertinggi": "⭐ Highest Rating",
-    "💎 Termahal": "💎 Most Expensive",
-    "← Kembali ke Beranda": "← Back to Home",
-    "KATEGORI MAB-STORE": "MAB-STORE CATEGORY",
-    "Temukan produk pilihan\n                            dalam kategori ini.": "Find selected products in this category.",
-    "Produk": "Products",
-    "← Kembali": "← Back",
-    "Beranda": "Home",
-    "Pengiriman Cepat": "Fast Shipping",
-    "Dari gudang MAB-Store": "From MAB-Store warehouse",
-    "Pembayaran Aman": "Secure Payment",
-    "Berbagai metode": "Various methods",
-    "Garansi 7 Hari": "7-Day Warranty",
-    "Barang tidak sesuai": "If item doesn't match",
-    "✓ Produk Pilihan": "✓ Featured Product",
-    "✓ Stok tersedia \u00a0•\u00a0 Siap dikirim": "✓ In stock \u00a0•\u00a0 Ready to ship",
-    "🎟️ Voucher & Promo": "🎟️ Vouchers & Promos",
-    "Pilih Varian": "Select Variant",
-    "Jumlah": "Quantity",
-    "🛒 Tambah ke Keranjang": "🛒 Add to Cart",
-    "♡ Simpan ke Wishlist": "♡ Save to Wishlist",
-    "⭐ 4.9 \u00a0•\u00a0 98% Ulasan Positif \u00a0•\u00a0 Jakarta Selatan": "⭐ 4.9 \u00a0•\u00a0 98% Positive Reviews \u00a0•\u00a0 South Jakarta",
-    "🏬 Kunjungi Toko": "🏬 Visit Store",
-    "💬 Chat": "💬 Chat",
-    "Deskripsi": "Description",
-    "Spesifikasi": "Specifications",
-    "Ulasan": "Reviews",
-    "⭐ Rating": "⭐ Rating",
-    "🛍 Terjual": "🛍 Sold",
-    "🔒 Aman": "🔒 Safe",
-    "Transaksi": "Transaction",
-    "Rating & Ulasan Pembeli": "Buyer Ratings & Reviews",
-    "(0 ulasan)": "(0 reviews)",
-    "Bagikan pendapatmu tentang produk ini": "Share your thoughts about this product",
-    "📷 Tambah Foto / Video": "📷 Add Photo / Video",
-    "Kirim Ulasan": "Submit Review",
-    "Produk Serupa": "Similar Products",
-    "Pesanan Saya": "My Orders",
-    "Semua": "All",
-    "Diproses": "Processing",
-    "Dikirim": "Shipped",
-    "Selesai": "Completed",
-    "🧾 Kamu belum memiliki pesanan.": "🧾 You don't have any orders yet.",
-    "Mulai Belanja": "Start Shopping",
-    "Pengikut \u00a0•\u00a0 Jakarta Selatan": "Followers \u00a0•\u00a0 South Jakarta",
-    "Bergabung sejak 2021 \u00a0•\u00a0 Respon cepat \u00a0•\u00a0 98% Ulasan Positif": "Joined since 2021 \u00a0•\u00a0 Fast response \u00a0•\u00a0 98% Positive Reviews",
-    "+ Ikuti Toko": "+ Follow Store",
-    "Rating Toko": "Store Rating",
-    "Respon Chat": "Chat Response",
-    "Waktu Balas": "Response Time",
-    "Semua Produk Toko": "All Store Products",
-    "Pencarian & Filter Lanjutan": "Advanced Search & Filter",
-    "Kata Kunci": "Keyword",
-    "Rentang Harga": "Price Range",
-    "Rating Minimum": "Minimum Rating",
-    "Semua Rating": "All Ratings",
-    "4.5 ke atas": "4.5 and above",
-    "4.0 ke atas": "4.0 and above",
-    "3.0 ke atas": "3.0 and above",
-    "Urutkan": "Sort By",
-    "Relevansi": "Relevance",
-    "Harga Tertinggi": "Highest Price",
-    "Rating Tertinggi": "Highest Rating",
-    "Reset Filter": "Reset Filter",
-    "← Kembali ke Keranjang": "← Back to Cart",
-    "1 Keranjang": "1 Cart",
-    "2 Checkout": "2 Checkout",
-    "3 Selesai": "3 Done",
-    "Checkout": "Checkout",
-    "Periksa kembali alamat, pengiriman, dan pembayaran sebelum membuat pesanan.": "Double-check your address, shipping, and payment before placing your order.",
-    "Alamat Pengiriman": "Shipping Address",
-    "Pesanan akan dikirim ke alamat berikut.": "Your order will be shipped to the address below.",
-    "Ubah": "Change",
-    "Batal": "Cancel",
-    "Simpan Alamat": "Save Address",
-    "Produk yang Dibeli": "Items Purchased",
-    "Pengiriman": "Shipping",
-    "Pilih layanan pengiriman yang kamu inginkan.": "Choose your preferred shipping service.",
-    "Reguler": "Regular",
-    "2–4 hari kerja": "2–4 business days",
-    "Express": "Express",
-    "1–2 hari kerja": "1–2 business days",
-    "Same Day": "Same Day",
-    "Tiba hari ini": "Arrives today",
-    "Voucher": "Voucher",
-    "Gunakan voucher untuk mendapatkan potongan harga.": "Use a voucher to get a discount.",
-    "Pakai": "Apply",
-    "Metode Pembayaran": "Payment Method",
-    "Pilih metode pembayaran yang tersedia.": "Choose an available payment method.",
-    "Scan dari aplikasi pembayaran": "Scan from your payment app",
-    "Transfer Bank": "Bank Transfer",
-    "Virtual Account bank pilihan": "Your chosen bank's virtual account",
-    "Bayar saat barang diterima": "Pay when item is received",
-    "Ringkasan Belanja": "Order Summary",
-    "Total Produk": "Item Total",
-    "Diskon Voucher": "Voucher Discount",
-    "Total Pembayaran": "Total Payment",
-    "Buat Pesanan": "Place Order",
-    "🔒 Transaksi aman & data pembayaran terlindungi.": "🔒 Secure transaction & protected payment data.",
-    "Wishlist Saya": "My Wishlist",
-    "Belum ada produk di wishlist.": "No products in wishlist yet.",
-    "Lanjut Belanja →": "Continue Shopping →",
-    "Keranjang Saya": "My Cart",
-    "Keranjang masih kosong.": "Your cart is empty.",
-    "Total:": "Total:",
-    "Marketplace sederhana untuk belajar\n                    membangun aplikasi e-commerce.": "A simple marketplace for learning to build e-commerce apps.",
-    "Layanan": "Services",
-    "Pembayaran": "Payment",
-    "Tentang": "About",
-    "Tentang MAB-Store": "About MAB-Store",
-    "Karier": "Careers",
-    "Kontak": "Contact",
-    "Daftar": "Register",
-    "Pembeli": "Buyer",
-    "Penjual": "Seller"
+/* Kamus terjemahan instan untuk teks statis (nav, tombol, header, footer, dashboard).
+   TANPA panggilan API — langsung berubah begitu bahasa dipilih. */
+const staticDict = {
+    "Jadi Seller": { en: "Become a Seller", ar: "كن بائعًا", zh: "成为卖家", ja: "出品者になる", ms: "Jadi Penjual", es: "Conviértete en vendedor" },
+    "Bantuan": { en: "Help", ar: "المساعدة", zh: "帮助", ja: "ヘルプ", ms: "Bantuan", es: "Ayuda" },
+    "Toko MAB-Store": { en: "MAB-Store Shop", ar: "متجر MAB-Store", zh: "MAB-Store 商店", ja: "MAB-Store ショップ", ms: "Kedai MAB-Store", es: "Tienda MAB-Store" },
+    "Menu": { en: "Menu", ar: "القائمة", zh: "菜单", ja: "メニュー", ms: "Menu", es: "Menú" },
+    "Notifikasi": { en: "Notifications", ar: "الإشعارات", zh: "通知", ja: "通知", ms: "Notifikasi", es: "Notificaciones" },
+    "Masuk": { en: "Login", ar: "تسجيل الدخول", zh: "登录", ja: "ログイン", ms: "Log Masuk", es: "Iniciar sesión" },
+    "Keluar": { en: "Logout", ar: "تسجيل الخروج", zh: "退出登录", ja: "ログアウト", ms: "Log Keluar", es: "Cerrar sesión" },
+    "Hapus semua": { en: "Clear all", ar: "مسح الكل", zh: "全部清除", ja: "すべて消去", ms: "Padam semua", es: "Borrar todo" },
+    "SELAMAT DATANG DI MAB-STORE": { en: "WELCOME TO MAB-STORE", ar: "مرحبًا بك في MAB-STORE", zh: "欢迎来到 MAB-STORE", ja: "MAB-STORE へようこそ", ms: "SELAMAT DATANG DI MAB-STORE", es: "BIENVENIDO A MAB-STORE" },
+    "Belanja Mudah.": { en: "Easy Shopping.", ar: "تسوق سهل.", zh: "轻松购物。", ja: "簡単ショッピング。", ms: "Membeli-belah Mudah.", es: "Compras fáciles." },
+    "Harga Bersahabat.": { en: "Friendly Prices.", ar: "أسعار ودية.", zh: "亲民价格。", ja: "お手頃価格。", ms: "Harga Berpatutan.", es: "Precios amigables." },
+    "Belanja Sekarang": { en: "Shop Now", ar: "تسوق الآن", zh: "立即购物", ja: "今すぐ購入", ms: "Beli Sekarang", es: "Comprar ahora" },
+    "Kategori": { en: "Category", ar: "الفئة", zh: "分类", ja: "カテゴリー", ms: "Kategori", es: "Categoría" },
+    "Elektronik": { en: "Electronics", ar: "الإلكترونيات", zh: "电子产品", ja: "電化製品", ms: "Elektronik", es: "Electrónica" },
+    "Rumah": { en: "Home", ar: "المنزل", zh: "家居", ja: "ホーム", ms: "Rumah", es: "Hogar" },
+    "Kecantikan": { en: "Beauty", ar: "الجمال", zh: "美妆", ja: "美容", ms: "Kecantikan", es: "Belleza" },
+    "Olahraga": { en: "Sports", ar: "الرياضة", zh: "运动", ja: "スポーツ", ms: "Sukan", es: "Deportes" },
+    "Buku": { en: "Books", ar: "الكتب", zh: "图书", ja: "本", ms: "Buku", es: "Libros" },
+    "Aksesoris": { en: "Accessories", ar: "الإكسسوارات", zh: "配饰", ja: "アクセサリー", ms: "Aksesori", es: "Accesorios" },
+    "Lihat Semua →": { en: "See All →", ar: "عرض الكل ←", zh: "查看全部 →", ja: "すべて見る →", ms: "Lihat Semua →", es: "Ver todo →" },
+    "Voucher MAB-Store": { en: "MAB-Store Voucher", ar: "قسيمة MAB-Store", zh: "MAB-Store 优惠券", ja: "MAB-Store クーポン", ms: "Baucar MAB-Store", es: "Cupón MAB-Store" },
+    "Hemat lebih banyak pada pembelian berikutnya.": { en: "Save more on your next purchase.", ar: "وفّر أكثر في عملية الشراء القادمة.", zh: "在下次购买时节省更多。", ja: "次回のご購入でさらにお得に。", ms: "Jimat lebih banyak pada pembelian seterusnya.", es: "Ahorra más en tu próxima compra." },
+    "Klaim Voucher": { en: "Claim Voucher", ar: "المطالبة بالقسيمة", zh: "领取优惠券", ja: "クーポンを受け取る", ms: "Tuntut Baucar", es: "Reclamar cupón" },
+    "Produk Untukmu": { en: "Products For You", ar: "منتجات مختارة لك", zh: "为你推荐", ja: "あなたへのおすすめ", ms: "Produk Untuk Anda", es: "Productos para ti" },
+    "Terbaru": { en: "Newest", ar: "الأحدث", zh: "最新", ja: "新着", ms: "Terbaru", es: "Más reciente" },
+    "Terlaris": { en: "Best Selling", ar: "الأكثر مبيعًا", zh: "热销", ja: "ベストセラー", ms: "Paling Laris", es: "Más vendido" },
+    "Harga Terendah": { en: "Lowest Price", ar: "أقل سعر", zh: "价格从低到高", ja: "価格が安い順", ms: "Harga Terendah", es: "Precio más bajo" },
+    "⭐ Rating Tertinggi": { en: "⭐ Highest Rating", ar: "⭐ الأعلى تقييمًا", zh: "⭐ 评分最高", ja: "⭐ 評価が高い順", ms: "⭐ Penilaian Tertinggi", es: "⭐ Mejor valorado" },
+    "💎 Termahal": { en: "💎 Most Expensive", ar: "💎 الأغلى", zh: "💎 价格从高到低", ja: "💎 価格が高い順", ms: "💎 Termahal", es: "💎 Más caro" },
+    "← Kembali ke Beranda": { en: "← Back to Home", ar: "← العودة للرئيسية", zh: "← 返回首页", ja: "← ホームに戻る", ms: "← Kembali ke Laman Utama", es: "← Volver al inicio" },
+    "KATEGORI MAB-STORE": { en: "MAB-STORE CATEGORY", ar: "فئات MAB-STORE", zh: "MAB-STORE 分类", ja: "MAB-STORE カテゴリー", ms: "KATEGORI MAB-STORE", es: "CATEGORÍA MAB-STORE" },
+    "Produk": { en: "Products", ar: "المنتجات", zh: "商品", ja: "商品", ms: "Produk", es: "Productos" },
+    "← Kembali": { en: "← Back", ar: "← رجوع", zh: "← 返回", ja: "← 戻る", ms: "← Kembali", es: "← Volver" },
+    "Beranda": { en: "Home", ar: "الرئيسية", zh: "首页", ja: "ホーム", ms: "Laman Utama", es: "Inicio" },
+    "Pengiriman Cepat": { en: "Fast Shipping", ar: "شحن سريع", zh: "快速配送", ja: "スピード配送", ms: "Penghantaran Pantas", es: "Envío rápido" },
+    "Dari gudang MAB-Store": { en: "From MAB-Store warehouse", ar: "من مستودع MAB-Store", zh: "来自 MAB-Store 仓库", ja: "MAB-Store 倉庫より", ms: "Dari gudang MAB-Store", es: "Desde el almacén de MAB-Store" },
+    "Pembayaran Aman": { en: "Secure Payment", ar: "دفع آمن", zh: "安全支付", ja: "安全なお支払い", ms: "Pembayaran Selamat", es: "Pago seguro" },
+    "Berbagai metode": { en: "Various methods", ar: "طرق متعددة", zh: "多种支付方式", ja: "多様な支払い方法", ms: "Pelbagai kaedah", es: "Varios métodos" },
+    "Garansi 7 Hari": { en: "7-Day Warranty", ar: "ضمان 7 أيام", zh: "7天保修", ja: "7日間保証", ms: "Waranti 7 Hari", es: "Garantía de 7 días" },
+    "Barang tidak sesuai": { en: "If item doesn't match", ar: "إذا لم يطابق المنتج", zh: "商品不符时可退换", ja: "商品が異なる場合", ms: "Jika barang tidak sepadan", es: "Si el artículo no coincide" },
+    "✓ Produk Pilihan": { en: "✓ Featured Product", ar: "✓ منتج مختار", zh: "✓ 精选商品", ja: "✓ おすすめ商品", ms: "✓ Produk Pilihan", es: "✓ Producto destacado" },
+    "🎟️ Voucher & Promo": { en: "🎟️ Vouchers & Promos", ar: "🎟️ القسائم والعروض", zh: "🎟️ 优惠券与促销", ja: "🎟️ クーポン＆プロモ", ms: "🎟️ Baucar & Promosi", es: "🎟️ Cupones y promociones" },
+    "Pilih Varian": { en: "Select Variant", ar: "اختر النوع", zh: "选择规格", ja: "バリエーションを選択", ms: "Pilih Varian", es: "Seleccionar variante" },
+    "Jumlah": { en: "Quantity", ar: "الكمية", zh: "数量", ja: "数量", ms: "Kuantiti", es: "Cantidad" },
+    "🛒 Tambah ke Keranjang": { en: "🛒 Add to Cart", ar: "🛒 أضف إلى السلة", zh: "🛒 加入购物车", ja: "🛒 カートに追加", ms: "🛒 Tambah ke Troli", es: "🛒 Añadir al carrito" },
+    "♡ Simpan ke Wishlist": { en: "♡ Save to Wishlist", ar: "♡ أضف للمفضلة", zh: "♡ 加入收藏", ja: "♡ お気に入りに追加", ms: "♡ Simpan ke Senarai Ingin", es: "♡ Guardar en favoritos" },
+    "🏬 Kunjungi Toko": { en: "🏬 Visit Store", ar: "🏬 زيارة المتجر", zh: "🏬 进店逛逛", ja: "🏬 ショップを見る", ms: "🏬 Lawati Kedai", es: "🏬 Visitar tienda" },
+    "💬 Chat": { en: "💬 Chat", ar: "💬 محادثة", zh: "💬 聊天", ja: "💬 チャット", ms: "💬 Sembang", es: "💬 Chat" },
+    "Deskripsi": { en: "Description", ar: "الوصف", zh: "商品描述", ja: "商品説明", ms: "Deskripsi", es: "Descripción" },
+    "Spesifikasi": { en: "Specifications", ar: "المواصفات", zh: "规格", ja: "仕様", ms: "Spesifikasi", es: "Especificaciones" },
+    "Ulasan": { en: "Reviews", ar: "التقييمات", zh: "评价", ja: "レビュー", ms: "Ulasan", es: "Reseñas" },
+    "⭐ Rating": { en: "⭐ Rating", ar: "⭐ التقييم", zh: "⭐ 评分", ja: "⭐ 評価", ms: "⭐ Penilaian", es: "⭐ Valoración" },
+    "🛍 Terjual": { en: "🛍 Sold", ar: "🛍 تم بيعه", zh: "🛍 已售出", ja: "🛍 販売済み", ms: "🛍 Terjual", es: "🛍 Vendidos" },
+    "🔒 Aman": { en: "🔒 Safe", ar: "🔒 آمن", zh: "🔒 安全", ja: "🔒 安心・安全", ms: "🔒 Selamat", es: "🔒 Seguro" },
+    "Transaksi": { en: "Transaction", ar: "المعاملة", zh: "交易", ja: "取引", ms: "Transaksi", es: "Transacción" },
+    "Rating & Ulasan Pembeli": { en: "Buyer Ratings & Reviews", ar: "تقييمات ومراجعات المشترين", zh: "买家评分与评价", ja: "購入者の評価とレビュー", ms: "Penilaian & Ulasan Pembeli", es: "Valoraciones y reseñas de compradores" },
+    "Bagikan pendapatmu tentang produk ini": { en: "Share your thoughts about this product", ar: "شارك رأيك حول هذا المنتج", zh: "分享你对该商品的看法", ja: "この商品についての感想をシェア", ms: "Kongsikan pendapat anda tentang produk ini", es: "Comparte tu opinión sobre este producto" },
+    "📷 Tambah Foto / Video": { en: "📷 Add Photo / Video", ar: "📷 إضافة صورة / فيديو", zh: "📷 添加照片/视频", ja: "📷 写真・動画を追加", ms: "📷 Tambah Foto / Video", es: "📷 Añadir foto / video" },
+    "Kirim Ulasan": { en: "Submit Review", ar: "إرسال التقييم", zh: "提交评价", ja: "レビューを送信", ms: "Hantar Ulasan", es: "Enviar reseña" },
+    "Produk Serupa": { en: "Similar Products", ar: "منتجات مشابهة", zh: "相似商品", ja: "類似商品", ms: "Produk Serupa", es: "Productos similares" },
+    "Pesanan Saya": { en: "My Orders", ar: "طلباتي", zh: "我的订单", ja: "注文履歴", ms: "Pesanan Saya", es: "Mis pedidos" },
+    "Semua": { en: "All", ar: "الكل", zh: "全部", ja: "すべて", ms: "Semua", es: "Todos" },
+    "Diproses": { en: "Processing", ar: "قيد المعالجة", zh: "处理中", ja: "処理中", ms: "Sedang Diproses", es: "En proceso" },
+    "Dikirim": { en: "Shipped", ar: "تم الشحن", zh: "已发货", ja: "発送済み", ms: "Dihantar", es: "Enviado" },
+    "Selesai": { en: "Completed", ar: "مكتمل", zh: "已完成", ja: "完了", ms: "Selesai", es: "Completado" },
+    "🧾 Kamu belum memiliki pesanan.": { en: "🧾 You don't have any orders yet.", ar: "🧾 ليس لديك أي طلبات حتى الآن.", zh: "🧾 你还没有任何订单。", ja: "🧾 まだ注文がありません。", ms: "🧾 Anda belum mempunyai sebarang pesanan.", es: "🧾 Aún no tienes pedidos." },
+    "Mulai Belanja": { en: "Start Shopping", ar: "ابدأ التسوق", zh: "开始购物", ja: "ショッピングを始める", ms: "Mula Membeli-belah", es: "Empezar a comprar" },
+    "+ Ikuti Toko": { en: "+ Follow Store", ar: "+ متابعة المتجر", zh: "+ 关注店铺", ja: "+ ショップをフォロー", ms: "+ Ikuti Kedai", es: "+ Seguir tienda" },
+    "Rating Toko": { en: "Store Rating", ar: "تقييم المتجر", zh: "店铺评分", ja: "ショップ評価", ms: "Penilaian Kedai", es: "Valoración de la tienda" },
+    "Respon Chat": { en: "Chat Response", ar: "معدل الرد", zh: "聊天回复率", ja: "チャット返信率", ms: "Respons Sembang", es: "Respuesta de chat" },
+    "Waktu Balas": { en: "Response Time", ar: "وقت الرد", zh: "回复时间", ja: "返信時間", ms: "Masa Respons", es: "Tiempo de respuesta" },
+    "Semua Produk Toko": { en: "All Store Products", ar: "جميع منتجات المتجر", zh: "店铺全部商品", ja: "ショップの全商品", ms: "Semua Produk Kedai", es: "Todos los productos de la tienda" },
+    "Pencarian & Filter Lanjutan": { en: "Advanced Search & Filter", ar: "بحث وتصفية متقدم", zh: "高级搜索与筛选", ja: "詳細検索・絞り込み", ms: "Carian & Penapis Lanjutan", es: "Búsqueda y filtro avanzado" },
+    "Kata Kunci": { en: "Keyword", ar: "الكلمة المفتاحية", zh: "关键词", ja: "キーワード", ms: "Kata Kunci", es: "Palabra clave" },
+    "Rentang Harga": { en: "Price Range", ar: "نطاق السعر", zh: "价格区间", ja: "価格帯", ms: "Julat Harga", es: "Rango de precio" },
+    "Rating Minimum": { en: "Minimum Rating", ar: "أقل تقييم", zh: "最低评分", ja: "最低評価", ms: "Penilaian Minimum", es: "Valoración mínima" },
+    "Semua Rating": { en: "All Ratings", ar: "جميع التقييمات", zh: "所有评分", ja: "すべての評価", ms: "Semua Penilaian", es: "Todas las valoraciones" },
+    "4.5 ke atas": { en: "4.5 and above", ar: "4.5 وما فوق", zh: "4.5及以上", ja: "4.5以上", ms: "4.5 ke atas", es: "4.5 o más" },
+    "4.0 ke atas": { en: "4.0 and above", ar: "4.0 وما فوق", zh: "4.0及以上", ja: "4.0以上", ms: "4.0 ke atas", es: "4.0 o más" },
+    "3.0 ke atas": { en: "3.0 and above", ar: "3.0 وما فوق", zh: "3.0及以上", ja: "3.0以上", ms: "3.0 ke atas", es: "3.0 o más" },
+    "Urutkan": { en: "Sort By", ar: "ترتيب حسب", zh: "排序方式", ja: "並び替え", ms: "Susun Mengikut", es: "Ordenar por" },
+    "Relevansi": { en: "Relevance", ar: "الصلة", zh: "相关性", ja: "関連度", ms: "Relevansi", es: "Relevancia" },
+    "Harga Tertinggi": { en: "Highest Price", ar: "أعلى سعر", zh: "价格从高到低", ja: "価格が高い順", ms: "Harga Tertinggi", es: "Precio más alto" },
+    "Rating Tertinggi": { en: "Highest Rating", ar: "الأعلى تقييمًا", zh: "评分从高到低", ja: "評価が高い順", ms: "Penilaian Tertinggi", es: "Mejor valorado" },
+    "Reset Filter": { en: "Reset Filter", ar: "إعادة ضبط التصفية", zh: "重置筛选", ja: "フィルターをリセット", ms: "Set Semula Penapis", es: "Restablecer filtro" },
+    "← Kembali ke Keranjang": { en: "← Back to Cart", ar: "← العودة إلى السلة", zh: "← 返回购物车", ja: "← カートに戻る", ms: "← Kembali ke Troli", es: "← Volver al carrito" },
+    "1 Keranjang": { en: "1 Cart", ar: "1 السلة", zh: "1 购物车", ja: "1 カート", ms: "1 Troli", es: "1 Carrito" },
+    "2 Checkout": { en: "2 Checkout", ar: "2 الدفع", zh: "2 结算", ja: "2 決済", ms: "2 Checkout", es: "2 Pagar" },
+    "3 Selesai": { en: "3 Done", ar: "3 تم", zh: "3 完成", ja: "3 完了", ms: "3 Selesai", es: "3 Listo" },
+    "Checkout": { en: "Checkout", ar: "الدفع", zh: "结算", ja: "決済", ms: "Checkout", es: "Pagar" },
+    "Periksa kembali alamat, pengiriman, dan pembayaran sebelum membuat pesanan.": { en: "Double-check your address, shipping, and payment before placing your order.", ar: "تحقق من العنوان والشحن والدفع قبل تقديم الطلب.", zh: "下单前请再次核对地址、配送和付款信息。", ja: "注文する前に、住所・配送・支払い情報をご確認ください。", ms: "Semak semula alamat, penghantaran, dan pembayaran sebelum membuat pesanan.", es: "Verifica tu dirección, envío y pago antes de realizar el pedido." },
+    "Alamat Pengiriman": { en: "Shipping Address", ar: "عنوان الشحن", zh: "收货地址", ja: "配送先住所", ms: "Alamat Penghantaran", es: "Dirección de envío" },
+    "Pesanan akan dikirim ke alamat berikut.": { en: "Your order will be shipped to the address below.", ar: "سيتم شحن طلبك إلى العنوان أدناه.", zh: "订单将配送至以下地址。", ja: "ご注文は以下の住所に配送されます。", ms: "Pesanan akan dihantar ke alamat berikut.", es: "Tu pedido se enviará a la siguiente dirección." },
+    "Ubah": { en: "Change", ar: "تغيير", zh: "更改", ja: "変更", ms: "Ubah", es: "Cambiar" },
+    "Batal": { en: "Cancel", ar: "إلغاء", zh: "取消", ja: "キャンセル", ms: "Batal", es: "Cancelar" },
+    "Simpan Alamat": { en: "Save Address", ar: "حفظ العنوان", zh: "保存地址", ja: "住所を保存", ms: "Simpan Alamat", es: "Guardar dirección" },
+    "Produk yang Dibeli": { en: "Items Purchased", ar: "المنتجات المشتراة", zh: "已购商品", ja: "購入した商品", ms: "Produk yang Dibeli", es: "Artículos comprados" },
+    "Pengiriman": { en: "Shipping", ar: "الشحن", zh: "配送", ja: "配送", ms: "Penghantaran", es: "Envío" },
+    "Pilih layanan pengiriman yang kamu inginkan.": { en: "Choose your preferred shipping service.", ar: "اختر خدمة الشحن المفضلة لديك.", zh: "选择你偏好的配送方式。", ja: "ご希望の配送方法をお選びください。", ms: "Pilih perkhidmatan penghantaran yang anda mahu.", es: "Elige tu servicio de envío preferido." },
+    "Reguler": { en: "Regular", ar: "عادي", zh: "标准配送", ja: "通常配送", ms: "Biasa", es: "Regular" },
+    "2–4 hari kerja": { en: "2–4 business days", ar: "2-4 أيام عمل", zh: "2-4个工作日", ja: "2〜4営業日", ms: "2–4 hari bekerja", es: "2 a 4 días hábiles" },
+    "Express": { en: "Express", ar: "سريع", zh: "加急配送", ja: "速達", ms: "Express", es: "Exprés" },
+    "1–2 hari kerja": { en: "1–2 business days", ar: "1-2 يوم عمل", zh: "1-2个工作日", ja: "1〜2営業日", ms: "1–2 hari bekerja", es: "1 a 2 días hábiles" },
+    "Same Day": { en: "Same Day", ar: "نفس اليوم", zh: "当日达", ja: "即日配送", ms: "Hari Sama", es: "Mismo día" },
+    "Tiba hari ini": { en: "Arrives today", ar: "يصل اليوم", zh: "今日送达", ja: "本日到着", ms: "Tiba hari ini", es: "Llega hoy" },
+    "Voucher": { en: "Voucher", ar: "قسيمة", zh: "优惠券", ja: "クーポン", ms: "Baucar", es: "Cupón" },
+    "Gunakan voucher untuk mendapatkan potongan harga.": { en: "Use a voucher to get a discount.", ar: "استخدم قسيمة للحصول على خصم.", zh: "使用优惠券获取折扣。", ja: "クーポンを使って割引を受けましょう。", ms: "Gunakan baucar untuk mendapatkan diskaun.", es: "Usa un cupón para obtener un descuento." },
+    "Pakai": { en: "Apply", ar: "تطبيق", zh: "使用", ja: "適用", ms: "Guna", es: "Aplicar" },
+    "Metode Pembayaran": { en: "Payment Method", ar: "طريقة الدفع", zh: "支付方式", ja: "お支払い方法", ms: "Kaedah Pembayaran", es: "Método de pago" },
+    "Pilih metode pembayaran yang tersedia.": { en: "Choose an available payment method.", ar: "اختر طريقة دفع متاحة.", zh: "选择可用的支付方式。", ja: "ご利用可能なお支払い方法をお選びください。", ms: "Pilih kaedah pembayaran yang tersedia.", es: "Elige un método de pago disponible." },
+    "Scan dari aplikasi pembayaran": { en: "Scan from your payment app", ar: "امسح من تطبيق الدفع", zh: "从支付应用扫码", ja: "決済アプリでスキャン", ms: "Imbas dari aplikasi pembayaran", es: "Escanea desde tu app de pago" },
+    "Transfer Bank": { en: "Bank Transfer", ar: "تحويل بنكي", zh: "银行转账", ja: "銀行振込", ms: "Pindahan Bank", es: "Transferencia bancaria" },
+    "Virtual Account bank pilihan": { en: "Your chosen bank's virtual account", ar: "حساب افتراضي للبنك المختار", zh: "所选银行的虚拟账户", ja: "選択した銀行のバーチャル口座", ms: "Akaun Maya bank pilihan", es: "Cuenta virtual del banco elegido" },
+    "Bayar saat barang diterima": { en: "Pay when item is received", ar: "ادفع عند استلام المنتج", zh: "货到付款", ja: "商品到着時にお支払い", ms: "Bayar apabila barang diterima", es: "Paga al recibir el producto" },
+    "Ringkasan Belanja": { en: "Order Summary", ar: "ملخص الطلب", zh: "订单摘要", ja: "注文概要", ms: "Ringkasan Pesanan", es: "Resumen del pedido" },
+    "Total Produk": { en: "Item Total", ar: "إجمالي المنتجات", zh: "商品总额", ja: "商品合計", ms: "Jumlah Produk", es: "Total de artículos" },
+    "Diskon Voucher": { en: "Voucher Discount", ar: "خصم القسيمة", zh: "优惠券折扣", ja: "クーポン割引", ms: "Diskaun Baucar", es: "Descuento por cupón" },
+    "Total Pembayaran": { en: "Total Payment", ar: "إجمالي الدفع", zh: "支付总额", ja: "支払い合計", ms: "Jumlah Bayaran", es: "Total a pagar" },
+    "Buat Pesanan": { en: "Place Order", ar: "تقديم الطلب", zh: "提交订单", ja: "注文を確定する", ms: "Buat Pesanan", es: "Realizar pedido" },
+    "🔒 Transaksi aman & data pembayaran terlindungi.": { en: "🔒 Secure transaction & protected payment data.", ar: "🔒 معاملة آمنة وبيانات دفع محمية.", zh: "🔒 交易安全，支付数据受保护。", ja: "🔒 安全な取引・保護された決済データ。", ms: "🔒 Transaksi selamat & data pembayaran dilindungi.", es: "🔒 Transacción segura y datos de pago protegidos." },
+    "Wishlist Saya": { en: "My Wishlist", ar: "قائمة أمنياتي", zh: "我的收藏", ja: "お気に入りリスト", ms: "Senarai Ingin Saya", es: "Mi lista de deseos" },
+    "Belum ada produk di wishlist.": { en: "No products in wishlist yet.", ar: "لا توجد منتجات في المفضلة بعد.", zh: "收藏夹还没有商品。", ja: "お気に入りにまだ商品がありません。", ms: "Belum ada produk dalam senarai ingin.", es: "Aún no hay productos en la lista de deseos." },
+    "Lanjut Belanja →": { en: "Continue Shopping →", ar: "متابعة التسوق ←", zh: "继续购物 →", ja: "買い物を続ける →", ms: "Terus Membeli-belah →", es: "Seguir comprando →" },
+    "Keranjang Saya": { en: "My Cart", ar: "سلتي", zh: "我的购物车", ja: "マイカート", ms: "Troli Saya", es: "Mi carrito" },
+    "Keranjang masih kosong.": { en: "Your cart is empty.", ar: "سلتك فارغة.", zh: "购物车是空的。", ja: "カートは空です。", ms: "Troli masih kosong.", es: "Tu carrito está vacío." },
+    "Total:": { en: "Total:", ar: "الإجمالي:", zh: "总计：", ja: "合計：", ms: "Jumlah:", es: "Total:" },
+    "Layanan": { en: "Services", ar: "الخدمات", zh: "服务", ja: "サービス", ms: "Perkhidmatan", es: "Servicios" },
+    "Pembayaran": { en: "Payment", ar: "الدفع", zh: "支付", ja: "支払い", ms: "Pembayaran", es: "Pago" },
+    "Tentang": { en: "About", ar: "حول", zh: "关于", ja: "会社概要", ms: "Tentang", es: "Acerca de" },
+    "Tentang MAB-Store": { en: "About MAB-Store", ar: "حول MAB-Store", zh: "关于 MAB-Store", ja: "MAB-Store について", ms: "Tentang MAB-Store", es: "Acerca de MAB-Store" },
+    "Karier": { en: "Careers", ar: "الوظائف", zh: "招聘", ja: "採用情報", ms: "Kerjaya", es: "Empleo" },
+    "Kontak": { en: "Contact", ar: "اتصل بنا", zh: "联系我们", ja: "お問い合わせ", ms: "Hubungi Kami", es: "Contacto" },
+    "Daftar": { en: "Register", ar: "التسجيل", zh: "注册", ja: "新規登録", ms: "Daftar", es: "Registrarse" },
+    "Pembeli": { en: "Buyer", ar: "المشتري", zh: "买家", ja: "購入者", ms: "Pembeli", es: "Comprador" },
+    "Penjual": { en: "Seller", ar: "البائع", zh: "卖家", ja: "出品者", ms: "Penjual", es: "Vendedor" },
+    "Temukan berbagai produk pilihan\n                        dengan harga terbaik.": { en: "Discover a variety of curated products at the best prices.", ar: "اكتشف مجموعة متنوعة من المنتجات المختارة بأفضل الأسعار.", zh: "发现各种精选商品，享受最优惠的价格。", ja: "厳選された商品を、最高の価格でお楽しみください。", ms: "Terokai pelbagai produk pilihan\n                        dengan harga terbaik.", es: "Descubre una variedad de productos seleccionados a los mejores precios." },
+    "Temukan produk pilihan\n                            dalam kategori ini.": { en: "Find selected products in this category.", ar: "اعثر على منتجات مختارة في هذه الفئة.", zh: "在此分类中查找精选商品。", ja: "このカテゴリーの厳選商品をご覧ください。", ms: "Cari produk pilihan\n                            dalam kategori ini.", es: "Encuentra productos seleccionados en esta categoría." },
+    "✓ Stok tersedia  •  Siap dikirim": { en: "✓ In stock  •  Ready to ship", ar: "✓ متوفر في المخزون  •  جاهز للشحن", zh: "✓ 现货  •  可立即发货", ja: "✓ 在庫あり  •  発送準備完了", ms: "✓ Stok tersedia  •  Sedia dihantar", es: "✓ En stock  •  Listo para enviar" },
+    "⭐ 4.9  •  98% Ulasan Positif  •  Jakarta Selatan": { en: "⭐ 4.9  •  98% Positive Reviews  •  South Jakarta", ar: "⭐ 4.9  •  98% تقييمات إيجابية  •  جاكرتا الجنوبية", zh: "⭐ 4.9  •  98% 好评  •  南雅加达", ja: "⭐ 4.9  •  高評価98%  •  南ジャカルタ", ms: "⭐ 4.9  •  98% Ulasan Positif  •  Jakarta Selatan", es: "⭐ 4.9  •  98% de reseñas positivas  •  Yakarta del Sur" },
+    "(0 ulasan)": { en: "(0 reviews)", ar: "(0 تقييم)", zh: "(0条评价)", ja: "(0件のレビュー)", ms: "(0 ulasan)", es: "(0 reseñas)" },
+    "Pengikut  •  Jakarta Selatan": { en: "Followers  •  South Jakarta", ar: "متابعون  •  جاكرتا الجنوبية", zh: "关注者  •  南雅加达", ja: "フォロワー  •  南ジャカルタ", ms: "Pengikut  •  Jakarta Selatan", es: "Seguidores  •  Yakarta del Sur" },
+    "Bergabung sejak 2021  •  Respon cepat  •  98% Ulasan Positif": { en: "Joined since 2021  •  Fast response  •  98% Positive Reviews", ar: "منضم منذ 2021  •  استجابة سريعة  •  98% تقييمات إيجابية", zh: "2021年加入  •  快速回复  •  98% 好评", ja: "2021年から出品  •  素早い返信  •  高評価98%", ms: "Menyertai sejak 2021  •  Respons pantas  •  98% Ulasan Positif", es: "Miembro desde 2021  •  Respuesta rápida  •  98% de reseñas positivas" },
+    "Marketplace sederhana untuk belajar\n                    membangun aplikasi e-commerce.": { en: "A simple marketplace for learning to build e-commerce apps.", ar: "سوق بسيط لتعلم بناء تطبيقات التجارة الإلكترونية.", zh: "一个用于学习构建电商应用的简单市场平台。", ja: "ECアプリ開発を学ぶためのシンプルなマーケットプレイス。", ms: "Pasaran mudah untuk belajar\n                    membina aplikasi e-dagang.", es: "Un mercado sencillo para aprender a crear aplicaciones de comercio electrónico." },
+    "🏠 Beranda": { en: "🏠 Home", ar: "🏠 الرئيسية", zh: "🏠 首页", ja: "🏠 ホーム", ms: "🏠 Laman Utama", es: "🏠 Inicio" },
+    "📦 Produk": { en: "📦 Products", ar: "📦 المنتجات", zh: "📦 商品", ja: "📦 商品", ms: "📦 Produk", es: "📦 Productos" },
+    "🧾 Pesanan": { en: "🧾 Orders", ar: "🧾 الطلبات", zh: "🧾 订单", ja: "🧾 注文", ms: "🧾 Pesanan", es: "🧾 Pedidos" },
+    "🚚 Pengiriman": { en: "🚚 Shipping", ar: "🚚 الشحن", zh: "🚚 物流", ja: "🚚 配送", ms: "🚚 Penghantaran", es: "🚚 Envíos" },
+    "🎟️ Pusat Promosi": { en: "🎟️ Promotion Center", ar: "🎟️ مركز العروض", zh: "🎟️ 营销中心", ja: "🎟️ プロモーションセンター", ms: "🎟️ Pusat Promosi", es: "🎟️ Centro de promociones" },
+    "📢 Iklan": { en: "📢 Ads", ar: "📢 الإعلانات", zh: "📢 广告", ja: "📢 広告", ms: "📢 Iklan", es: "📢 Anuncios" },
+    "💰 Keuangan": { en: "💰 Finance", ar: "💰 المالية", zh: "💰 财务", ja: "💰 財務", ms: "💰 Kewangan", es: "💰 Finanzas" },
+    "📊 Data / Bisnis Saya": { en: "📊 My Data / Business", ar: "📊 بياناتي / أعمالي", zh: "📊 数据/我的生意", ja: "📊 データ・ビジネス分析", ms: "📊 Data / Perniagaan Saya", es: "📊 Mis datos / negocio" },
+    "🏬 Toko": { en: "🏬 Store", ar: "🏬 المتجر", zh: "🏬 店铺", ja: "🏬 ショップ", ms: "🏬 Kedai", es: "🏬 Tienda" },
+    "💬 Pelayanan Pembeli": { en: "💬 Customer Service", ar: "💬 خدمة العملاء", zh: "💬 客户服务", ja: "💬 カスタマーサービス", ms: "💬 Perkhidmatan Pelanggan", es: "💬 Atención al cliente" },
+    "🌱 Perkembangan Penjual": { en: "🌱 Seller Growth", ar: "🌱 تطور البائع", zh: "🌱 卖家成长", ja: "🌱 出品者の成長", ms: "🌱 Perkembangan Penjual", es: "🌱 Crecimiento del vendedor" },
+    "🔑 Admin AI (LLM)": { en: "🔑 AI Admin (LLM)", ar: "🔑 مسؤول الذكاء الاصطناعي (LLM)", zh: "🔑 AI 管理员 (LLM)", ja: "🔑 AI管理者（LLM）", ms: "🔑 Admin AI (LLM)", es: "🔑 Administrador IA (LLM)" },
+    "✅ Hal yang Perlu Diselesaikan": { en: "✅ Things To Do", ar: "✅ أمور بحاجة للمتابعة", zh: "✅ 待处理事项", ja: "✅ 対応が必要な項目", ms: "✅ Perkara Perlu Diselesaikan", es: "✅ Pendientes por resolver" },
+    "Penjualan 7 Hari Terakhir": { en: "Sales in the Last 7 Days", ar: "المبيعات خلال آخر 7 أيام", zh: "近7天销售额", ja: "過去7日間の売上", ms: "Jualan 7 Hari Terakhir", es: "Ventas de los últimos 7 días" },
+    "Produk Terlaris": { en: "Best Selling Products", ar: "المنتجات الأكثر مبيعًا", zh: "热销商品", ja: "ベストセラー商品", ms: "Produk Paling Laris", es: "Productos más vendidos" },
+    "Trafik Toko (30 Hari)": { en: "Store Traffic (30 Days)", ar: "زيارات المتجر (30 يومًا)", zh: "店铺流量（30天）", ja: "ショップ訪問数（30日間）", ms: "Trafik Kedai (30 Hari)", es: "Tráfico de la tienda (30 días)" },
+    "Ringkasan Bisnis": { en: "Business Summary", ar: "ملخص الأعمال", zh: "生意摘要", ja: "ビジネス概要", ms: "Ringkasan Perniagaan", es: "Resumen del negocio" },
+    "Daftar Pesanan": { en: "Order List", ar: "قائمة الطلبات", zh: "订单列表", ja: "注文一覧", ms: "Senarai Pesanan", es: "Lista de pedidos" },
+    "Baru Diproses": { en: "Newly Processing", ar: "قيد المعالجة حديثًا", zh: "新处理", ja: "処理中（新規）", ms: "Baru Diproses", es: "En proceso reciente" },
+    "Dibatalkan / Retur": { en: "Cancelled / Returned", ar: "ملغى / مرتجع", zh: "已取消/退货", ja: "キャンセル・返品", ms: "Dibatalkan / Dipulangkan", es: "Cancelado / Devuelto" },
+    "Jasa Kirim Aktif": { en: "Active Couriers", ar: "شركات الشحن النشطة", zh: "已启用的物流服务", ja: "有効な配送業者", ms: "Perkhidmatan Penghantaran Aktif", es: "Servicios de envío activos" },
+    "J&amp;T Express": { en: "J&amp;T Express", ar: "جي آند تي إكسبريس", zh: "极兔速递", ja: "J&Tエクスプレス", ms: "J&T Express", es: "J&T Express" },
+    "SiCepat": { en: "SiCepat", ar: "سي سيبات", zh: "SiCepat快递", ja: "SiCepat", ms: "SiCepat", es: "SiCepat" },
+    "GoSend (Instan)": { en: "GoSend (Instant)", ar: "جوسند (فوري)", zh: "GoSend（即时达）", ja: "GoSend（即日配送）", ms: "GoSend (Segera)", es: "GoSend (Instantáneo)" },
+    "GrabExpress (Instan)": { en: "GrabExpress (Instant)", ar: "جراب إكسبريس (فوري)", zh: "GrabExpress（即时达）", ja: "GrabExpress（即日配送）", ms: "GrabExpress (Segera)", es: "GrabExpress (Instantáneo)" },
+    "AnterAja": { en: "AnterAja", ar: "أنتر آجا", zh: "AnterAja", ja: "AnterAja", ms: "AnterAja", es: "AnterAja" },
+    "Alamat Pengambilan Barang (Gudang/Toko)": { en: "Pickup Address (Warehouse/Store)", ar: "عنوان الاستلام (المستودع/المتجر)", zh: "取件地址（仓库/店铺）", ja: "集荷先住所（倉庫・店舗）", ms: "Alamat Pengambilan Barang (Gudang/Kedai)", es: "Dirección de recogida (almacén/tienda)" },
+    "💾 Simpan Pengaturan Pengiriman": { en: "💾 Save Shipping Settings", ar: "💾 حفظ إعدادات الشحن", zh: "💾 保存配送设置", ja: "💾 配送設定を保存", ms: "💾 Simpan Tetapan Penghantaran", es: "💾 Guardar configuración de envío" },
+    "Cetak Resi Massal": { en: "Bulk Print Labels", ar: "طباعة إيصالات الشحن بالجملة", zh: "批量打印面单", ja: "配送伝票の一括印刷", ms: "Cetak Resit Pukal", es: "Imprimir etiquetas en lote" },
+    "Pesanan berstatus \"Diproses\" siap dicetak resinya": { en: "Orders marked \"Processing\" are ready for label printing", ar: "الطلبات بحالة \"قيد المعالجة\" جاهزة لطباعة الإيصال", zh: "标记为“处理中”的订单可打印面单", ja: "「処理中」の注文は伝票印刷が可能です", ms: "Pesanan berstatus \"Diproses\" sedia untuk cetak resit", es: "Los pedidos en estado \"En proceso\" están listos para imprimir" },
+    "🖨️ Cetak Semua Resi": { en: "🖨️ Print All Labels", ar: "🖨️ طباعة جميع الإيصالات", zh: "🖨️ 打印全部面单", ja: "🖨️ すべての伝票を印刷", ms: "🖨️ Cetak Semua Resit", es: "🖨️ Imprimir todas las etiquetas" },
+    "Buat Voucher Toko": { en: "Create Store Voucher", ar: "إنشاء قسيمة للمتجر", zh: "创建店铺优惠券", ja: "ショップクーポンを作成", ms: "Buat Baucar Kedai", es: "Crear cupón de la tienda" },
+    "Kode Voucher": { en: "Voucher Code", ar: "رمز القسيمة", zh: "优惠券代码", ja: "クーポンコード", ms: "Kod Baucar", es: "Código del cupón" },
+    "Jenis Diskon": { en: "Discount Type", ar: "نوع الخصم", zh: "折扣类型", ja: "割引の種類", ms: "Jenis Diskaun", es: "Tipo de descuento" },
+    "Persentase (%)": { en: "Percentage (%)", ar: "نسبة مئوية (%)", zh: "百分比（%）", ja: "パーセント（％）", ms: "Peratusan (%)", es: "Porcentaje (%)" },
+    "Potongan Nominal (Rp)": { en: "Fixed Amount (Rp)", ar: "مبلغ ثابت (روبية)", zh: "固定金额（印尼盾）", ja: "固定額（ルピア）", ms: "Potongan Nominal (Rp)", es: "Monto fijo (Rp)" },
+    "Gratis Ongkir": { en: "Free Shipping", ar: "شحن مجاني", zh: "包邮", ja: "送料無料", ms: "Penghantaran Percuma", es: "Envío gratis" },
+    "Nilai Diskon": { en: "Discount Value", ar: "قيمة الخصم", zh: "折扣值", ja: "割引額", ms: "Nilai Diskaun", es: "Valor del descuento" },
+    "Minimal Belanja (Rp)": { en: "Minimum Purchase (Rp)", ar: "الحد الأدنى للشراء (روبية)", zh: "最低消费（印尼盾）", ja: "最低購入金額（ルピア）", ms: "Pembelian Minimum (Rp)", es: "Compra mínima (Rp)" },
+    "🎟️ Buat Voucher": { en: "🎟️ Create Voucher", ar: "🎟️ إنشاء قسيمة", zh: "🎟️ 创建优惠券", ja: "🎟️ クーポンを作成", ms: "🎟️ Buat Baucar", es: "🎟️ Crear cupón" },
+    "Voucher Aktif": { en: "Active Vouchers", ar: "القسائم النشطة", zh: "生效中的优惠券", ja: "有効なクーポン", ms: "Baucar Aktif", es: "Cupones activos" },
+    "Buat Iklan Baru": { en: "Create New Ad", ar: "إنشاء إعلان جديد", zh: "创建新广告", ja: "新規広告を作成", ms: "Buat Iklan Baharu", es: "Crear nuevo anuncio" },
+    "3 Hari": { en: "3 Days", ar: "3 أيام", zh: "3天", ja: "3日間", ms: "3 Hari", es: "3 días" },
+    "7 Hari": { en: "7 Days", ar: "7 أيام", zh: "7天", ja: "7日間", ms: "7 Hari", es: "7 días" },
+    "14 Hari": { en: "14 Days", ar: "14 يومًا", zh: "14天", ja: "14日間", ms: "14 Hari", es: "14 días" },
+    "30 Hari": { en: "30 Days", ar: "30 يومًا", zh: "30天", ja: "30日間", ms: "30 Hari", es: "30 días" },
+    "🚀 Jalankan Iklan": { en: "🚀 Launch Ad", ar: "🚀 تشغيل الإعلان", zh: "🚀 投放广告", ja: "🚀 広告を開始", ms: "🚀 Jalankan Iklan", es: "🚀 Lanzar anuncio" },
+    "Iklan Aktif": { en: "Active Ads", ar: "الإعلانات النشطة", zh: "生效中的广告", ja: "掲載中の広告", ms: "Iklan Aktif", es: "Anuncios activos" },
+    "📊 Analisa Market Toko": { en: "📊 Store Market Analysis", ar: "📊 تحليل سوق المتجر", zh: "📊 店铺市场分析", ja: "📊 ショップ市場分析", ms: "📊 Analisis Pasaran Kedai", es: "📊 Análisis de mercado de la tienda" },
+    "🔥 Google Trends": { en: "🔥 Google Trends", ar: "🔥 اتجاهات جوجل", zh: "🔥 谷歌趋势", ja: "🔥 Googleトレンド", ms: "🔥 Google Trends", es: "🔥 Google Trends" },
+    "Cek minat pencarian sebuah kata kunci produk secara real-time dari Google Trends.": { en: "Check real-time search interest for a product keyword via Google Trends.", ar: "تحقق من مدى اهتمام البحث بكلمة مفتاحية للمنتج في الوقت الفعلي عبر اتجاهات جوجل.", zh: "通过谷歌趋势实时查看商品关键词的搜索热度。", ja: "Googleトレンドで商品キーワードの検索関心度をリアルタイムで確認できます。", ms: "Semak minat carian kata kunci produk secara masa nyata melalui Google Trends.", es: "Consulta el interés de búsqueda de una palabra clave de producto en tiempo real con Google Trends." },
+    "Indonesia": { en: "Indonesia", ar: "إندونيسيا", zh: "印度尼西亚", ja: "インドネシア", ms: "Indonesia", es: "Indonesia" },
+    "Amerika Serikat": { en: "United States", ar: "الولايات المتحدة", zh: "美国", ja: "アメリカ合衆国", ms: "Amerika Syarikat", es: "Estados Unidos" },
+    "Inggris": { en: "United Kingdom", ar: "المملكة المتحدة", zh: "英国", ja: "イギリス", ms: "United Kingdom", es: "Reino Unido" },
+    "Arab Saudi": { en: "Saudi Arabia", ar: "السعودية", zh: "沙特阿拉伯", ja: "サウジアラビア", ms: "Arab Saudi", es: "Arabia Saudita" },
+    "China": { en: "China", ar: "الصين", zh: "中国", ja: "中国", ms: "China", es: "China" },
+    "Jepang": { en: "Japan", ar: "اليابان", zh: "日本", ja: "日本", ms: "Jepun", es: "Japón" },
+    "Spanyol": { en: "Spain", ar: "إسبانيا", zh: "西班牙", ja: "スペイン", ms: "Sepanyol", es: "España" },
+    "Malaysia": { en: "Malaysia", ar: "ماليزيا", zh: "马来西亚", ja: "マレーシア", ms: "Malaysia", es: "Malasia" },
+    "New Zealand": { en: "New Zealand", ar: "نيوزيلندا", zh: "新西兰", ja: "ニュージーランド", ms: "New Zealand", es: "Nueva Zelanda" },
+    "Australia": { en: "Australia", ar: "أستراليا", zh: "澳大利亚", ja: "オーストラリア", ms: "Australia", es: "Australia" },
+    "Seluruh Dunia": { en: "Worldwide", ar: "العالم بأسره", zh: "全球", ja: "世界中", ms: "Seluruh Dunia", es: "Todo el mundo" },
+    "🔎 Lihat Tren": { en: "🔎 View Trend", ar: "🔎 عرض الاتجاه", zh: "🔎 查看趋势", ja: "🔎 トレンドを見る", ms: "🔎 Lihat Tren", es: "🔎 Ver tendencia" },
+    "🤖 Strategi Iklan Otomatis (AI)": { en: "🤖 Automatic Ad Strategy (AI)", ar: "🤖 استراتيجية إعلانية تلقائية (ذكاء اصطناعي)", zh: "🤖 AI自动广告策略", ja: "🤖 AI自動広告戦略", ms: "🤖 Strategi Iklan Automatik (AI)", es: "🤖 Estrategia de anuncios automática (IA)" },
+    "✨ Buat Rekomendasi Strategi Iklan": { en: "✨ Generate Ad Strategy Recommendation", ar: "✨ إنشاء توصية استراتيجية إعلانية", zh: "✨ 生成广告策略建议", ja: "✨ 広告戦略の提案を作成", ms: "✨ Jana Cadangan Strategi Iklan", es: "✨ Generar recomendación de estrategia" },
+    "Profil Toko": { en: "Store Profile", ar: "الملف الشخصي للمتجر", zh: "店铺资料", ja: "ショッププロフィール", ms: "Profil Kedai", es: "Perfil de la tienda" },
+    "Nama Toko": { en: "Store Name", ar: "اسم المتجر", zh: "店铺名称", ja: "ショップ名", ms: "Nama Kedai", es: "Nombre de la tienda" },
+    "Deskripsi Toko": { en: "Store Description", ar: "وصف المتجر", zh: "店铺简介", ja: "ショップ説明", ms: "Deskripsi Kedai", es: "Descripción de la tienda" },
+    "Lokasi": { en: "Location", ar: "الموقع", zh: "地址", ja: "所在地", ms: "Lokasi", es: "Ubicación" },
+    "Avatar Toko (emoji atau URL gambar)": { en: "Store Avatar (emoji or image URL)", ar: "صورة المتجر (رمز تعبيري أو رابط صورة)", zh: "店铺头像（表情符号或图片链接）", ja: "ショップアイコン（絵文字または画像URL）", ms: "Avatar Kedai (emoji atau URL imej)", es: "Avatar de la tienda (emoji o URL de imagen)" },
+    "💾 Simpan Perubahan": { en: "💾 Save Changes", ar: "💾 حفظ التغييرات", zh: "💾 保存更改", ja: "💾 変更を保存", ms: "💾 Simpan Perubahan", es: "💾 Guardar cambios" },
+    "Banner Beranda (Dekorasi Toko)": { en: "Home Banner (Store Decoration)", ar: "بانر الرئيسية (تزيين المتجر)", zh: "首页横幅（店铺装饰）", ja: "ホームバナー（ショップ装飾）", ms: "Banner Laman Utama (Hiasan Kedai)", es: "Banner de inicio (decoración de la tienda)" },
+    "Judul Banner": { en: "Banner Title", ar: "عنوان البانر", zh: "横幅标题", ja: "バナータイトル", ms: "Tajuk Banner", es: "Título del banner" },
+    "Subjudul Banner": { en: "Banner Subtitle", ar: "العنوان الفرعي للبانر", zh: "横幅副标题", ja: "バナーサブタイトル", ms: "Sub-tajuk Banner", es: "Subtítulo del banner" },
+    "Warna Latar (hex)": { en: "Background Color (hex)", ar: "لون الخلفية (hex)", zh: "背景颜色（十六进制）", ja: "背景色（HEX）", ms: "Warna Latar (hex)", es: "Color de fondo (hex)" },
+    "💾 Simpan Banner": { en: "💾 Save Banner", ar: "💾 حفظ البانر", zh: "💾 保存横幅", ja: "💾 バナーを保存", ms: "💾 Simpan Banner", es: "💾 Guardar banner" },
+    "Rekening Bank Terdaftar": { en: "Registered Bank Account", ar: "الحساب البنكي المسجل", zh: "已登记银行账户", ja: "登録済み銀行口座", ms: "Akaun Bank Berdaftar", es: "Cuenta bancaria registrada" },
+    "Nama Bank": { en: "Bank Name", ar: "اسم البنك", zh: "银行名称", ja: "銀行名", ms: "Nama Bank", es: "Nombre del banco" },
+    "Nomor Rekening": { en: "Account Number", ar: "رقم الحساب", zh: "账号", ja: "口座番号", ms: "Nombor Akaun", es: "Número de cuenta" },
+    "Atas Nama": { en: "Account Holder", ar: "باسم", zh: "户名", ja: "口座名義", ms: "Atas Nama", es: "Titular de la cuenta" },
+    "💾 Simpan Rekening": { en: "💾 Save Account", ar: "💾 حفظ الحساب", zh: "💾 保存账户", ja: "💾 口座を保存", ms: "💾 Simpan Akaun", es: "💾 Guardar cuenta" },
+    "Tarik Dana": { en: "Withdraw Funds", ar: "سحب الأموال", zh: "提现", ja: "資金の引き出し", ms: "Tarik Dana", es: "Retirar fondos" },
+    "Jumlah Penarikan (Rp)": { en: "Withdrawal Amount (Rp)", ar: "مبلغ السحب (روبية)", zh: "提现金额（印尼盾）", ja: "引き出し金額（ルピア）", ms: "Jumlah Pengeluaran (Rp)", es: "Monto a retirar (Rp)" },
+    "🏦 Ajukan Pencairan": { en: "🏦 Submit Withdrawal", ar: "🏦 تقديم طلب سحب", zh: "🏦 提交提现申请", ja: "🏦 出金を申請", ms: "🏦 Ajukan Pengeluaran", es: "🏦 Solicitar retiro" },
+    "Riwayat Pencairan": { en: "Withdrawal History", ar: "سجل السحوبات", zh: "提现记录", ja: "出金履歴", ms: "Sejarah Pengeluaran", es: "Historial de retiros" },
+    "Kelola Media Produk": { en: "Manage Product Media", ar: "إدارة وسائط المنتج", zh: "管理商品媒体", ja: "商品メディア管理", ms: "Urus Media Produk", es: "Gestionar medios del producto" },
+    "Foto Utama": { en: "Main Photo", ar: "الصورة الرئيسية", zh: "主图", ja: "メイン写真", ms: "Foto Utama", es: "Foto principal" },
+    "Galeri Foto Tambahan": { en: "Additional Photo Gallery", ar: "معرض صور إضافية", zh: "附加图片相册", ja: "追加写真ギャラリー", ms: "Galeri Foto Tambahan", es: "Galería de fotos adicionales" },
+    "+ Tambah": { en: "+ Add", ar: "+ إضافة", zh: "+ 添加", ja: "+ 追加", ms: "+ Tambah", es: "+ Añadir" },
+    "Video Produk (URL video)": { en: "Product Video (video URL)", ar: "فيديو المنتج (رابط الفيديو)", zh: "商品视频（视频链接）", ja: "商品動画（動画URL）", ms: "Video Produk (URL video)", es: "Video del producto (URL)" },
+    "💾 Simpan Media Produk": { en: "💾 Save Product Media", ar: "💾 حفظ وسائط المنتج", zh: "💾 保存商品媒体", ja: "💾 商品メディアを保存", ms: "💾 Simpan Media Produk", es: "💾 Guardar medios del producto" },
+    "Pesan Masuk dari Pembeli": { en: "Incoming Messages from Buyers", ar: "الرسائل الواردة من المشترين", zh: "买家来信", ja: "購入者からのメッセージ", ms: "Mesej Masuk dari Pembeli", es: "Mensajes entrantes de compradores" },
+    "Balas langsung sebagai MAB-Official Store": { en: "Reply directly as MAB-Official Store", ar: "الرد مباشرة باسم MAB-Official Store", zh: "以 MAB-Official Store 身份直接回复", ja: "MAB-Official Store として直接返信", ms: "Balas terus sebagai MAB-Official Store", es: "Responde directamente como MAB-Official Store" },
+    "Pilih percakapan di sebelah kiri untuk mulai membalas.": { en: "Select a conversation on the left to start replying.", ar: "اختر محادثة من اليسار لبدء الرد.", zh: "在左侧选择一个对话开始回复。", ja: "左側の会話を選択して返信を開始してください。", ms: "Pilih perbualan di sebelah kiri untuk mula membalas.", es: "Selecciona una conversación a la izquierda para responder." },
+    "🧑‍💼 Balas Manual": { en: "🧑‍💼 Manual Reply", ar: "🧑‍💼 رد يدوي", zh: "🧑‍💼 手动回复", ja: "🧑‍💼 手動返信", ms: "🧑‍💼 Balas Secara Manual", es: "🧑‍💼 Respuesta manual" },
+    "🤖 Simulasi Otomatis": { en: "🤖 Auto Simulation", ar: "🤖 محاكاة تلقائية", zh: "🤖 自动模拟", ja: "🤖 自動シミュレーション", ms: "🤖 Simulasi Automatik", es: "🤖 Simulación automática" },
+    "✨ Admin AI": { en: "✨ AI Admin", ar: "✨ مسؤول الذكاء الاصطناعي", zh: "✨ AI 管理员", ja: "✨ AI管理者", ms: "✨ Admin AI", es: "✨ Administrador IA" },
+    "Kirim": { en: "Send", ar: "إرسال", zh: "发送", ja: "送信", ms: "Hantar", es: "Enviar" },
+    "Kesehatan Toko": { en: "Store Health", ar: "صحة المتجر", zh: "店铺健康度", ja: "ショップの健全性", ms: "Kesihatan Kedai", es: "Salud de la tienda" },
+    "Pencapaian": { en: "Achievements", ar: "الإنجازات", zh: "成就", ja: "実績", ms: "Pencapaian", es: "Logros" },
+    "Hubungkan Provider AI/LLM": { en: "Connect AI/LLM Provider", ar: "ربط مزود الذكاء الاصطناعي (LLM)", zh: "连接 AI/LLM 服务商", ja: "AI/LLMプロバイダーを接続", ms: "Sambungkan Penyedia AI/LLM", es: "Conectar proveedor de IA/LLM" },
+    "Pilih Provider": { en: "Select Provider", ar: "اختر المزود", zh: "选择服务商", ja: "プロバイダーを選択", ms: "Pilih Penyedia", es: "Seleccionar proveedor" },
+    "Google Gemini": { en: "Google Gemini", ar: "جوجل جيميناي", zh: "谷歌 Gemini", ja: "Google Gemini", ms: "Google Gemini", es: "Google Gemini" },
+    "Anthropic Claude": { en: "Anthropic Claude", ar: "أنثروبيك كلود", zh: "Anthropic Claude", ja: "Anthropic Claude", ms: "Anthropic Claude", es: "Anthropic Claude" },
+    "OpenAI ChatGPT": { en: "OpenAI ChatGPT", ar: "أوبن إيه آي شات جي بي تي", zh: "OpenAI ChatGPT", ja: "OpenAI ChatGPT", ms: "OpenAI ChatGPT", es: "OpenAI ChatGPT" },
+    "DeepSeek": { en: "DeepSeek", ar: "ديب سيك", zh: "DeepSeek", ja: "DeepSeek", ms: "DeepSeek", es: "DeepSeek" },
+    "Lainnya (OpenAI-compatible)": { en: "Other (OpenAI-compatible)", ar: "أخرى (متوافق مع OpenAI)", zh: "其他（兼容OpenAI）", ja: "その他（OpenAI互換）", ms: "Lain-lain (Serasi OpenAI)", es: "Otro (compatible con OpenAI)" },
+    "Base URL API (khusus provider \"Lainnya\")": { en: "API Base URL (for \"Other\" provider only)", ar: "رابط API الأساسي (لمزود \"أخرى\" فقط)", zh: "API 基础地址（仅限“其他”服务商）", ja: "API ベースURL（「その他」プロバイダー専用）", ms: "URL Asas API (khusus penyedia \"Lain-lain\")", es: "URL base de la API (solo para \"Otro\")" },
+    "Nama Model": { en: "Model Name", ar: "اسم النموذج", zh: "模型名称", ja: "モデル名", ms: "Nama Model", es: "Nombre del modelo" },
+    "API Key": { en: "API Key", ar: "مفتاح API", zh: "API 密钥", ja: "APIキー", ms: "Kunci API", es: "Clave API" },
+    "Prompt / Instruksi Khusus untuk AI (opsional)": { en: "Custom Prompt / Instructions for AI (optional)", ar: "تعليمات مخصصة للذكاء الاصطناعي (اختياري)", zh: "AI 自定义提示词/指令（可选）", ja: "AI用カスタムプロンプト・指示（任意）", ms: "Prompt / Arahan Khusus untuk AI (pilihan)", es: "Prompt / instrucciones personalizadas para la IA (opcional)" },
+    "🔌 Tes Koneksi": { en: "🔌 Test Connection", ar: "🔌 اختبار الاتصال", zh: "🔌 测试连接", ja: "🔌 接続テスト", ms: "🔌 Uji Sambungan", es: "🔌 Probar conexión" },
+    "💾 Simpan": { en: "💾 Save", ar: "💾 حفظ", zh: "💾 保存", ja: "💾 保存", ms: "💾 Simpan", es: "💾 Guardar" },
+    "🗑️ Hapus API Key dari Perangkat Ini": { en: "🗑️ Remove API Key from This Device", ar: "🗑️ حذف مفتاح API من هذا الجهاز", zh: "🗑️ 从此设备删除 API 密钥", ja: "🗑️ このデバイスからAPIキーを削除", ms: "🗑️ Padam Kunci API dari Peranti Ini", es: "🗑️ Eliminar clave API de este dispositivo" },
+    "Status Saat Ini": { en: "Current Status", ar: "الحالة الحالية", zh: "当前状态", ja: "現在のステータス", ms: "Status Semasa", es: "Estado actual" }
 };
 
-const idToEnPlaceholders = {
-    "Cari produk di MAB-Store...": "Search products on MAB-Store...",
-    "Nama kamu": "Your name",
-    "Tulis ulasan kamu di sini...": "Write your review here...",
-    "Cari produk...": "Search products...",
-    "Nama Penerima": "Recipient Name",
-    "Nomor HP": "Phone Number",
-    "Alamat lengkap (jalan, kecamatan, kota, kode pos)": "Full address (street, district, city, postal code)",
-    "Masukkan kode voucher, contoh: MABHEMAT": "Enter voucher code, e.g. MABHEMAT",
-    "Email": "Email",
-    "Kata Sandi": "Password",
-    "Nama Lengkap": "Full Name"
+const staticPlaceholderDict = {
+    "Cari produk di MAB-Store...": { en: "Search products on MAB-Store...", ar: "ابحث عن منتجات في MAB-Store...", zh: "在 MAB-Store 搜索商品...", ja: "MAB-Storeで商品を検索...", ms: "Cari produk di MAB-Store...", es: "Buscar productos en MAB-Store..." },
+    "Nama kamu": { en: "Your name", ar: "اسمك", zh: "你的姓名", ja: "お名前", ms: "Nama anda", es: "Tu nombre" },
+    "Tulis ulasan kamu di sini...": { en: "Write your review here...", ar: "اكتب تقييمك هنا...", zh: "在此写下你的评价...", ja: "レビューをここに入力...", ms: "Tulis ulasan anda di sini...", es: "Escribe tu reseña aquí..." },
+    "Cari produk...": { en: "Search products...", ar: "ابحث عن منتجات...", zh: "搜索商品...", ja: "商品を検索...", ms: "Cari produk...", es: "Buscar productos..." },
+    "Nama Penerima": { en: "Recipient Name", ar: "اسم المستلم", zh: "收件人姓名", ja: "受取人名", ms: "Nama Penerima", es: "Nombre del destinatario" },
+    "Nomor HP": { en: "Phone Number", ar: "رقم الهاتف", zh: "手机号码", ja: "電話番号", ms: "Nombor Telefon", es: "Número de teléfono" },
+    "Alamat lengkap (jalan, kecamatan, kota, kode pos)": { en: "Full address (street, district, city, postal code)", ar: "العنوان الكامل (الشارع، الحي، المدينة، الرمز البريدي)", zh: "详细地址（街道、区、城市、邮编）", ja: "詳しい住所（番地、区、市、郵便番号）", ms: "Alamat penuh (jalan, daerah, bandar, poskod)", es: "Dirección completa (calle, distrito, ciudad, código postal)" },
+    "Masukkan kode voucher, contoh: MABHEMAT": { en: "Enter voucher code, e.g. MABHEMAT", ar: "أدخل رمز القسيمة، مثال: MABHEMAT", zh: "输入优惠券代码，例如：MABHEMAT", ja: "クーポンコードを入力（例：MABHEMAT）", ms: "Masukkan kod baucar, contoh: MABHEMAT", es: "Ingresa el código del cupón, ej: MABHEMAT" },
+    "Email": { en: "Email", ar: "البريد الإلكتروني", zh: "邮箱", ja: "メールアドレス", ms: "E-mel", es: "Correo electrónico" },
+    "Kata Sandi": { en: "Password", ar: "كلمة المرور", zh: "密码", ja: "パスワード", ms: "Kata Laluan", es: "Contraseña" },
+    "Nama Lengkap": { en: "Full Name", ar: "الاسم الكامل", zh: "全名", ja: "氏名", ms: "Nama Penuh", es: "Nombre completo" },
+    "Contoh: DISKON10": { en: "e.g. DISKON10", ar: "مثال: DISKON10", zh: "例如：DISKON10", ja: "例：DISKON10", ms: "Contoh: DISKON10", es: "Ej: DISKON10" },
+    "Contoh: 10 (untuk 10%) atau 20000": { en: "e.g. 10 (for 10%) or 20000", ar: "مثال: 10 (لـ 10%) أو 20000", zh: "例如：10（表示10%）或20000", ja: "例：10（10%の場合）または20000", ms: "Contoh: 10 (untuk 10%) atau 20000", es: "Ej: 10 (para 10%) o 20000" },
+    "Alamat lengkap untuk dijemput kurir...": { en: "Full address for courier pickup...", ar: "العنوان الكامل لاستلام الشحنة...", zh: "供快递员取件的详细地址...", ja: "集荷用の詳しい住所...", ms: "Alamat penuh untuk pengambilan kurier...", es: "Dirección completa para recogida del mensajero..." },
+    "Contoh: sepatu lari, skincare, powerbank...": { en: "e.g. running shoes, skincare, powerbank...", ar: "مثال: أحذية جري، عناية بالبشرة، بطارية محمولة...", zh: "例如：跑鞋、护肤品、充电宝...", ja: "例：ランニングシューズ、スキンケア、モバイルバッテリー...", ms: "Contoh: kasut lari, penjagaan kulit, powerbank...", es: "Ej: zapatillas para correr, cuidado de la piel, batería portátil..." },
+    "Tempel API key di sini...": { en: "Paste your API key here...", ar: "ألصق مفتاح API هنا...", zh: "在此粘贴 API 密钥...", ja: "APIキーをここに貼り付け...", ms: "Tampal kunci API di sini...", es: "Pega tu clave API aquí..." },
+    "Otomatis terisi sesuai provider": { en: "Auto-filled based on provider", ar: "يُملأ تلقائيًا حسب المزود", zh: "根据服务商自动填充", ja: "プロバイダーに応じて自動入力", ms: "Diisi automatik mengikut penyedia", es: "Se completa automáticamente según el proveedor" },
+    "Contoh: Gunakan gaya bahasa santai dan ramah, selalu tawarkan produk best-seller, akhiri balasan dengan emoji 😊. Jangan pernah janjikan diskon yang tidak ada.": { en: "Example: Use a friendly, casual tone, always recommend best-selling products, and end replies with an emoji 😊. Never promise discounts that don't exist.", ar: "مثال: استخدم لهجة ودية وغير رسمية، اقترح دائمًا المنتجات الأكثر مبيعًا، وأنهِ الردود برمز تعبيري 😊. لا تعد أبدًا بخصومات غير موجودة.", zh: "示例：使用轻松友好的语气，始终推荐畅销商品，回复以表情符号😊结尾。切勿承诺不存在的折扣。", ja: "例：親しみやすくフレンドリーな口調で、常にベストセラー商品を勧め、返信の最後に絵文字😊を付けてください。存在しない割引を約束しないでください。", ms: "Contoh: Gunakan gaya bahasa santai dan mesra, sentiasa tawarkan produk paling laris, akhiri balasan dengan emoji 😊. Jangan sesekali janjikan diskaun yang tidak wujud.", es: "Ejemplo: Usa un tono amistoso e informal, recomienda siempre los productos más vendidos y termina las respuestas con un emoji 😊. Nunca prometas descuentos que no existen." },
+    "Masukkan nominal...": { en: "Enter amount...", ar: "أدخل المبلغ...", zh: "输入金额...", ja: "金額を入力...", ms: "Masukkan jumlah...", es: "Ingresa el monto..." },
+    "Contoh: BCA": { en: "e.g. BCA", ar: "مثال: BCA", zh: "例如：BCA", ja: "例：BCA", ms: "Contoh: BCA", es: "Ej: BCA" },
+    "Contoh: 1234567890": { en: "e.g. 1234567890", ar: "مثال: 1234567890", zh: "例如：1234567890", ja: "例：1234567890", ms: "Contoh: 1234567890", es: "Ej: 1234567890" },
+    "Nama sesuai buku tabungan": { en: "Name as per bank passbook", ar: "الاسم كما في دفتر التوفير", zh: "与银行存折一致的姓名", ja: "通帳記載のお名前", ms: "Nama mengikut buku bank", es: "Nombre según la libreta bancaria" },
+    "Anggaran harian (Rp)": { en: "Daily budget (Rp)", ar: "الميزانية اليومية (روبية)", zh: "每日预算（印尼盾）", ja: "1日の予算（ルピア）", ms: "Bajet harian (Rp)", es: "Presupuesto diario (Rp)" },
+    "Ketik balasan sebagai penjual...": { en: "Type your reply as the seller...", ar: "اكتب ردك كبائع...", zh: "以卖家身份输入回复...", ja: "出品者として返信を入力...", ms: "Taip balasan sebagai penjual...", es: "Escribe tu respuesta como vendedor..." },
+    "Maks": { en: "Max", ar: "الحد الأقصى", zh: "最高", ja: "最大", ms: "Maks", es: "Máx" },
+    "Min": { en: "Min", ar: "الحد الأدنى", zh: "最低", ja: "最小", ms: "Min", es: "Mín" },
+    "Tambahkan URL foto galeri...": { en: "Add gallery photo URL...", ar: "أضف رابط صورة للمعرض...", zh: "添加相册图片链接...", ja: "ギャラリー写真のURLを追加...", ms: "Tambah URL foto galeri...", es: "Añadir URL de foto de galería..." },
+    "Tulis pesan...": { en: "Type a message...", ar: "اكتب رسالة...", zh: "输入消息...", ja: "メッセージを入力...", ms: "Taip mesej...", es: "Escribe un mensaje..." },
+    "URL foto utama...": { en: "Main photo URL...", ar: "رابط الصورة الرئيسية...", zh: "主图链接...", ja: "メイン写真のURL...", ms: "URL foto utama...", es: "URL de la foto principal..." },
+    "https://.../video.mp4": { en: "https://.../video.mp4", ar: "https://.../video.mp4", zh: "https://.../video.mp4", ja: "https://.../video.mp4", ms: "https://.../video.mp4", es: "https://.../video.mp4" },
+    "https://api.contoh.com/v1/chat/completions": { en: "https://api.example.com/v1/chat/completions", ar: "https://api.example.com/v1/chat/completions", zh: "https://api.example.com/v1/chat/completions", ja: "https://api.example.com/v1/chat/completions", ms: "https://api.contoh.com/v1/chat/completions", es: "https://api.ejemplo.com/v1/chat/completions" },
+    "🏬 atau https://...": { en: "🏬 or https://...", ar: "🏬 أو https://...", zh: "🏬 或 https://...", ja: "🏬 または https://...", ms: "🏬 atau https://...", es: "🏬 o https://..." }
 };
-
-const enToIdDictionary = Object.fromEntries(Object.entries(idToEnDictionary).map(([id, en]) => [en, id]));
-const enToIdPlaceholders = Object.fromEntries(Object.entries(idToEnPlaceholders).map(([id, en]) => [en, id]));
 
 function translateStaticText(lang) {
-    const dict = lang === "en" ? idToEnDictionary : enToIdDictionary;
-    const placeholderDict = lang === "en" ? idToEnPlaceholders : enToIdPlaceholders;
-
     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
-    const nodes = [];
     let node;
-    while ((node = walker.nextNode())) nodes.push(node);
+    while ((node = walker.nextNode())) {
+        const currentTrimmed = node.nodeValue.trim();
+        if (!currentTrimmed) continue;
 
-    nodes.forEach(textNode => {
-        const trimmed = textNode.nodeValue.trim();
-        if (!trimmed) return;
-        if (dict[trimmed] !== undefined) {
-            textNode.nodeValue = textNode.nodeValue.replace(trimmed, dict[trimmed]);
-        }
-    });
+        // Simpan teks asli (Bahasa Indonesia) pada node ini kalau belum pernah disimpan,
+        // supaya bisa berpindah ke bahasa APA PUN kapan saja tanpa kehilangan versi aslinya.
+        if (node.__staticOriginal === undefined) node.__staticOriginal = currentTrimmed;
+        const original = node.__staticOriginal;
+
+        const entry = staticDict[original];
+        const target = (lang !== "id" && entry && entry[lang]) ? entry[lang] : original;
+        if (currentTrimmed !== target) node.nodeValue = node.nodeValue.replace(currentTrimmed, target);
+    }
 
     document.querySelectorAll("input[placeholder], textarea[placeholder]").forEach(el => {
         const current = el.getAttribute("placeholder");
-        if (placeholderDict[current] !== undefined) el.setAttribute("placeholder", placeholderDict[current]);
+        if (!current) return;
+        if (el.dataset.staticOriginalPlaceholder === undefined) el.dataset.staticOriginalPlaceholder = current;
+        const original = el.dataset.staticOriginalPlaceholder;
+        const entry = staticPlaceholderDict[original];
+        const target = (lang !== "id" && entry && entry[lang]) ? entry[lang] : original;
+        if (current !== target) el.setAttribute("placeholder", target);
     });
 
     document.querySelectorAll("option").forEach(opt => {
-        const trimmed = opt.textContent.trim();
-        if (dict[trimmed] !== undefined) opt.textContent = dict[trimmed];
+        const currentTrimmed = opt.textContent.trim();
+        if (!currentTrimmed) return;
+        if (opt.dataset.staticOriginal === undefined) opt.dataset.staticOriginal = currentTrimmed;
+        const original = opt.dataset.staticOriginal;
+        const entry = staticDict[original];
+        const target = (lang !== "id" && entry && entry[lang]) ? entry[lang] : original;
+        if (currentTrimmed !== target) opt.textContent = target;
     });
 }
+
 
 function updateShippingLabels() {
     const reg = document.getElementById("shipCostReguler");
@@ -4980,31 +5065,19 @@ function applyLocale(key) {
     localStorage.setItem("mabstore_currency", currentCurrency);
     localStorage.setItem("mabstore_num_locale", currentNumLocale);
 
-    const newLang = locale.lang === "en" ? "en" : "id";
-    const newTranslateLang = AUTO_TRANSLATE_LANGS.includes(locale.lang) ? locale.lang : null;
+    // Navigasi/tombol/teks statis: kamus instan (translateStaticText) — tanpa panggilan API,
+    // langsung berubah begitu bahasa dipilih. Hanya judul & deskripsi produk yang memakai
+    // auto-translate pihak ketiga, dan itu pun cuma untuk produk yang sedang tampil (lihat
+    // productName/productDesc + autoText).
+    currentLang = locale.lang;
+    localStorage.setItem("mabstore_lang", currentLang);
 
-    if (uiTranslateLang && uiTranslateLang !== newTranslateLang) {
-        revertAllTranslatedNodes();
-        stopI18nObserver();
-    }
-    uiTranslateLang = newTranslateLang;
-    localStorage.setItem("mabstore_translate_lang", uiTranslateLang || "");
-
-    currentLang = newLang;
-    localStorage.setItem("mabstore_lang", newLang);
-
-    translateStaticText(newLang);
+    translateStaticText(currentLang);
     updateLangToggleButton();
     updateMobileLangLabel();
     renderLocaleDropdown();
     fetchExchangeRate(true);
     refreshCurrentView();
-
-    if (uiTranslateLang) {
-        startI18nObserver();
-        walkAndTranslate(document.body, uiTranslateLang);
-        showToast("🌐 Menerjemahkan halaman... (mungkin butuh beberapa detik)");
-    }
 }
 
 // Dipertahankan untuk kompatibilitas — dipakai saat load awal & sebagai alias sederhana id/en.
@@ -5021,15 +5094,19 @@ function updateLangToggleButton() {
 }
 
 function renderLocaleDropdown() {
-    const dropdown = document.getElementById("localeDropdown");
-    if (!dropdown) return;
     const sorted = [...LOCALE_OPTIONS].sort((a, b) => a.label.localeCompare(b.label));
-    dropdown.innerHTML = sorted.map(o => `
+    const html = sorted.map(o => `
         <button type="button" class="locale-option${o.key === currentLocaleKey ? " active" : ""}" data-locale-key="${o.key}">
             <span>${o.label}</span>
             <span class="locale-option-currency">${o.currency}</span>
         </button>
     `).join("");
+
+    const dropdown = document.getElementById("localeDropdown");
+    if (dropdown) dropdown.innerHTML = html;
+
+    const mobileList = document.getElementById("mobileLocaleList");
+    if (mobileList) mobileList.innerHTML = html;
 }
 
 const localeSwitcher = document.getElementById("localeSwitcher");
@@ -5120,11 +5197,18 @@ if (mobileHelpButton) {
 
 if (mobileLangButton) {
     mobileLangButton.addEventListener("click", () => {
-        closeMobileMenu();
-        document.getElementById("localeDropdown").hidden = false;
-        document.getElementById("localeSwitcher").scrollIntoView({ behavior: "smooth", block: "center" });
+        const list = document.getElementById("mobileLocaleList");
+        if (list) list.hidden = !list.hidden;
     });
 }
+
+document.getElementById("mobileLocaleList")?.addEventListener("click", event => {
+    const btn = event.target.closest("[data-locale-key]");
+    if (!btn) return;
+    applyLocale(btn.dataset.localeKey);
+    document.getElementById("mobileLocaleList").hidden = true;
+    closeMobileMenu();
+});
 
 document.addEventListener("click", event => {
     const navBtn = event.target.closest("[data-mobile-nav]");
