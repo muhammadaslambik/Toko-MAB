@@ -3274,3 +3274,15 @@ img.review-media-item { cursor: pointer; }
 @media (max-width: 760px) {
     .locale-dropdown { right: auto; left: 0; }
 }
+
+
+/* =========================================================
+   TAHAP 4 (revisi): DAFTAR BAHASA/MATA UANG DI MENU MOBILE
+   ========================================================= */
+
+.mobile-locale-list {
+    display: grid; gap: 4px; margin: 0 0 4px 0; padding: 8px;
+    background: #f6f8f7; border-radius: 10px; max-height: 260px; overflow-y: auto;
+}
+.mobile-locale-list .locale-option { padding: 10px 12px; }
+.mobile-locale-list .locale-option.active { background: #0f3d2e; color: #fff; }
